@@ -1,11 +1,12 @@
 import { Card, ProgressBar } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import { getProgress, isMastered } from '../storage'
+import { useProgress } from '../hooks/useProgress'
+import { isMastered } from '../storage'
 
 // A dashboard-style card: coloured cover, title, subtitle, mastered progress.
 function CourseCard({ cover, title, subtitle, color, items, to }) {
   const navigate = useNavigate()
-  const progress = getProgress()
+  const { progress } = useProgress()
   const mastered = items.filter((i) => isMastered(progress, i.id)).length
   const pct = items.length ? Math.round((mastered / items.length) * 100) : 0
   return (

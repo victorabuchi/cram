@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import NavBar from './components/NavBar.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -11,10 +12,23 @@ import Progress from './pages/Progress.jsx'
 import Glossary from './pages/Glossary.jsx'
 
 function App() {
+  const mainRef = useRef(null)
+  const { pathname } = useLocation()
+  const firstRender = useRef(true)
+
+  // After a route change, move focus to the page content so keyboard and screen-reader users
+  // do not stay on the link they clicked. Skipped on the initial load.
+  useEffect(() => {
+    if (firstRender.current) firstRender.current = false
+    else mainRef.current?.focus({ preventScroll: true })
+    window.scrollTo(0, 0)
+  }, [pathname])
+
   return (
     <>
+      <a href="#main" className="visually-hidden-focusable skip-link" onClick={(e) => { e.preventDefault(); mainRef.current?.focus() }}>Skip to content</a>
       <NavBar />
-      <main className="container py-4">
+      <main id="main" ref={mainRef} tabIndex={-1} className="container py-4">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/s/:subjectId" element={<Subject />} />

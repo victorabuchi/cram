@@ -1,12 +1,12 @@
-// localStorage can throw (private windows), so every access is wrapped.
-const read = (key, fallback) => {
+// Pure helpers plus guarded localStorage access (it can throw in private windows).
+export const read = (key, fallback) => {
   try {
     return JSON.parse(localStorage.getItem(key)) ?? fallback
   } catch {
     return fallback
   }
 }
-const write = (key, value) => {
+export const write = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch {
@@ -14,48 +14,30 @@ const write = (key, value) => {
   }
 }
 
-const KEY_PROGRESS = 'scribletics_progress'
-const KEY_DAYS = 'scribletics_days'
+export const KEY_PROGRESS = 'scribletics_progress'
+export const KEY_DAYS = 'scribletics_days'
 const DAY = 86400000
 const INTERVALS = [0, 1, 2, 4, 8, 16] // days until an item is due again, by Leitner box
 
 export const todayKey = (d = new Date()) => d.toISOString().slice(0, 10)
 
-export const getProgress = () => read(KEY_PROGRESS, {})
-export const getDays = () => read(KEY_DAYS, {})
-
-export function recordResult(id, correct) {
-  const progress = getProgress()
-  const item = progress[id] || { box: 0, seen: 0, right: 0 }
-  item.seen++
-  if (correct) {
-    item.right++
-    item.box = Math.min(item.box + 1, INTERVALS.length - 1)
-  } else {
-    item.box = 0
-  }
-  item.due = Date.now() + INTERVALS[item.box] * DAY
-  progress[id] = item
-  write(KEY_PROGRESS, progress)
-
-  const days = getDays()
-  days[todayKey()] = (days[todayKey()] || 0) + 1
-  write(KEY_DAYS, days)
+// Returns a new progress object with one more answer recorded for the item.
+export function applyResult(progress, id, correct, now = Date.now()) {
+  const prev = progress[id] || { box: 0, seen: 0, right: 0 }
+  const box = correct ? Math.min(prev.box + 1, INTERVALS.length - 1) : 0
+  return { ...progress, [id]: { box, seen: prev.seen + 1, right: prev.right + (correct ? 1 : 0), due: now + INTERVALS[box] * DAY } }
 }
 
-export function resetProgress() {
-  write(KEY_PROGRESS, {})
-  write(KEY_DAYS, {})
-}
+export const bumpDay = (days, key = todayKey()) => ({ ...days, [key]: (days[key] || 0) + 1 })
 
 export const isMastered = (progress, id) => (progress[id]?.box || 0) >= 3
-export const isDue = (progress, id) => !progress[id] || progress[id].due <= Date.now()
+export const isDue = (progress, id, now = Date.now()) => !progress[id] || progress[id].due <= now
 
-export function streak(days = getDays()) {
+export function streak(days, now = new Date()) {
   let s = 0
-  for (let d = new Date(); ; d = new Date(d - DAY)) {
+  for (let d = new Date(now); ; d = new Date(d - DAY)) {
     if (days[todayKey(d)]) s++
-    else if (todayKey(d) === todayKey()) continue // today not done yet does not break the streak
+    else if (todayKey(d) === todayKey(now)) continue // today not done yet does not break the streak
     else break
   }
   return s

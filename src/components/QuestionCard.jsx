@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Form } from 'react-bootstrap'
 import { shuffle } from '../storage'
 
@@ -14,6 +14,12 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
   const [stage, setStage] = useState(0) // 0 answering, 1 model answer shown (explain), 2 finished
   const [ticks, setTicks] = useState([])
   const [feedback, setFeedback] = useState(null)
+  const submitRef = useRef(null)
+
+  // Once the answer is checked, focus the button so Enter continues to the next question.
+  useEffect(() => {
+    if (stage === 2) submitRef.current?.focus()
+  }, [stage])
 
   const title = item.kind === 'mcq' || item.kind === 'explain' ? item.q : item.title
   const norm = (x) => x.trim().replace(/\s+/g, ' ')
@@ -115,12 +121,12 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
       )}
 
       {item.kind === 'mcq' && (
-        <div className="d-grid gap-2 my-3">
+        <div className="d-grid gap-2 my-3" role="group" aria-label="Answer options">
           {options.map((o) => {
             let variant = chosen === o ? 'primary' : 'outline-secondary'
             if (locked) variant = o.ok ? 'success' : chosen === o ? 'danger' : 'outline-secondary'
             return (
-              <Button key={o.t} type="button" variant={variant} className="opt-btn" disabled={locked} onClick={() => setChosen(o)}>
+              <Button key={o.t} type="button" aria-pressed={chosen === o} variant={variant} className="opt-btn" disabled={locked} onClick={() => setChosen(o)}>
                 {o.t}
               </Button>
             )
@@ -159,7 +165,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
         </Alert>
       )}
 
-      <Button type="submit">{buttonLabel}</Button>
+      <Button type="submit" ref={submitRef}>{buttonLabel}</Button>
 
       {feedback && (
         <Alert variant={feedback.ok ? 'success' : 'danger'} className="mt-3">

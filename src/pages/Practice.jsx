@@ -1,18 +1,19 @@
-import { useState } from 'react'
+import { useReducer, useState } from 'react'
 import { Accordion, Button, Form, ProgressBar } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { KIND_NAMES, TOPICS, topicsIn } from '../data/content'
-import { getProgress, isDue, recordResult, shuffle } from '../storage'
+import { useProgress } from '../hooks/useProgress'
+import { isDue, shuffle } from '../storage'
+import { isFinished, sessionReducer } from '../reducers/session'
 import { useScope } from '../useScope'
 
 const SESSION_SIZE = 10
 
 // Due and new questions first, lowest Leitner box first; then shuffled for variety.
-function pickItems(pool) {
-  const progress = getProgress()
+function pickItems(pool, progress) {
   const byBox = (a) => shuffle(a).sort((x, y) => (progress[x.id]?.box ?? -1) - (progress[y.id]?.box ?? -1))
   const due = pool.filter((d) => isDue(progress, d.id))
   const rest = pool.filter((d) => !due.includes(d))
@@ -24,12 +25,13 @@ function Practice() {
   const topics = topicsIn(items)
   const [selected, setSelected] = useState(topics)
   const [withExplain, setWithExplain] = useState(true)
-  const [session, setSession] = useState(null) // { items, index, right, wrong }
+  const [session, dispatch] = useReducer(sessionReducer, null)
+  const { progress, record } = useProgress()
   if (!valid) return <Navigate to="/" replace />
 
   const start = () => {
     const pool = items.filter((d) => selected.includes(d.topic) && (withExplain || d.kind !== 'explain'))
-    if (pool.length) setSession({ items: pickItems(pool), index: 0, right: 0, wrong: [] })
+    if (pool.length) dispatch({ type: 'start', items: pickItems(pool, progress) })
   }
 
   const crumbs = <Crumbs subjectId={subjectId} week={week} current="Practice" />
@@ -53,7 +55,7 @@ function Practice() {
     )
   }
 
-  if (session.index >= session.items.length) {
+  if (isFinished(session)) {
     return (
       <>
         {crumbs}
@@ -72,7 +74,7 @@ function Practice() {
             </Accordion.Item>
           ))}
         </Accordion>
-        <Button onClick={() => setSession(null)}>Another session</Button>
+        <Button onClick={() => dispatch({ type: 'end' })}>Another session</Button>
       </>
     )
   }
@@ -92,11 +94,10 @@ function Practice() {
         instant
         lastLabel={isLast ? 'Finish' : 'Next'}
         onScore={(score) => {
-          const ok = score >= 0.7
-          recordResult(item.id, ok)
-          setSession((s) => ({ ...s, right: s.right + (ok ? 1 : 0), wrong: ok ? s.wrong : [...s.wrong, item] }))
+          record(item.id, score >= 0.7)
+          dispatch({ type: 'answer', item, score })
         }}
-        onNext={() => setSession((s) => ({ ...s, index: s.index + 1 }))}
+        onNext={() => dispatch({ type: 'next' })}
       />
     </>
   )

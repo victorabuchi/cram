@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useReducer, useState } from 'react'
 import { Accordion, Alert, Button, Form, ProgressBar } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -6,7 +6,9 @@ import Crumbs from '../components/Crumbs.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { topicsIn } from '../data/content'
-import { recordResult, shuffle } from '../storage'
+import { useProgress } from '../hooks/useProgress'
+import { shuffle } from '../storage'
+import { isFinished, sessionReducer } from '../reducers/session'
 import { useScope } from '../useScope'
 
 const MOCK_MCQ = 20
@@ -17,7 +19,8 @@ function Mock() {
   const { subjectId, week, valid, items, label } = useScope()
   const setTopics = topicsIn(items.filter((d) => d.kind === 'mcq' || d.kind === 'explain'))
   const [selected, setSelected] = useState(setTopics)
-  const [mock, setMock] = useState(null) // { items, index, results }
+  const [mock, dispatch] = useReducer(sessionReducer, null)
+  const { record } = useProgress()
   const [ticks, setTicks] = useState({}) // explain id -> boolean[]
   const [saved, setSaved] = useState(false)
   if (!valid) return <Navigate to="/" replace />
@@ -29,7 +32,7 @@ function Mock() {
     const mcq = shuffle(pool.filter((d) => d.kind === 'mcq')).slice(0, MOCK_MCQ)
     const exp = shuffle(pool.filter((d) => d.kind === 'explain')).slice(0, MOCK_EXPLAIN)
     if (!mcq.length && !exp.length) return
-    setMock({ items: [...mcq, ...exp], index: 0, results: {} })
+    dispatch({ type: 'start', items: [...mcq, ...exp] })
     setTicks(Object.fromEntries(exp.map((i) => [i.id, i.keyPoints.map(() => false)])))
     setSaved(false)
   }
@@ -47,7 +50,7 @@ function Mock() {
     )
   }
 
-  if (mock.index < mock.items.length) {
+  if (!isFinished(mock)) {
     const item = mock.items[mock.index]
     const isLast = mock.index + 1 >= mock.items.length
     return (
@@ -62,8 +65,8 @@ function Mock() {
           item={item}
           instant={false}
           lastLabel={isLast ? 'Finish test' : 'Next question'}
-          onScore={(score, detail) => setMock((m) => ({ ...m, results: { ...m.results, [item.id]: { score, ...detail } } }))}
-          onNext={() => setMock((m) => ({ ...m, index: m.index + 1 }))}
+          onScore={(score, detail) => dispatch({ type: 'answer', item, score, detail })}
+          onNext={() => dispatch({ type: 'next' })}
         />
       </>
     )
@@ -80,8 +83,8 @@ function Mock() {
 
   // Multiple-choice results go into progress once, when the test finishes; open questions on request.
   const saveAll = () => {
-    mcqs.forEach((i) => recordResult(i.id, mock.results[i.id]?.score === 1))
-    exps.forEach((i) => recordResult(i.id, ticks[i.id].filter(Boolean).length / ticks[i.id].length >= 0.7))
+    mcqs.forEach((i) => record(i.id, mock.results[i.id]?.score === 1))
+    exps.forEach((i) => record(i.id, ticks[i.id].filter(Boolean).length / ticks[i.id].length >= 0.7))
     setSaved(true)
     toast.success('Results saved to your progress')
   }
@@ -142,7 +145,7 @@ function Mock() {
 
       <div className="d-flex gap-2">
         <Button variant="outline-primary" onClick={saveAll} disabled={saved}>{saved ? 'Saved to progress' : 'Save results to my progress'}</Button>
-        <Button onClick={() => setMock(null)}>New practice test</Button>
+        <Button onClick={() => dispatch({ type: 'end' })}>New practice test</Button>
       </div>
     </>
   )
