@@ -1,5 +1,5 @@
 import webprog from './content.json'
-import bmc from './bmc.json'
+import bmc from './bmc/index.js'
 import { getSubject } from './subjects'
 
 // One data file per subject, each { topics, learn, questions }. Topic keys must be unique across subjects.

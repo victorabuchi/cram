@@ -10,6 +10,7 @@ import Practice from './pages/Practice.jsx'
 import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
 import Glossary from './pages/Glossary.jsx'
+import AutomataLab from './pages/AutomataLab.jsx'
 
 function App() {
   const mainRef = useRef(null)
@@ -38,6 +39,7 @@ function App() {
           <Route path="/s/:subjectId/:week/mock" element={<Mock />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/glossary" element={<Glossary />} />
+          <Route path="/automata" element={<AutomataLab />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

@@ -12,6 +12,7 @@ function NavBar() {
             <Nav.Link as={NavLink} to="/" end>Dashboard</Nav.Link>
             <Nav.Link as={NavLink} to="/progress">Progress</Nav.Link>
             <Nav.Link as={NavLink} to="/glossary">Glossary</Nav.Link>
+            <Nav.Link as={NavLink} to="/automata">Automata lab</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

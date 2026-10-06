@@ -4,6 +4,8 @@ import { Navigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Crumbs from '../components/Crumbs.jsx'
 import Meter from '../components/Meter.jsx'
+import Automaton from '../components/Automaton.jsx'
+import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { topicsIn } from '../data/content'
@@ -109,10 +111,12 @@ function Mock() {
                 <Accordion.Header>{i.q}</Accordion.Header>
                 <Accordion.Body>
                   {i.code && <pre className="code"><code>{i.code}</code></pre>}
+                  {i.automaton && <Automaton automaton={i.automaton} />}
                   <strong>Your answer</strong>
                   <p className="border-start border-3 ps-3 text-body-secondary" style={{ whiteSpace: 'pre-wrap' }}>{mock.results[i.id]?.text?.trim() || '(empty)'}</p>
                   <strong>Model answer</strong>
                   <p>{i.model}</p>
+                  {i.modelAutomaton && <AutomatonPlayer automaton={i.modelAutomaton} />}
                   {i.keyPoints.map((k, n) => (
                     <Form.Check
                       key={k}
@@ -137,6 +141,7 @@ function Mock() {
             <Accordion.Header>{i.q}</Accordion.Header>
             <Accordion.Body>
               {i.code && <pre className="code"><code>{i.code}</code></pre>}
+              {i.automaton && <Automaton automaton={i.automaton} />}
               <p className="border-start border-3 ps-3 text-body-secondary">You answered: {mock.results[i.id]?.chosen ?? '(nothing)'}</p>
               <p className="mb-0">Correct: {i.options[0]}{i.why ? ` (${i.why})` : ''}</p>
             </Accordion.Body>

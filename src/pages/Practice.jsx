@@ -3,6 +3,7 @@ import { Accordion, Button, Form } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import Meter from '../components/Meter.jsx'
+import Automaton from '../components/Automaton.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { KIND_NAMES, TOPICS, topicsIn } from '../data/content'
@@ -68,6 +69,7 @@ function Practice() {
               <Accordion.Header>{w.q || w.title}</Accordion.Header>
               <Accordion.Body>
                 {w.code && <pre className="code"><code>{w.code.replace(/\{\{\d+\}\}/g, '___')}</code></pre>}
+                {w.automaton && <Automaton automaton={w.automaton} />}
                 <p className="mb-0">
                   {w.kind === 'mcq' ? `Answer: ${w.options[0]}${w.why ? ` (${w.why})` : ''}` : w.kind === 'explain' ? w.model : `Answer: ${w.answers.map((a) => (Array.isArray(a) ? a[0] : a)).join(' · ')}`}
                 </p>

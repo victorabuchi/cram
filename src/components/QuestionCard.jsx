@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Form } from 'react-bootstrap'
 import { shuffle } from '../storage'
+import Automaton from './Automaton.jsx'
+import AutomatonPlayer from './AutomatonPlayer.jsx'
 
 // One question of any kind (fill, predict, mcq, explain).
 // instant=true: feedback after checking (practice). instant=false: none (practice test).
@@ -104,6 +106,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
     <Form onSubmit={submit}>
       <h2 className="h5">{title}</h2>
       {item.code && <pre className="code"><code>{codeBody}</code></pre>}
+      {item.automaton && <Automaton automaton={item.automaton} />}
 
       {item.kind === 'predict' && (
         <Form.Control
@@ -151,6 +154,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
         <Alert variant="light" className="border" role="region" aria-label="Model answer">
           <strong>Model answer</strong>
           <p>{item.model}</p>
+          {item.modelAutomaton && <AutomatonPlayer automaton={item.modelAutomaton} />}
           <strong>Tick the points your answer covered:</strong>
           {item.keyPoints.map((k, i) => (
             <Form.Check

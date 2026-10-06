@@ -48,10 +48,14 @@ describe('subjects', () => {
     screen.getAllByRole('link', { name: /Week \d/ }).forEach((card) => expect(within(card).getAllByRole('img').length).toBeGreaterThan(0))
   })
 
-  it('shows an empty state for a course without weeks yet', () => {
+  it('has the first week of Basic Models of Computation with its diagrams', async () => {
+    const user = userEvent.setup()
     renderApp('/s/bmc')
-    expect(screen.getByText(/No weeks yet/)).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /Learn all weeks/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /Week 1/ }))
+    expect(await screen.findByRole('heading', { name: /Deterministic finite automata/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /Learn/ }))
+    await user.click(screen.getByRole('button', { name: /What a DFA is/ }))
+    expect(screen.getAllByRole('img', { name: /Finite automaton with states A, B/ }).length).toBeGreaterThan(0)
   })
 })
 

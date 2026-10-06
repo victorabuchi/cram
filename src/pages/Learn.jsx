@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Accordion, Button } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
+import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import TermModal from '../components/TermModal.jsx'
 import { TOPICS } from '../data/content'
 import { findTerms } from '../data/terms'
@@ -22,13 +23,14 @@ function Learn() {
           <h2 className="h5" id={`topic-${topic}`}>{TOPICS[topic]}</h2>
           <Accordion alwaysOpen>
             {learn.filter((c) => c.topic === topic).map((c, i) => {
-              const terms = findTerms(c.title, c.text).slice(0, 8)
+              const terms = c.subject === 'webprog' ? findTerms(c.title, c.text).slice(0, 8) : [] // the term list is for Web Programming I
               return (
                 <Accordion.Item eventKey={String(i)} key={c.title}>
                   <Accordion.Header>{c.title}</Accordion.Header>
                   <Accordion.Body>
                     <p>{c.text}</p>
-                    <pre className="code" tabIndex={0} aria-label={`Code example: ${c.title}`}><code>{c.code}</code></pre>
+                    {c.code && <pre className="code" tabIndex={0} aria-label={`Code example: ${c.title}`}><code>{c.code}</code></pre>}
+                    {c.automaton && <AutomatonPlayer automaton={c.automaton} tryThese={c.tryThese} />}
                     {terms.length > 0 && (
                       <div className="d-flex flex-wrap align-items-center gap-2">
                         <span className="small text-body-secondary">Look up:</span>

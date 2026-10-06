@@ -33,7 +33,7 @@ export const SUBJECTS = [
     title: 'Basic Models of Computation',
     org: 'School of Computing',
     logos: [logo(automaton, 'Finite automaton')],
-    weeks: [], // course materials are added week by week
+    weeks: [{ n: 1, title: 'Deterministic finite automata (DFA)', logos: [logo(automaton, 'Finite automaton')] }], // more weeks are added as the materials arrive
   },
 ]
 
