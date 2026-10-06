@@ -2,6 +2,7 @@ import automaton from '../assets/logos/automaton.svg'
 import bootstrap from '../assets/logos/bootstrap.svg'
 import css from '../assets/logos/css.svg'
 import git from '../assets/logos/git.svg'
+import copilot from '../assets/logos/githubcopilot.svg'
 import github from '../assets/logos/github.svg'
 import html5 from '../assets/logos/html5.svg'
 import javascript from '../assets/logos/javascript.svg'
@@ -28,6 +29,7 @@ export const SUBJECTS = [
       { n: 3, title: 'Accessibility + Bootstrap', logos: [logo(bootstrap, 'Bootstrap')] },
       { n: 4, title: 'JavaScript I + II: DOM, libraries, async, REST, fetch', logos: [logo(javascript, 'JavaScript'), logo(json, 'JSON')] },
       { n: 5, title: 'React basics', logos: [logo(react, 'React')] },
+      { n: 6, title: 'Programming with AI + AI assignment', logos: [logo(copilot, 'GitHub Copilot')] },
     ],
   },
   {

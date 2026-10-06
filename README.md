@@ -57,7 +57,7 @@ npm test         # unit and integration tests (Vitest)
 
 ## Adding a course or a week
 
-- A **course** is an entry in `SUBJECTS` in `src/data/subjects.js` (title, logos, weeks) plus a data source listed in `src/data/content.js`, shaped `{ topics, learn, questions }`. Web Programming I uses `src/data/content.json`; *Basic Models of Computation* uses `src/data/bmc/` (one `weekN.js` per week, merged in `index.js`).
+- A **course** is an entry in `SUBJECTS` in `src/data/subjects.js` (title, logos, weeks) plus a data source listed in `src/data/content.js`, shaped `{ topics, learn, questions }`. Web Programming I uses `src/data/content.json` (weeks 1-5) and `src/data/webprog/week6.js`; *Basic Models of Computation* uses `src/data/bmc/` (one `weekN.js` per week, merged in `index.js`).
 - A course can list `tools` in `SUBJECTS`: extra pages that appear in the top bar while you are inside that course (Glossary for Web Programming I, Automata lab for Basic Models of Computation).
 - A **week** is an entry in that subject's `weeks` list (`n`, `title`, `logos`) plus learn cards and questions tagged `subject` and `week`. Topic keys must be unique across courses, and question ids must be unique everywhere.
 - **Automaton diagrams** are written as text (see the syntax help in the Automata lab) and put on a learn card or question as `automaton`. Design questions can add `modelAutomaton` for the model solution. Answers to "which state does it end in" questions are computed from the automaton, and `src/data/bmc/automata.test.js` checks every exercise automaton against the language it should accept.

@@ -1,9 +1,10 @@
 import webprog from './content.json'
 import bmc from './bmc/index.js'
+import * as webprogWeek6 from './webprog/week6.js'
 import { getSubject } from './subjects'
 
 // One data file per subject, each { topics, learn, questions }. Topic keys must be unique across subjects.
-const SOURCES = [webprog, bmc]
+const SOURCES = [webprog, webprogWeek6, bmc]
 
 export const TOPICS = Object.assign({}, ...SOURCES.map((s) => s.topics))
 export const LEARN = SOURCES.flatMap((s) => s.learn)

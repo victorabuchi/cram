@@ -43,6 +43,16 @@ export const TERMS = [
   { label: 'JSX', wiki: 'JSX_(JavaScript)', words: ['jsx'], week: 5 },
   { label: 'Virtual DOM', wiki: 'Virtual_DOM', words: ['virtual dom'], week: 5 },
   { label: 'Single-page application', wiki: 'Single-page_application', words: ['spa', 'single-page'], week: 5 },
+  { label: 'Large language model', wiki: 'Large_language_model', words: ['llm', 'llms', 'large language model'], week: 6 },
+  { label: 'Chatbot', wiki: 'Chatbot', words: ['chatbot', 'chatbots'], week: 6 },
+  { label: 'GitHub Copilot', wiki: 'GitHub_Copilot', words: ['copilot'], week: 6 },
+  { label: 'Prompt engineering', wiki: 'Prompt_engineering', words: ['prompt engineering', 'prompting'], week: 6 },
+  { label: 'Vibe coding', wiki: 'Vibe_coding', words: ['vibe coding', 'vibe coders'], week: 6 },
+  { label: 'AI slop', wiki: 'AI_slop', words: ['ai slop'], week: 6 },
+  { label: 'Cursor', wiki: 'Cursor_(code_editor)', words: ['cursor'], week: 6 },
+  { label: 'Replit', wiki: 'Replit', words: ['replit'], week: 6 },
+  { label: 'Integrated development environment', wiki: 'Integrated_development_environment', words: ['ide', 'ides'], week: 6 },
+  { label: 'Visual Studio Code', wiki: 'Visual_Studio_Code', words: ['vs code', 'visual studio code'], week: 6 },
 ]
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
