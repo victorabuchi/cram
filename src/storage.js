@@ -28,6 +28,11 @@ export function applyResult(progress, id, correct, now = Date.now()) {
   return { ...progress, [id]: { box, seen: prev.seen + 1, right: prev.right + (correct ? 1 : 0), due: now + INTERVALS[box] * DAY } }
 }
 
+// Study days used to be one map for everything ({ date: count }); now they are kept per course
+// ({ courseId: { date: count } }). Old data belongs to Web Programming I, the only course then.
+export const migrateDays = (raw) =>
+  Object.values(raw).some((v) => typeof v === 'number') ? { webprog: raw } : raw
+
 export const bumpDay = (days, key = todayKey()) => ({ ...days, [key]: (days[key] || 0) + 1 })
 
 export const isMastered = (progress, id) => (progress[id]?.box || 0) >= 3

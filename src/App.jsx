@@ -39,7 +39,8 @@ function App() {
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/practice" element={<Practice />} />
           <Route path="/s/:subjectId/:week/mock" element={<Mock />} />
-          <Route path="/progress" element={<Progress />} />
+          <Route path="/s/:subjectId/progress" element={<Progress />} />
+          <Route path="/progress" element={<Navigate to="/" replace />} />
           <Route path="/glossary" element={<Navigate to="/s/webprog/glossary" replace />} />
           <Route path="/automata" element={<Navigate to="/s/bmc/automata" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

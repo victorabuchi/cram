@@ -21,8 +21,8 @@ describe('navigation', () => {
 
   it('moves focus to the page content after a route change', async () => {
     const user = userEvent.setup()
-    renderApp('/')
-    await user.click(screen.getByRole('link', { name: 'Progress' }))
+    renderApp('/s/webprog')
+    await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Progress' }))
     expect(screen.getByRole('main')).toHaveFocus()
   })
 
@@ -62,9 +62,10 @@ describe('subjects', () => {
 describe('course tools in the top bar', () => {
   const nav = () => within(screen.getByRole('navigation', { name: 'Main' }))
 
-  it('shows only Dashboard and Progress outside a course', () => {
+  it('shows only the Dashboard outside a course', () => {
     renderApp('/')
     expect(nav().getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(nav().queryByRole('link', { name: 'Progress' })).not.toBeInTheDocument()
     expect(nav().queryByRole('link', { name: 'Glossary' })).not.toBeInTheDocument()
     expect(nav().queryByRole('link', { name: 'Automata lab' })).not.toBeInTheDocument()
   })
@@ -220,20 +221,45 @@ describe('Glossary', () => {
   })
 })
 
-describe('Progress page', () => {
-  it('reads from the shared progress and can reset it', async () => {
+describe('Progress page (one per course)', () => {
+  it('counts only this course and resets only this course', async () => {
     const user = userEvent.setup()
-    localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 } }))
-    renderApp('/progress')
+    localStorage.setItem('scribletics_progress', JSON.stringify({
+      'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 },
+      'bmc1-c1': { box: 4, seen: 2, right: 2, due: 0 },
+    }))
+    renderApp('/s/webprog/progress')
     expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^1\//)
     vi.spyOn(window, 'confirm').mockReturnValue(true)
-    await user.click(screen.getByRole('button', { name: 'Reset all progress' }))
+    await user.click(screen.getByRole('button', { name: 'Reset progress in this course' }))
     expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\//)
+    expect(JSON.parse(localStorage.getItem('scribletics_progress'))).toEqual({ 'bmc1-c1': expect.objectContaining({ box: 4 }) })
+  })
+
+  it('shows Basic Models of Computation on its own', () => {
+    localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 } }))
+    renderApp('/s/bmc/progress')
+    expect(screen.getByRole('heading', { name: /Progress/ })).toHaveTextContent('Basic Models of Computation')
+    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/55$/)
+  })
+
+  it('keeps study days per course, and moves old single-course data to Web Programming I', () => {
+    localStorage.setItem('scribletics_days', JSON.stringify({ [new Date().toISOString().slice(0, 10)]: 4 }))
+    const { unmount } = renderApp('/s/webprog/progress')
+    expect(screen.getByText('answered today').previousSibling).toHaveTextContent('4')
+    unmount()
+    renderApp('/s/bmc/progress')
+    expect(screen.getByText('answered today').previousSibling).toHaveTextContent('0')
+  })
+
+  it('sends the old global address to the dashboard', () => {
+    renderApp('/progress')
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   })
 })
 
 describe('accessibility (axe)', () => {
-  const routes = ['/', '/s/webprog', '/s/webprog/5', '/s/webprog/5/learn', '/s/webprog/5/practice', '/s/webprog/5/mock', '/progress', '/s/webprog/glossary']
+  const routes = ['/', '/s/webprog', '/s/webprog/5', '/s/webprog/5/learn', '/s/webprog/5/practice', '/s/webprog/5/mock', '/s/webprog/progress', '/s/bmc/progress', '/s/webprog/glossary']
   it.each(routes)('has no detectable violations on %s', async (route) => {
     fakeWikipedia(REACT_PAGE)
     const { container } = renderApp(route)

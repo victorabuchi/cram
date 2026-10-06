@@ -13,7 +13,7 @@ Course content is summarised from lectures for the *Web Programming I* course.
 | `/s/:subject/:week/learn` | Lecture summaries with code examples |
 | `/s/:subject/:week/practice` | Practice sessions: wrong answers come back sooner (Leitner boxes) |
 | `/s/:subject/:week/mock` | Practice test scored out of 30, with self-graded open questions |
-| `/progress` | Charts and per-week progress |
+| `/s/:subject/progress` | Progress of one course: charts and per-week progress (each course has its own) |
 | `/s/bmc/automata` | Basic Models of Computation only. Automata lab: type an automaton as text, get a JFLAP-style diagram, step through inputs, test many strings, download SVG / PNG / `.jff` |
 | `/s/webprog/glossary` | Web Programming I only. Search any term live on Wikipedia, browse course terms by week, save terms with your own notes |
 
