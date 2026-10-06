@@ -12,6 +12,7 @@ Course content is summarised from lectures for the *Web Programming I* course.
 | `/s/:subject` and `/s/:subject/:week` | Subject page with its weeks, and a week page |
 | `/s/:subject/:week/learn` | Lecture summaries with code examples |
 | `/s/:subject/:week/practice` | Practice sessions: wrong answers come back sooner (Leitner boxes) |
+| `/s/:subject/:week/code` | Code exercises (write a function, run the tests), for weeks that have them |
 | `/s/:subject/:week/mock` | Practice test scored out of 30, with self-graded open questions |
 | `/s/:subject/progress` | Progress of one course: charts and per-week progress (each course has its own) |
 | `/s/bmc/automata` | Basic Models of Computation only. Automata lab: type an automaton as text, get a JFLAP-style diagram, step through inputs, test many strings, download SVG / PNG / `.jff` |
@@ -57,7 +58,7 @@ npm test         # unit and integration tests (Vitest)
 
 ## Adding a course or a week
 
-- A **course** is an entry in `SUBJECTS` in `src/data/subjects.js` (title, logos, weeks) plus a data source listed in `src/data/content.js`, shaped `{ topics, learn, questions }`. Web Programming I uses `src/data/content.json` (weeks 1-5) and `src/data/webprog/week6.js`; *Basic Models of Computation* uses `src/data/bmc/` (one `weekN.js` per week, merged in `index.js`).
+- A **course** is an entry in `SUBJECTS` in `src/data/subjects.js` (title, logos, weeks) plus a data source listed in `src/data/content.js`, shaped `{ topics, learn, questions }`. Web Programming I uses `src/data/content.json` (weeks 1-5) `src/data/webprog/jsSyntax.js` (code exercises) and `src/data/webprog/week6.js`; *Basic Models of Computation* uses `src/data/bmc/` (one `weekN.js` per week, merged in `index.js`).
 - A course can list `tools` in `SUBJECTS`: extra pages that appear in the top bar while you are inside that course (Glossary for Web Programming I, Automata lab for Basic Models of Computation).
 - A **week** is an entry in that subject's `weeks` list (`n`, `title`, `logos`) plus learn cards and questions tagged `subject` and `week`. Topic keys must be unique across courses, and question ids must be unique everywhere.
 - **Automaton diagrams** are written as text (see the syntax help in the Automata lab) and put on a learn card or question as `automaton`. Design questions can add `modelAutomaton` for the model solution. Answers to "which state does it end in" questions are computed from the automaton, and `src/data/bmc/automata.test.js` checks every exercise automaton against the language it should accept.

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Subject from './pages/Subject.jsx'
 import WeekHub from './pages/WeekHub.jsx'
 import Learn from './pages/Learn.jsx'
+import CodeExercises from './pages/CodeExercises.jsx'
 import Practice from './pages/Practice.jsx'
 import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
@@ -37,6 +38,7 @@ function App() {
           <Route path="/s/bmc/automata" element={<AutomataLab />} />
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
+          <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
           <Route path="/s/:subjectId/:week/practice" element={<Practice />} />
           <Route path="/s/:subjectId/:week/mock" element={<Mock />} />
           <Route path="/s/:subjectId/progress" element={<Progress />} />

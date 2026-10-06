@@ -19,7 +19,8 @@ const MOCK_EXPLAIN = 3
 const EXPLAIN_POINTS = 3
 
 function Mock() {
-  const { subjectId, week, valid, items, label } = useScope()
+  const { subjectId, week, valid, items: allItems, label } = useScope()
+  const items = allItems.filter((i) => i.kind !== 'code') // the test has no coding questions
   const setTopics = topicsIn(items.filter((d) => d.kind === 'mcq' || d.kind === 'explain'))
   const [selected, setSelected] = useState(setTopics)
   const [mock, dispatch] = useReducer(sessionReducer, null)

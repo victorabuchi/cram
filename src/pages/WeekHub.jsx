@@ -16,14 +16,18 @@ function WeekHub() {
   const w = subject?.weeks.find((x) => x.n === Number(week))
   if (!subject || !w) return <Navigate to={subject ? `/s/${subjectId}` : '/'} replace />
 
-  const topics = topicsIn(scopedItems(subjectId, week)).map((k) => TOPICS[k])
+  const scoped = scopedItems(subjectId, week)
+  const topics = topicsIn(scoped).map((k) => TOPICS[k])
+  const tools = scoped.some((i) => i.kind === 'code')
+    ? [...TOOLS, { path: 'code', title: 'Code exercises', text: 'Write the function and run the tests, like the Moodle JavaScript syntax exercise.' }]
+    : TOOLS
   return (
     <>
       <Crumbs subjectId={subjectId} week={week} />
       <h1 className="h3">Week {w.n}: {w.title}</h1>
       <p className="text-body-secondary">Topics: {topics.join(', ') || 'none yet'}</p>
-      <Row xs={1} md={3} className="g-3">
-        {TOOLS.map((t) => (
+      <Row xs={1} md={2} lg={tools.length > 3 ? 4 : 3} className="g-3">
+        {tools.map((t) => (
           <Col key={t.path}>
             <Card as={Link} to={`/s/${subjectId}/${week}/${t.path}`} className="course-card h-100 text-decoration-none">
               <Card.Body>

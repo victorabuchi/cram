@@ -23,7 +23,8 @@ function pickItems(pool, progress) {
 }
 
 function Practice() {
-  const { subjectId, week, valid, items, label } = useScope()
+  const { subjectId, week, valid, items: allItems, label } = useScope()
+  const items = allItems.filter((i) => i.kind !== 'code') // code exercises have their own page
   const topics = topicsIn(items)
   const [selected, setSelected] = useState(topics)
   const [withExplain, setWithExplain] = useState(true)
