@@ -4,36 +4,69 @@ import { shuffle } from '../storage'
 import Automaton from './Automaton.jsx'
 import AutomatonPlayer from './AutomatonPlayer.jsx'
 
+const norm = (x) => x.trim().replace(/\s+/g, ' ')
+
 // One question of any kind (fill, predict, mcq, explain).
-// instant=true: feedback after checking (practice). instant=false: none (practice test).
-// onScore(score 0..1, detail) fires once the answer is final; onNext() moves on.
+//   instant   true: feedback after checking (practice). false: none (practice test).
+//   onScore   (score 0..1, detail) fires once the answer is final; onNext() moves on; onBack() (optional) goes back.
+//   draft     what the student had entered before: { order, chosen, fills, text, ticks, stage }. The card starts from it,
+//             so going back to a question shows it as it was left. onDraft(draft) reports every change.
+//   readOnly  the question as it was answered, with the correct answer shown below (review after an test).
 // The parent gives it key={item.id} so its state resets for each question.
-function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
-  const [options] = useState(() => (item.kind === 'mcq' ? shuffle(item.options.map((t, i) => ({ t, ok: i === 0 }))) : []))
-  const [chosen, setChosen] = useState(null)
-  const [fills, setFills] = useState({})
-  const [text, setText] = useState('')
-  const [stage, setStage] = useState(0) // 0 answering, 1 model answer shown (explain), 2 finished
-  const [ticks, setTicks] = useState([])
-  const [feedback, setFeedback] = useState(null)
+function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext, onBack, draft, onDraft, readOnly = false }) {
+  const [order] = useState(() => draft?.order ?? (item.kind === 'mcq' ? shuffle(item.options) : []))
+  const options = order.map((t) => ({ t, ok: t === item.options[0] }))
+  const [chosenText, setChosenText] = useState(draft?.chosen ?? null)
+  const [fills, setFills] = useState(draft?.fills ?? {})
+  const [text, setText] = useState(draft?.text ?? '')
+  const [stage, setStage] = useState(draft?.stage ?? 0) // 0 answering, 1 model answer shown (explain), 2 finished
+  const [ticks, setTicks] = useState(draft?.ticks ?? [])
   const submitRef = useRef(null)
+  const chosen = options.find((o) => o.t === chosenText) ?? null
+
+  useEffect(() => {
+    onDraft?.({ order, chosen: chosenText, fills, text, ticks, stage })
+  }, [order, chosenText, fills, text, ticks, stage]) // eslint-disable-line -- onDraft only stores the value
 
   // Once the answer is checked, focus the button so Enter continues to the next question.
   useEffect(() => {
-    if (stage === 2) submitRef.current?.focus()
-  }, [stage])
+    if (stage === 2 && !readOnly) submitRef.current?.focus()
+  }, [stage, readOnly])
 
   const title = item.kind === 'mcq' || item.kind === 'explain' ? item.q : item.title
-  const norm = (x) => x.trim().replace(/\s+/g, ' ')
   const fillOk = (i) => item.answers[i].includes((fills[i] || '').trim())
 
-  const finish = (score, lines) => {
-    setStage(2)
-    if (instant) setFeedback({ ok: score >= 0.7, lines })
+  // Score and feedback lines for the current answer. Everything comes from state, so a review shows the same as the first time.
+  const evaluate = () => {
+    const lines = []
+    let score = 0
+    if (item.kind === 'explain') {
+      const got = ticks.filter(Boolean).length
+      score = ticks.length ? got / ticks.length : 0
+      lines.push(`You covered ${got} of ${ticks.length} key points.`)
+    } else if (item.kind === 'fill') {
+      score = item.answers.every((_, i) => fillOk(i)) ? 1 : 0
+      if (!score) lines.push('Answer: ' + item.answers.map((a) => a[0]).join('  ·  '))
+    } else if (item.kind === 'predict') {
+      score = item.answers.map(norm).includes(norm(text)) ? 1 : 0
+      if (!score) lines.push('Answer: ' + item.answers[0])
+    } else if (item.kind === 'mcq') {
+      score = chosen?.ok ? 1 : 0
+      if (item.why) lines.push(item.why)
+    }
+    if (item.kind !== 'explain' && item.note) lines.push(item.note)
+    return { score, lines }
   }
+
+  const done = stage === 2 || readOnly
+  const showFeedback = done && (instant || readOnly) && (item.kind !== 'explain' || ticks.length > 0)
+  const locked = readOnly || (instant && stage > 0)
+  const verdict = showFeedback ? evaluate() : null
+  const feedback = verdict && { ok: verdict.score >= 0.7, lines: verdict.lines, unanswered: item.kind === 'mcq' && !chosen }
 
   const submit = (e) => {
     e.preventDefault()
+    if (readOnly) return
     if (stage === 2) return onNext()
 
     if (item.kind === 'explain') {
@@ -47,32 +80,16 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
         setStage(1)
         return
       }
-      const got = ticks.filter(Boolean).length
-      const score = got / ticks.length
-      onScore(score, { text })
-      return finish(score, [`You covered ${got} of ${ticks.length} key points.`])
+      onScore(evaluate().score, { text })
+      return setStage(2)
     }
 
-    let score = 0
-    const lines = []
-    if (item.kind === 'fill') {
-      score = item.answers.every((_, i) => fillOk(i)) ? 1 : 0
-      if (!score) lines.push('Answer: ' + item.answers.map((a) => a[0]).join('  ·  '))
-    } else if (item.kind === 'predict') {
-      score = item.answers.map(norm).includes(norm(text)) ? 1 : 0
-      if (!score) lines.push('Answer: ' + item.answers[0])
-    } else if (item.kind === 'mcq') {
-      if (!chosen) return
-      score = chosen.ok ? 1 : 0
-      if (item.why) lines.push(item.why)
-    }
-    if (item.note) lines.push(item.note)
-    onScore(score, { chosen: chosen?.t })
+    if (item.kind === 'mcq' && !chosen) return
+    onScore(evaluate().score, { chosen: chosen?.t })
     if (!instant) return onNext()
-    finish(score, lines)
+    setStage(2)
   }
 
-  const locked = instant && stage > 0
   let n = -1
   const codeBody =
     item.kind === 'fill'
@@ -88,11 +105,11 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
               size={Math.max(6, (fills[i] || '').length + 1)}
               value={fills[i] || ''}
               disabled={locked}
-              autoFocus={n === 0}
+              autoFocus={n === 0 && !readOnly}
               spellCheck={false}
               autoComplete="off"
               autoCapitalize="off"
-              className={locked ? (fillOk(i) ? 'ok' : 'bad') : ''}
+              className={done ? (fillOk(i) ? 'ok' : 'bad') : ''}
               onChange={(e) => setFills({ ...fills, [i]: e.target.value })}
             />
           )
@@ -113,12 +130,13 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
           className="mb-3"
           style={{ maxWidth: 420 }}
           placeholder="Type exactly what is printed"
+          aria-label="Your answer"
           value={text}
           disabled={locked}
-          autoFocus
+          autoFocus={!readOnly}
           spellCheck={false}
-          isValid={locked && feedback?.ok}
-          isInvalid={locked && feedback && !feedback.ok}
+          isValid={done && feedback?.ok}
+          isInvalid={done && feedback && !feedback.ok}
           onChange={(e) => setText(e.target.value)}
         />
       )}
@@ -126,11 +144,14 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
       {item.kind === 'mcq' && (
         <div className="d-grid gap-2 my-3" role="group" aria-label="Answer options">
           {options.map((o) => {
-            let variant = chosen === o ? 'primary' : 'outline-secondary'
-            if (locked) variant = o.ok ? 'success' : chosen === o ? 'danger' : 'outline-secondary'
+            const mine = chosen === o
+            let variant = mine ? 'primary' : 'outline-secondary'
+            if (done && showFeedback) variant = o.ok ? 'success' : mine ? 'danger' : 'outline-secondary'
             return (
-              <Button key={o.t} type="button" aria-pressed={chosen === o} variant={variant} className="opt-btn" disabled={locked} onClick={() => setChosen(o)}>
+              <Button key={o.t} type="button" aria-pressed={mine} variant={variant} className="opt-btn" disabled={locked} onClick={() => setChosenText(o.t)}>
                 {o.t}
+                {done && showFeedback && mine && <span className="ms-2 fw-semibold">{o.ok ? '(your answer, correct)' : '(your answer)'}</span>}
+                {done && showFeedback && o.ok && !mine && <span className="ms-2 fw-semibold">(correct answer)</span>}
               </Button>
             )
           })}
@@ -143,37 +164,43 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
           rows={6}
           className="mb-3"
           placeholder="Explain in your own words, as you would in the test…"
+          aria-label="Your answer"
           value={text}
-          disabled={stage > 0 && instant}
+          disabled={locked}
           spellCheck={false}
           onChange={(e) => setText(e.target.value)}
         />
       )}
 
-      {item.kind === 'explain' && instant && stage >= 1 && (
+      {item.kind === 'explain' && (instant || readOnly) && (stage >= 1 || readOnly) && (
         <Alert variant="light" className="border" role="region" aria-label="Model answer">
           <strong>Model answer</strong>
           <p>{item.model}</p>
           {item.modelAutomaton && <AutomatonPlayer automaton={item.modelAutomaton} />}
-          <strong>Tick the points your answer covered:</strong>
+          <strong>{readOnly ? 'Key points:' : 'Tick the points your answer covered:'}</strong>
           {item.keyPoints.map((k, i) => (
             <Form.Check
               key={k}
-              id={`kp-${i}`}
+              id={`kp-${item.id}-${i}`}
               label={k}
               checked={!!ticks[i]}
-              disabled={stage === 2}
+              disabled={readOnly || stage === 2}
               onChange={(e) => setTicks(ticks.map((t, j) => (j === i ? e.target.checked : t)))}
             />
           ))}
         </Alert>
       )}
 
-      <Button type="submit" ref={submitRef}>{buttonLabel}</Button>
+      {!readOnly && (
+        <div className="d-flex gap-2">
+          {onBack && <Button type="button" variant="outline-secondary" onClick={onBack}>Back</Button>}
+          <Button type="submit" ref={submitRef}>{buttonLabel}</Button>
+        </div>
+      )}
 
       {feedback && (
-        <Alert variant={feedback.ok ? 'success' : 'danger'} className="mt-3">
-          <strong>{feedback.ok ? 'Correct!' : 'Not quite.'}</strong>
+        <Alert variant={feedback.unanswered ? 'warning' : feedback.ok ? 'success' : 'danger'} className="mt-3" role={readOnly ? 'region' : 'alert'} aria-label={readOnly ? 'Result' : undefined}>
+          <strong>{feedback.unanswered ? 'Not answered.' : feedback.ok ? 'Correct!' : 'Not quite.'}</strong>
           {feedback.lines.map((l) => <div key={l}>{l}</div>)}
         </Alert>
       )}

@@ -101,6 +101,9 @@ function Practice() {
           dispatch({ type: 'answer', item, score })
         }}
         onNext={() => dispatch({ type: 'next' })}
+        onBack={session.index > 0 ? () => dispatch({ type: 'back' }) : undefined}
+        draft={session.drafts[item.id]}
+        onDraft={(draft) => dispatch({ type: 'draft', id: item.id, draft })}
       />
     </>
   )

@@ -70,6 +70,9 @@ function Mock() {
           lastLabel={isLast ? 'Finish test' : 'Next question'}
           onScore={(score, detail) => dispatch({ type: 'answer', item, score, detail })}
           onNext={() => dispatch({ type: 'next' })}
+          onBack={mock.index > 0 ? () => dispatch({ type: 'back' }) : undefined}
+          draft={mock.drafts[item.id]}
+          onDraft={(draft) => dispatch({ type: 'draft', id: item.id, draft })}
         />
       </>
     )
@@ -108,7 +111,7 @@ function Mock() {
           <Accordion alwaysOpen defaultActiveKey={exps.map((i) => i.id)} className="mb-4">
             {exps.map((i) => (
               <Accordion.Item eventKey={i.id} key={i.id}>
-                <Accordion.Header>{i.q}</Accordion.Header>
+                <Accordion.Header>Question {mock.items.indexOf(i) + 1}: {i.q}</Accordion.Header>
                 <Accordion.Body>
                   {i.code && <pre className="code"><code>{i.code}</code></pre>}
                   {i.automaton && <Automaton automaton={i.automaton} />}
@@ -134,19 +137,25 @@ function Mock() {
         </>
       )}
 
-      <h2 className="h5">{wrong.length ? `Multiple choice: review ${wrong.length} mistake${wrong.length > 1 ? 's' : ''}` : 'Multiple choice: all correct!'}</h2>
+      <h2 className="h5">Multiple choice: every question as you answered it</h2>
+      <p className="text-body-secondary small">
+        {wrong.length ? `${wrong.length} mistake${wrong.length > 1 ? 's are' : ' is'} open below.` : 'All correct!'} Your answer is marked, and the correct answer and the explanation are shown under each question.
+      </p>
       <Accordion alwaysOpen defaultActiveKey={wrong.map((i) => i.id)} className="mb-4">
-        {wrong.map((i) => (
-          <Accordion.Item eventKey={i.id} key={i.id}>
-            <Accordion.Header>{i.q}</Accordion.Header>
-            <Accordion.Body>
-              {i.code && <pre className="code"><code>{i.code}</code></pre>}
-              {i.automaton && <Automaton automaton={i.automaton} />}
-              <p className="border-start border-3 ps-3 text-body-secondary">You answered: {mock.results[i.id]?.chosen ?? '(nothing)'}</p>
-              <p className="mb-0">Correct: {i.options[0]}{i.why ? ` (${i.why})` : ''}</p>
-            </Accordion.Body>
-          </Accordion.Item>
-        ))}
+        {mcqs.map((i) => {
+          const ok = mock.results[i.id]?.score === 1
+          return (
+            <Accordion.Item eventKey={i.id} key={i.id}>
+              <Accordion.Header>
+                <span className={`me-2 fw-semibold ${ok ? 'text-success' : 'text-danger'}`}>{ok ? '✓ Correct' : '✗ Wrong'}</span>
+                Question {mock.items.indexOf(i) + 1}
+              </Accordion.Header>
+              <Accordion.Body>
+                <QuestionCard item={i} instant={false} readOnly draft={mock.drafts[i.id]} />
+              </Accordion.Body>
+            </Accordion.Item>
+          )
+        })}
       </Accordion>
 
       <div className="d-flex gap-2">
