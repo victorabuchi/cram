@@ -1,0 +1,11 @@
+body { background: var(--bs-tertiary-bg); }
+main { max-width: 1000px; }
+pre.code { background: #0f1623; color: #e6edf7; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 14px; margin: 10px 0; }
+pre.code input { font: inherit; background: #fff; color: #111; border: 2px solid #8aa; border-radius: 5px; padding: 0 6px; }
+pre.code input.ok { border-color: #1f8a4c; background: #e6f6ec; }
+pre.code input.bad { border-color: #c92a2a; background: #fdecec; }
+.course-card { cursor: pointer; transition: box-shadow .15s, transform .15s; }
+.course-card:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); transform: translateY(-2px); }
+.course-cover { height: 96px; color: #fff; font-size: 1.75rem; font-weight: 800; display: flex; align-items: flex-end; padding: 12px 16px; }
+.opt-btn { text-align: left; }
+.thumb { max-width: 160px; border-radius: 6px; }
