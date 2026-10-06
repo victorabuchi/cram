@@ -54,6 +54,12 @@ npm test         # unit and integration tests (Vitest)
 2. In the repository go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 3. Every push to `main` runs `.github/workflows/deploy.yml`, which builds the app and publishes it at `https://<your-username>.github.io/<repository-name>/`.
 
+## Adding a course or a week
+
+- A **course** is an entry in `SUBJECTS` in `src/data/subjects.js` (title, logos, weeks) plus a data file shaped `{ topics, learn, questions }` that is listed in `src/data/content.js`. *Basic Models of Computation* is set up this way in `src/data/bmc.json` and waits for its weeks.
+- A **week** is an entry in that subject's `weeks` list (`n`, `title`, `logos`) plus learn cards and questions tagged `"subject": "<id>"` and `"week": <n>`. Topic keys must be unique across courses, and question ids must be unique everywhere.
+- Logos live in `src/assets/logos/` (Simple Icons, CC0, tinted with the brand colour).
+
 ## Adding content
 
-Study items live in `src/data/content.json` (learn cards and questions, each tagged with `topic` and `week`). Subjects and their weeks are listed in `src/data/subjects.js`; add an entry there to get a new card on the dashboard.
+Study items for Web Programming I live in `src/data/content.json`: learn cards and questions, each tagged with `subject`, `topic` and `week`.

@@ -32,6 +32,29 @@ describe('navigation', () => {
   })
 })
 
+describe('subjects', () => {
+  it('lists both courses on the dashboard', () => {
+    renderApp('/')
+    expect(screen.getByRole('link', { name: /Web Programming I/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Basic Models of Computation/ })).toBeInTheDocument()
+  })
+
+  it('shows a logo on each week card', async () => {
+    renderApp('/s/webprog')
+    const week1 = screen.getByRole('link', { name: /Week 1/ })
+    expect(within(week1).getByAltText('HTML')).toBeInTheDocument()
+    expect(within(week1).getByAltText('CSS')).toBeInTheDocument()
+    expect(within(screen.getByRole('link', { name: /Week 5/ })).getByAltText('React')).toBeInTheDocument()
+    screen.getAllByRole('link', { name: /Week \d/ }).forEach((card) => expect(within(card).getAllByRole('img').length).toBeGreaterThan(0))
+  })
+
+  it('shows an empty state for a course without weeks yet', () => {
+    renderApp('/s/bmc')
+    expect(screen.getByText(/No weeks yet/)).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Learn all weeks/ })).not.toBeInTheDocument()
+  })
+})
+
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()

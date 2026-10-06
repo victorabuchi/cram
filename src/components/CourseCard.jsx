@@ -5,7 +5,7 @@ import { useProgress } from '../hooks/useProgress'
 import { isMastered } from '../storage'
 
 // A dashboard-style card: coloured cover, title, subtitle, mastered progress.
-function CourseCard({ cover, title, subtitle, color, items, to }) {
+function CourseCard({ cover, title, subtitle, logos = [], items, to }) {
   const navigate = useNavigate()
   const { progress } = useProgress()
   const mastered = items.filter((i) => isMastered(progress, i.id)).length
@@ -18,7 +18,12 @@ function CourseCard({ cover, title, subtitle, color, items, to }) {
       onClick={() => navigate(to)}
       onKeyDown={(e) => e.key === 'Enter' && navigate(to)}
     >
-      <div className="course-cover" style={{ background: color }}>{cover}</div>
+      <div className="course-cover">
+        {cover && <span className="course-cover-label">{cover}</span>}
+        <div className="course-logos">
+          {logos.map((l) => <img key={l.alt} src={l.src} alt={l.alt} height="44" />)}
+        </div>
+      </div>
       <Card.Body>
         <Card.Title as="h3" className="fs-6">{title}</Card.Title>
         <Card.Subtitle className="text-body-secondary small mb-3">{subtitle}</Card.Subtitle>

@@ -4,7 +4,7 @@ import { Bar } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
 import Meter from '../components/Meter.jsx'
 import { SUBJECTS } from '../data/subjects'
-import { ITEMS } from '../data/content'
+import { ITEMS, scopedItems } from '../data/content'
 import { useProgress } from '../hooks/useProgress'
 import { isMastered, streak, todayKey } from '../storage'
 
@@ -17,7 +17,7 @@ function Progress() {
   const { progress, days, reset: resetAll } = useProgress()
   const weeks = SUBJECTS.flatMap((s) => s.weeks.map((w) => ({ ...w, subject: s })))
   const stats = weeks.map((w) => {
-    const items = ITEMS.filter((i) => i.week === w.n)
+    const items = scopedItems(w.subject.id, w.n)
     const mastered = items.filter((i) => isMastered(progress, i.id)).length
     return { ...w, items, mastered, attempted: items.filter((i) => progress[i.id]).length }
   })

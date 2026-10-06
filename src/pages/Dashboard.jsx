@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-bootstrap'
 import CourseCard from '../components/CourseCard.jsx'
 import { SUBJECTS } from '../data/subjects'
-import { ITEMS } from '../data/content'
+import { scopedItems } from '../data/content'
 
 function Dashboard() {
   return (
@@ -12,11 +12,10 @@ function Dashboard() {
         {SUBJECTS.map((s) => (
           <Col key={s.id}>
             <CourseCard
-              cover={s.title.split(' ').map((w) => w[0]).join('')}
               title={s.title}
-              subtitle={`${s.org} · ${s.weeks.length} weeks`}
-              color={s.color}
-              items={ITEMS.filter((i) => s.weeks.some((w) => w.n === i.week))}
+              subtitle={`${s.org} · ${s.weeks.length} ${s.weeks.length === 1 ? 'week' : 'weeks'}`}
+              logos={s.logos}
+              items={scopedItems(s.id, 'all')}
               to={`/s/${s.id}`}
             />
           </Col>

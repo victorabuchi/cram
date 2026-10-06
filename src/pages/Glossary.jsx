@@ -3,7 +3,7 @@ import { Accordion, Alert, Badge, Button, Card, Form, InputGroup, ListGroup, Spi
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { searchTitles } from '../api/wikipedia'
-import { SUBJECTS } from '../data/subjects'
+import { getSubject } from '../data/subjects'
 import { TERMS } from '../data/terms'
 import { useTerms } from '../hooks/useTerms'
 import { useWikiArticle } from '../hooks/useWikiArticle'
@@ -140,7 +140,7 @@ function SearchTab({ termKey, open }) {
 }
 
 function ByWeekTab({ open }) {
-  const weeks = SUBJECTS.flatMap((s) => s.weeks)
+  const weeks = getSubject('webprog').weeks // the term list belongs to Web Programming I
   return (
     <Accordion defaultActiveKey="1">
       {weeks.map((w) => (

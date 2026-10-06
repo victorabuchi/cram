@@ -1,3 +1,4 @@
+// Glossary terms for Web Programming I.
 // Course terms that can be looked up on Wikipedia. `wiki` is the article key, `words` are what to look for
 // in a Learn card (matched as whole words, case-insensitive), `week` places it in the "By week" list.
 export const TERMS = [

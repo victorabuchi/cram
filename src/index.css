@@ -6,7 +6,10 @@ pre.code input.ok { border-color: #1f8a4c; background: #e6f6ec; }
 pre.code input.bad { border-color: #c92a2a; background: #fdecec; }
 .course-card { cursor: pointer; transition: box-shadow .15s, transform .15s; }
 .course-card:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); transform: translateY(-2px); }
-.course-cover { height: 96px; color: #fff; font-size: 1.75rem; font-weight: 800; display: flex; align-items: flex-end; padding: 12px 16px; }
+.course-cover { position: relative; height: 110px; display: flex; align-items: center; justify-content: center; background: var(--bs-secondary-bg); border-bottom: 1px solid var(--bs-border-color); }
+.course-cover-label { position: absolute; top: 8px; left: 12px; font-size: .8rem; font-weight: 600; color: var(--bs-secondary-color); }
+.course-logos { display: flex; gap: 18px; align-items: center; }
+.course-logos img { max-width: 88px; object-fit: contain; }
 .opt-btn { text-align: left; }
 .thumb { max-width: 160px; border-radius: 6px; }
 
