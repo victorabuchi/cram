@@ -1,5 +1,3 @@
-import { useCallback, useState } from 'react'
-
 // localStorage can throw (private windows), so every access is wrapped.
 const read = (key, fallback) => {
   try {
@@ -61,19 +59,6 @@ export function streak(days = getDays()) {
     else break
   }
   return s
-}
-
-// Remembers the last page of a tool setup, e.g. which topics were ticked.
-export function useStoredState(key, initial) {
-  const [value, setValue] = useState(() => read(key, initial))
-  const set = useCallback(
-    (next) => {
-      setValue(next)
-      write(key, next)
-    },
-    [key],
-  )
-  return [value, set]
 }
 
 export const shuffle = (a) =>
