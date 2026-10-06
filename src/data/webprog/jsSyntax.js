@@ -3,6 +3,7 @@
 // `solution` is shown on request. The solutions are checked against the tests in jsSyntax.test.js.
 const base = { subject: 'webprog', week: 4, topic: 'jscode', kind: 'code' }
 const t = (args, expected) => ({ args, expected })
+const fn = (source) => ({ __fn: source }) // a function passed as an argument, written as source text
 
 export const topics = { jscode: 'JavaScript syntax exercises' }
 export const learn = []
@@ -107,5 +108,139 @@ export const questions = [
         }
     }
     return count;
+};` },
+  { ...base, id: 'js-syntax-6', fn: 'getFirstName', title: 'getFirstName',
+    prompt: [
+      'Write a function called getFirstName that takes a full name as a string (first name and last name separated by a single space) and returns only the first name.',
+      'Use the split method in your solution.',
+      'You can assume the input always contains exactly one space between first and last name.',
+      'Examples:\n- getFirstName("Ann Smith") returns "Ann"\n- getFirstName("Bob Clark") returns "Bob"',
+    ],
+    starter: 'const getFirstName = (fullName) => {\n    // TODO\n\n};',
+    tests: [t(['Ann Smith'], 'Ann'), t(['Bob Clark'], 'Bob'), t(['Alice Johnson'], 'Alice'), t(['Li Wu'], 'Li')],
+    examples: 2,
+    requires: ['split'],
+    solution: `const getFirstName = (fullName) => {
+    const parts = fullName.split(" ");
+    return parts[0];
+};` },
+  { ...base, id: 'js-syntax-7', fn: 'countLetters', title: 'countLetters',
+    prompt: [
+      'Write a function called countLetters that takes a full name (first name and last name separated by a single space) and returns the total number of letters in the name, NOT counting the space between names.',
+      'Use the split method in your solution.',
+      'Examples:\n- countLetters("Alice Smith") returns 10 (5 + 5)\n- countLetters("Jane Doe") returns 7 (4 + 3)\n- countLetters("Sam Pi") returns 5 (3 + 2)',
+      'Hint:\n- split(" ") divides the name into an array of parts\n- You can access each part with an index\n- The length property gives the number of characters in a string',
+    ],
+    starter: 'const countLetters = (fullName) => {\n    // TODO\n\n};',
+    tests: [t(['Alice Smith'], 10), t(['Jane Doe'], 7), t(['Sam Pi'], 5), t(['Al Bo'], 4), t(['Christopher Lee'], 14)],
+    examples: 3,
+    requires: ['split'],
+    solution: `const countLetters = (fullName) => {
+    const parts = fullName.split(" ");
+    return parts[0].length + parts[1].length;
+};` },
+  { ...base, id: 'js-syntax-8', fn: 'createGreeting', title: 'createGreeting',
+    prompt: [
+      'Write a function named createGreeting that takes two string parameters: a name and a greeting time of day (for example, "morning" or "evening").',
+      'The function should return a greeting in the following format:\n"Good [greeting], [name]! Welcome to Web Programming."',
+      'Use template literals (backticks `) in your solution.',
+      'Examples:\ncreateGreeting("Alice", "evening") returns "Good evening, Alice! Welcome to Web Programming."\ncreateGreeting("Bob", "morning") returns "Good morning, Bob! Welcome to Web Programming."',
+      'The parameters can be assumed to be valid strings. In a template literal, variables can be inserted into a string using the syntax:\n`Some ${variable} inside a string`',
+    ],
+    starter: 'const createGreeting = (name, greeting) => {\n    // TODO\n\n};',
+    tests: [
+      t(['Alice', 'evening'], 'Good evening, Alice! Welcome to Web Programming.'), t(['Bob', 'morning'], 'Good morning, Bob! Welcome to Web Programming.'),
+      t(['Kim', 'afternoon'], 'Good afternoon, Kim! Welcome to Web Programming.'), t(['Toast', 'night'], 'Good night, Toast! Welcome to Web Programming.'),
+    ],
+    examples: 2,
+    requires: ['template'],
+    solution: `const createGreeting = (name, greeting) => {
+    return \`Good \${greeting}, \${name}! Welcome to Web Programming.\`;
+};` },
+  { ...base, id: 'js-syntax-9', fn: 'doubleValues', title: 'doubleValues',
+    prompt: [
+      'Write a function named doubleValues that takes an array of numeric values as a parameter and returns a new array where each number has been multiplied by two.',
+      'Use the map() method in your solution.',
+      'Examples:\ndoubleValues([1, 2, 3]) returns [2, 4, 6]\ndoubleValues([10, -5, 0]) returns [20, -10, 0]\ndoubleValues([]) returns []',
+      'The map() method is often used with arrow functions in the following form:\narray.map(item => expression). The expression determines what value will be placed in the new array for each element.',
+    ],
+    starter: 'const doubleValues = (numbers) => {\n    // Use map method and arrow function\n    return // TODO\n};',
+    tests: [t([[1, 2, 3]], [2, 4, 6]), t([[10, -5, 0]], [20, -10, 0]), t([[]], []), t([[0.5]], [1]), t([[7]], [14])],
+    examples: 3,
+    requires: ['map'],
+    solution: `const doubleValues = (numbers) => {
+    return numbers.map(n => n * 2);
+};` },
+  { ...base, id: 'js-syntax-10', fn: 'filterLongWords', title: 'filterLongWords',
+    prompt: [
+      'Write a function called filterLongWords that takes an array of strings and a minimum length as parameters. Return a new array containing only the words that are longer than the given minimum length.',
+      'Use the filter method and an arrow function.',
+      'Examples:\n- filterLongWords(["cat", "dog", "elephant", "ant"], 3) returns ["elephant"]\n- filterLongWords(["hello", "world", "hi"], 4) returns ["hello", "world"]\n- filterLongWords([], 5) returns []',
+    ],
+    starter: 'const filterLongWords = (words, minLength) => {\n    // Use filter method and arrow function\n    return // TODO\n};',
+    tests: [
+      t([['cat', 'dog', 'elephant', 'ant'], 3], ['elephant']), t([['hello', 'world', 'hi'], 4], ['hello', 'world']), t([[], 5], []),
+      t([['abc', 'abcd'], 3], ['abcd']), t([['a', 'bb'], 0], ['a', 'bb']),
+    ],
+    examples: 3,
+    requires: ['filter'],
+    solution: `const filterLongWords = (words, minLength) => {
+    return words.filter(word => word.length > minLength);
+};` },
+  { ...base, id: 'js-syntax-11', fn: 'formatCatInfo', title: 'formatCatInfo',
+    prompt: [
+      'Write a function called formatCatInfo that takes a cat object with properties name, age, and isSleeping (boolean). Return a formatted string.',
+      'Format: "[name] is [age] years old. Currently: [status]"\nwhere status is "sleeping" if isSleeping is true, otherwise "awake".',
+      'Examples:\n- formatCatInfo({name: "Toast", age: 6, isSleeping: true})\n returns "Toast is 6 years old. Currently: sleeping"\n- formatCatInfo({name: "Naranja", age: 3, isSleeping: false})\n returns "Naranja is 3 years old. Currently: awake"',
+      'Hint:\n- Access object properties with dot notation, obj.property\n- Use ternary operator: condition ? valueIfTrue : valueIfFalse\n- Use template literals with ${...}',
+    ],
+    starter: 'const formatCatInfo = (cat) => {\n    // Use ternary operator to decide the status\n    // Use template literal to build the result string\n    // TODO\n\n};',
+    tests: [
+      t([{ name: 'Toast', age: 6, isSleeping: true }], 'Toast is 6 years old. Currently: sleeping'),
+      t([{ name: 'Naranja', age: 3, isSleeping: false }], 'Naranja is 3 years old. Currently: awake'),
+      t([{ name: 'Kinsky', age: 0, isSleeping: false }], 'Kinsky is 0 years old. Currently: awake'),
+      t([{ name: 'Ramona', age: 12, isSleeping: true }], 'Ramona is 12 years old. Currently: sleeping'),
+    ],
+    examples: 2,
+    solution: `const formatCatInfo = (cat) => {
+    const status = cat.isSleeping ? "sleeping" : "awake";
+    return \`\${cat.name} is \${cat.age} years old. Currently: \${status}\`;
+};` },
+  { ...base, id: 'js-syntax-12', fn: 'toggleCatSleep', title: 'toggleCatSleep',
+    prompt: [
+      'Write a function called toggleCatSleep that takes a cat object with properties name and isAsleep (boolean). Return a new cat object where the isAsleep value has been reversed.',
+      'The original cat object should NOT be modified.',
+      'Examples:\n- toggleCatSleep({name: "Toast", isAsleep: true})\n returns {name: "Toast", isAsleep: false}\n- toggleCatSleep({name: "Naranja", isAsleep: false})\n returns {name: "Naranja", isAsleep: true}',
+      'Hint:\n- Use the spread operator (...) to copy the object\n- Use the logical NOT operator (!) to reverse the boolean value',
+      'Note: This pattern is common in React state updates where you need to change one property of an object.',
+    ],
+    starter: 'const toggleCatSleep = (cat) => {\n    return // TODO\n};',
+    tests: [
+      { ...t([{ name: 'Toast', isAsleep: true }], { name: 'Toast', isAsleep: false }), noMutation: true },
+      { ...t([{ name: 'Naranja', isAsleep: false }], { name: 'Naranja', isAsleep: true }), noMutation: true },
+      { ...t([{ name: 'Kinsky', isAsleep: true }], { name: 'Kinsky', isAsleep: false }), noMutation: true },
+    ],
+    examples: 2,
+    solution: `const toggleCatSleep = (cat) => {
+    return { ...cat, isAsleep: !cat.isAsleep };
+};` },
+  { ...base, id: 'js-syntax-13', fn: 'handleItemAction', title: 'handleItemAction',
+    prompt: [
+      'Write a function called handleItemAction that takes two parameters:\n• items: an array\n• callback: a function to apply to each item',
+      'Return a new array where the callback function has been applied to each item.',
+      'Use the map method in your solution.',
+      'Examples:\n- handleItemAction([1, 2, 3], x => x * 2) returns [2, 4, 6]\n- handleItemAction(["a", "b"], x => x.toUpperCase()) returns ["A", "B"]\n- handleItemAction([], x => x * 10) returns []',
+      'Hint:\n• The callback is a function that takes one item and returns a new value\n• You can use array.map with the callback directly',
+      'Note: In React, this pattern is very common. For example, you might have a list of items and want to render each one as a React component.',
+    ],
+    starter: 'const handleItemAction = (items, callback) => {\n    // TODO\n};',
+    tests: [
+      t([[1, 2, 3], fn('x => x * 2')], [2, 4, 6]), t([['a', 'b'], fn('x => x.toUpperCase()')], ['A', 'B']), t([[], fn('x => x * 10')], []),
+      t([['hi', 'there'], fn('s => s.length')], [2, 5]), t([[1, 2], fn('n => n + 1')], [2, 3]),
+    ],
+    examples: 3,
+    requires: ['map'],
+    solution: `const handleItemAction = (items, callback) => {
+    return items.map(callback);
 };` },
 ]

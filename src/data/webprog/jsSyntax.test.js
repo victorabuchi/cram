@@ -1,5 +1,5 @@
 import { questions } from './jsSyntax'
-import { REQUIREMENTS, evaluate } from '../../code/runner'
+import { REQUIREMENTS, callText, evaluate } from '../../code/runner'
 
 describe('JavaScript syntax exercises', () => {
   it.each(questions.map((q) => [q.id, q]))('%s: the reference solution passes every test', (_, q) => {
@@ -16,10 +16,11 @@ describe('JavaScript syntax exercises', () => {
 
   it.each(questions.map((q) => [q.id, q]))('%s: its first tests are the examples from the task', (_, q) => {
     expect(q.examples).toBeGreaterThan(0)
-    const text = q.prompt.join('\n')
-    for (const t of q.tests.slice(0, q.examples)) {
-      const call = `${q.fn}(${t.args.map((a) => JSON.stringify(a).replace(/,/g, ', ').replace(/"/g, '"')).join(', ')})`
-      expect(text.replace(/\s+/g, ' ')).toContain(call.replace(/\s+/g, ' ').replace(/\[ /g, '['))
-    }
+    const text = q.prompt.join('\n').replace(/\s+/g, ' ')
+    for (const t of q.tests.slice(0, q.examples)) expect(text).toContain(callText(q.fn, t.args).replace(/\s+/g, ' '))
+  })
+
+  it('has 13 questions, like the Moodle exercise', () => {
+    expect(questions).toHaveLength(13)
   })
 })

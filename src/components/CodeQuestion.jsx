@@ -116,7 +116,7 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
                   <tr key={i} className={r.pass ? 'table-success' : 'table-danger'}>
                     <td className="font-monospace">{callText(item.fn, item.tests[i].args)}</td>
                     <td className="font-monospace">{show(item.tests[i].expected)}</td>
-                    <td className="font-monospace">{show(r.actual)}</td>
+                    <td className="font-monospace">{show(r.actual)}{r.mutated && <div className="small">The function changed its input. Return a new value instead.</div>}</td>
                     <td>{r.pass ? '✓' : '✗'}<span className="visually-hidden">{r.pass ? ' passed' : ' failed'}</span></td>
                   </tr>
                 ))}

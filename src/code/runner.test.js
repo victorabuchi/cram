@@ -45,6 +45,19 @@ describe('evaluate', () => {
   })
 })
 
+describe('evaluate: functions as arguments and changed input', () => {
+  it('passes a function argument written as source text', () => {
+    const r = evaluate('const f = (items, cb) => items.map(cb);', 'f', [{ args: [[1, 2], { __fn: 'x => x * 2' }], expected: [2, 4] }])
+    expect(r.results[0].pass).toBe(true)
+  })
+
+  it('fails a function that changes its input when the test says not to', () => {
+    const tests = [{ args: [{ on: true }], expected: { on: false }, noMutation: true }]
+    expect(evaluate('const f = (o) => { o.on = !o.on; return o; };', 'f', tests).results[0]).toMatchObject({ pass: false, mutated: true })
+    expect(evaluate('const f = (o) => ({ ...o, on: !o.on });', 'f', tests).results[0].pass).toBe(true)
+  })
+})
+
 describe('runCode', () => {
   it('runs the tests (without a worker in the test environment)', async () => {
     const r = await runCode('const f = (n) => n * 2;', 'f', double)
@@ -52,9 +65,24 @@ describe('runCode', () => {
   })
 })
 
+describe('requirements', () => {
+  it('recognises split, map, filter and template literals', () => {
+    expect(REQUIREMENTS.split.test('name.split(" ")')).toBe(true)
+    expect(REQUIREMENTS.split.test('name.slice(0, 3)')).toBe(false)
+    expect(REQUIREMENTS.map.test('a.map(x => x)')).toBe(true)
+    expect(REQUIREMENTS.map.test('a.forEach(x => x)')).toBe(false)
+    expect(REQUIREMENTS.filter.test('a.filter(x => x)')).toBe(true)
+    expect(REQUIREMENTS.template.test('return `Good ${greeting}`')).toBe(true)
+    expect(REQUIREMENTS.template.test('return "Good " + greeting')).toBe(false)
+    expect(REQUIREMENTS.template.test('return `no variables here`')).toBe(false)
+  })
+})
+
 describe('helpers', () => {
   it('writes a call the way the exercise sheet does', () => {
-    expect(callText('countNamesOfType', [['Toast', 'Tessa'], 'T'])).toBe('countNamesOfType(["Toast","Tessa"], "T")')
+    expect(callText('countNamesOfType', [['Toast', 'Tessa'], 'T'])).toBe('countNamesOfType(["Toast", "Tessa"], "T")')
+    expect(callText('f', [{ name: 'Toast', age: 6 }])).toBe('f({name: "Toast", age: 6})')
+    expect(callText('f', [[1, 2], { __fn: 'x => x * 2' }])).toBe('f([1, 2], x => x * 2)')
   })
 
   it('shows strings in quotes and errors as they are', () => {
