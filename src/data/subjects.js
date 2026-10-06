@@ -21,7 +21,7 @@ export const SUBJECTS = [
     title: 'Web Programming I',
     org: 'School of Computing',
     courseDate: '2026-10-23',
-    tools: [{ path: 'glossary', label: 'Glossary' }],
+    tools: [{ path: 'all/test', label: 'Practice quiz' }, { path: 'glossary', label: 'Glossary' }],
     logos: [logo(html5, 'HTML'), logo(css, 'CSS'), logo(javascript, 'JavaScript'), logo(react, 'React')],
     weeks: [
       { n: 1, title: 'Intro to the web, HTML, CSS', logos: [logo(html5, 'HTML'), logo(css, 'CSS')] },

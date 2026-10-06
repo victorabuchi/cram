@@ -18,9 +18,12 @@ const MOCK_MCQ = 20
 const MOCK_EXPLAIN = 3
 const EXPLAIN_POINTS = 3
 
-function Mock() {
+// test=false: a random practice test. test=true: the course's own "Practice quiz" questions, all of them, in their fixed order.
+function Mock({ test = false }) {
   const { subjectId, week, valid, items: allItems, label } = useScope()
-  const items = allItems.filter((i) => i.kind !== 'code') // the test has no coding questions
+  const items = test
+    ? allItems.filter((i) => i.setNo).sort((a, b) => a.setNo - b.setNo)
+    : allItems.filter((i) => i.kind !== 'code') // the test has no coding questions
   const setTopics = topicsIn(items.filter((d) => d.kind === 'mcq' || d.kind === 'explain'))
   const [selected, setSelected] = useState(setTopics)
   const [mock, dispatch] = useReducer(sessionReducer, null)
@@ -29,7 +32,13 @@ function Mock() {
   const [saved, setSaved] = useState(false)
   if (!valid) return <Navigate to="/" replace />
 
-  const crumbs = <Crumbs subjectId={subjectId} week={week} current="Practice test" />
+  const crumbs = <Crumbs subjectId={subjectId} week={week} current={test ? 'Practice quiz' : 'Practice test'} />
+
+  const startFixed = () => {
+    dispatch({ type: 'start', items })
+    setTicks(Object.fromEntries(items.filter((i) => i.kind === 'explain').map((i) => [i.id, i.keyPoints.map(() => false)])))
+    setSaved(false)
+  }
 
   const start = () => {
     const pool = items.filter((d) => selected.includes(d.topic))
@@ -39,6 +48,18 @@ function Mock() {
     dispatch({ type: 'start', items: [...mcq, ...exp] })
     setTicks(Object.fromEntries(exp.map((i) => [i.id, i.keyPoints.map(() => false)])))
     setSaved(false)
+  }
+
+  if (!mock && test) {
+    return (
+      <>
+        {crumbs}
+        <h1 className="h3">Practice quiz</h1>
+        <p>The official practice questions from Moodle, in the same order. They are made to get you familiar with the format and question types, not to represent the question set questions, and they may be shorter and simpler. Multiple-choice questions are checked for you; the open code-explanation questions are for your own practice and self-reflection: compare your answer with the model answer and tick the points you covered.</p>
+        <p className="text-body-secondary small">{items.length} questions so far. No feedback until the end. You can go back and change answers.</p>
+        <Button onClick={startFixed} disabled={!items.length}>Attempt quiz</Button>
+      </>
+    )
   }
 
   if (!mock) {
@@ -99,11 +120,18 @@ function Mock() {
   return (
     <>
       {crumbs}
-      <h1 className="h3">Practice test results</h1>
-      <Alert variant={scaled >= 15 ? 'success' : 'danger'}>
-        <strong>Estimated score: {scaled} / 30</strong> (pass line 15) · multiple choice {mcqPts}/{mcqs.length}
-        {exps.length > 0 && ` · open questions ${expPts.toFixed(1)}/${exps.length * EXPLAIN_POINTS}`}
-      </Alert>
+      <h1 className="h3">{test ? 'Practice quiz results' : 'Practice test results'}</h1>
+      {test ? (
+        <Alert variant="info" role="status">
+          <strong>Multiple choice: {mcqPts} of {mcqs.length} correct.</strong>
+          {exps.length > 0 && ` Open questions are not graded here: compare your answers with the model answers (${expPts.toFixed(1)} of ${exps.length * EXPLAIN_POINTS} by your own ticks).`}
+        </Alert>
+      ) : (
+        <Alert variant={scaled >= 15 ? 'success' : 'danger'}>
+          <strong>Estimated score: {scaled} / 30</strong> (pass line 15) · multiple choice {mcqPts}/{mcqs.length}
+          {exps.length > 0 && ` · open questions ${expPts.toFixed(1)}/${exps.length * EXPLAIN_POINTS}`}
+        </Alert>
+      )}
 
       {exps.length > 0 && (
         <>
@@ -161,7 +189,7 @@ function Mock() {
 
       <div className="d-flex gap-2">
         <Button variant="outline-primary" onClick={saveAll} disabled={saved}>{saved ? 'Saved to progress' : 'Save results to my progress'}</Button>
-        <Button onClick={() => dispatch({ type: 'end' })}>New practice test</Button>
+        <Button onClick={() => dispatch({ type: 'end' })}>{test ? 'Attempt again' : 'New practice test'}</Button>
       </div>
     </>
   )
