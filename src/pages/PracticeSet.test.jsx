@@ -16,7 +16,8 @@ describe('Practice quiz', () => {
     expect(nav().queryByRole('link', { name: 'Practice quiz' })).not.toBeInTheDocument()
   })
 
-  it('numbers the Moodle questions 1, 2, 3 ... without gaps', () => {
+  it('has all 26 Moodle questions, numbered 1, 2, 3 ... without gaps', () => {
+    expect(questions).toHaveLength(26)
     expect(questions.map((q) => q.setNo)).toEqual(questions.map((_, i) => i + 1))
   })
 

@@ -1,7 +1,7 @@
 // The official "Practice quiz" activity on Moodle (the practice test for the course), in its original order.
 // `setNo` is the question number on Moodle; the question is also tagged with the week and topic it belongs to, so it
 // appears in practice sessions and practice tests as well. options[0] is the correct answer (Moodle does not show it,
-// so these come from the course material). Add the next questions at the end.
+// so these come from the course material). All 26 questions are here.
 const base = { subject: 'webprog', kind: 'mcq' }
 
 export const topics = {}
@@ -119,4 +119,54 @@ function App() {
   { ...base, id: 'ep-20', setNo: 20, week: 1, topic: 'css', q: 'What does "cascading" refer to in Cascading Style Sheets?',
     options: ['Multiple styles apply and conflicts resolve by rules', 'CSS files are loaded and applied in the order they are linked', 'Browser default styles override custom developer styles', 'Styles applied to a class override styles applied to an ID'],
     why: 'Several rules can target the same element; the cascade decides which wins using origin, specificity (an id beats a class) and order. Order of linking is only one part of it.' },
+  { ...base, id: 'ep-21', setNo: 21, week: 4, topic: 'jsdom', q: "Which of these describes an event listener's role in JavaScript?",
+    options: ['It listens for user actions and runs a function', 'It selects HTML elements from the DOM', 'It listens to server messages and updates the page automatically', 'It listens for changes in a variable and re-renders the DOM'],
+    why: 'addEventListener(type, function): when the event happens (click, submit, keydown...) the function runs. Selecting elements is done with getElementById or querySelector; re-rendering when state changes is what React does.' },
+  { ...base, id: 'ep-22', setNo: 22, week: 5, topic: 'react', q: 'What is a React component?',
+    options: ['A reusable piece of UI defined as a function', 'A configuration file for the development server', 'An HTML template loaded from an external file', 'A CSS file that styles the entire application'],
+    why: 'A component is a JavaScript function that takes props and returns JSX (UI). Components can be reused and combined.' },
+  { ...base, id: 'ep-23', setNo: 23, week: 4, topic: 'jsdom', kind: 'explain',
+    q: 'Based on the given code, answer the questions: a) What does the code do when the user clicks the button? b) Why is the variable count defined with the keyword let, but button and display with the keyword const?',
+    code: `const button = document.getElementById("myButton");
+const display = document.getElementById("counter");
+let count = 0;
+
+button.addEventListener("click", () => {
+    count = count + 1;
+    display.textContent = "Clicks: " + count;
+});`,
+    keyPoints: [
+      'on every click the click listener runs: count goes up by one',
+      'the text of the display element is changed to "Clicks: " followed by the new count (a click counter shown on the page)',
+      'count is declared with let because its value is reassigned (count = count + 1)',
+      'button and display are declared with const because the variables are never reassigned: they keep pointing to the same elements',
+    ],
+    model: 'a) The code finds the button and the display element, then adds a click event listener to the button. Each time the user clicks, the arrow function runs: it increases count by one and sets display.textContent to "Clicks: " plus the new count, so the page shows how many times the button has been clicked (Clicks: 1, Clicks: 2, ...). b) count has to change after it is created (count = count + 1), so it must be declared with let, which allows reassignment. button and display are set once to the elements that getElementById returns and are never given a new value, so const is appropriate; it makes the intention clear and prevents accidental reassignment. (const does not make the element itself unchangeable: display.textContent can still change.)' },
+  { ...base, id: 'ep-24', setNo: 24, week: 4, topic: 'jsapi', kind: 'explain',
+    q: 'Based on the given code, answer the questions: a) What does the code do when a user clicks the button? b) What is the purpose of the async keyword in this code? Why is it needed?',
+    code: `const button = document.getElementById('searchBtn');
+button.addEventListener('click', async () => {
+    const input = document.getElementById('search').value;
+    try {
+        const response = await fetch(\`https://api.example.com/search?q=\${input}\`);
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});`,
+    keyPoints: [
+      'on click the code reads the value of the search input',
+      'it sends a request with fetch to the API, with the input as the query parameter q, and waits for the response',
+      'it converts the response body from JSON into a JavaScript object (response.json()) and logs the data to the console',
+      'if something fails (for example a network error) the catch block logs the error instead of crashing',
+      'async marks the function as asynchronous, which makes await allowed inside it: await waits for a promise without blocking the page, and the function returns a promise',
+    ],
+    model: 'a) When the button is clicked, the code reads the text from the search input and builds a URL with it as the query (q=...). It sends a request to https://api.example.com/search with fetch and waits for the response, then reads the response body as JSON with response.json() and writes the resulting data to the console. If the request or parsing fails, the catch block logs the error instead. b) fetch and response.json() return promises. The async keyword on the click handler turns it into an asynchronous function, and that is what allows the await keyword inside it. await pauses this function until the promise is resolved so the code reads like normal step-by-step code, but the rest of the page is not blocked while waiting for the slow network request. Without async, using await in the function would be a syntax error.' },
+  { ...base, id: 'ep-25', setNo: 25, week: 2, topic: 'git', q: 'You have finished editing a file and want to save the changes permanently to your local repository. Which command do you use?',
+    options: ['git commit', 'git status', 'git add', 'git push'],
+    why: 'git add stages changes, git commit records them in the local repository, git push sends commits to the remote (GitHub), and git status only shows the state.' },
+  { ...base, id: 'ep-26', setNo: 26, week: 3, topic: 'bootstrap', q: 'A designer creates a website with high color contrast between text and background. Which WCAG principle does this support?',
+    options: ['Perceivable - content can be seen or heard', 'Understandable - content is clear', 'Operable - content can be used by keyboard', 'Robust - content works on all devices'],
+    why: 'POUR: Perceivable, Operable, Understandable, Robust. Contrast helps people see the content, so it supports Perceivable.' },
 ]
