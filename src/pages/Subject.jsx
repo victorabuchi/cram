@@ -15,10 +15,6 @@ function Subject() {
       <Crumbs subjectId={subjectId} />
       <h1 className="h3">{subject.title}</h1>
       <p className="text-body-secondary">{subject.org}</p>
-      <div className="d-flex gap-2 flex-wrap mb-3">
-        <Button as={Link} to={`/s/${subjectId}/progress`} variant="outline-secondary">Progress</Button>
-        {subject.tools.map((t) => <Button key={t.path} as={Link} to={`/s/${subjectId}/${t.path}`} variant="primary">{t.label}</Button>)}
-      </div>
       {subject.weeks.length === 0 && <p className="text-body-secondary">No weeks yet. Course materials are added week by week.</p>}
       {subject.weeks.length > 0 && <div className="d-flex gap-2 flex-wrap mb-4">
         <Button as={Link} to={`/s/${subjectId}/all/learn`} variant="outline-primary">Learn all weeks</Button>
