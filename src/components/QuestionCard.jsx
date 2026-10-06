@@ -159,7 +159,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
         </Alert>
       )}
 
-      <Button type="submit" autoFocus={item.kind === 'mcq' ? false : undefined}>{buttonLabel}</Button>
+      <Button type="submit">{buttonLabel}</Button>
 
       {feedback && (
         <Alert variant={feedback.ok ? 'success' : 'danger'} className="mt-3">
