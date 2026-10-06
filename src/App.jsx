@@ -33,13 +33,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/s/:subjectId" element={<Subject />} />
+          <Route path="/s/webprog/glossary" element={<Glossary />} />
+          <Route path="/s/bmc/automata" element={<AutomataLab />} />
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/practice" element={<Practice />} />
           <Route path="/s/:subjectId/:week/mock" element={<Mock />} />
           <Route path="/progress" element={<Progress />} />
-          <Route path="/glossary" element={<Glossary />} />
-          <Route path="/automata" element={<AutomataLab />} />
+          <Route path="/glossary" element={<Navigate to="/s/webprog/glossary" replace />} />
+          <Route path="/automata" element={<Navigate to="/s/bmc/automata" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

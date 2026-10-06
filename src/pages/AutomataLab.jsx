@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { download, downloadPng, toJffFile, toSvgFile } from '../automata/export.jsx'
 import { AutomatonError, check, parseAutomaton, run } from '../automata/model'
+import Crumbs from '../components/Crumbs.jsx'
 import Automaton from '../components/Automaton.jsx'
 import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import { PRESETS } from '../data/bmc/presets'
@@ -75,6 +76,7 @@ function AutomataLab() {
 
   return (
     <>
+      <Crumbs subjectId="bmc" current="Automata lab" />
       <h1 className="h3">Automata lab</h1>
       <p className="text-body-secondary">
         Describe a finite automaton as text and get a JFLAP-style diagram. Step through inputs, test many strings at once, and download the picture as SVG or PNG, or as a <code>.jff</code> file that opens in JFLAP.

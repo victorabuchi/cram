@@ -40,7 +40,7 @@ function TermModal({ term, onHide }) {
       </Modal.Body>
       <Modal.Footer>
         {status === 'ready' && <Button variant={isSaved ? 'outline-secondary' : 'outline-primary'} onClick={toggleSave}>{isSaved ? 'Remove from my terms' : 'Save to my terms'}</Button>}
-        {term && <Button as={Link} to={`/glossary?term=${encodeURIComponent(term.wiki)}`} onClick={onHide}>Open in Glossary</Button>}
+        {term && <Button as={Link} to={`/s/webprog/glossary?term=${encodeURIComponent(term.wiki)}`} onClick={onHide}>Open in Glossary</Button>}
       </Modal.Footer>
     </Modal>
   )

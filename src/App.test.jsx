@@ -59,6 +59,43 @@ describe('subjects', () => {
   })
 })
 
+describe('course tools in the top bar', () => {
+  const nav = () => within(screen.getByRole('navigation', { name: 'Main' }))
+
+  it('shows only Dashboard and Progress outside a course', () => {
+    renderApp('/')
+    expect(nav().getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(nav().queryByRole('link', { name: 'Glossary' })).not.toBeInTheDocument()
+    expect(nav().queryByRole('link', { name: 'Automata lab' })).not.toBeInTheDocument()
+  })
+
+  it('shows the Glossary, and not the Automata lab, inside Web Programming I', () => {
+    renderApp('/s/webprog/5/learn')
+    expect(nav().getByRole('link', { name: 'Glossary' })).toBeInTheDocument()
+    expect(nav().queryByRole('link', { name: 'Automata lab' })).not.toBeInTheDocument()
+  })
+
+  it('shows the Automata lab, and no Glossary, inside Basic Models of Computation', () => {
+    renderApp('/s/bmc/1')
+    expect(nav().getByRole('link', { name: 'Automata lab' })).toBeInTheDocument()
+    expect(nav().queryByRole('link', { name: 'Glossary' })).not.toBeInTheDocument()
+  })
+
+  it('opens each tool from the top bar', async () => {
+    const user = userEvent.setup()
+    fakeWikipedia(REACT_PAGE)
+    renderApp('/s/webprog')
+    await user.click(nav().getByRole('link', { name: 'Glossary' }))
+    expect(await screen.findByRole('heading', { name: 'Glossary' })).toBeInTheDocument()
+  })
+
+  it('sends the old tool addresses to the right course', () => {
+    fakeWikipedia(REACT_PAGE)
+    renderApp('/automata')
+    expect(screen.getByRole('heading', { name: 'Automata lab' })).toBeInTheDocument()
+  })
+})
+
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()
@@ -143,7 +180,7 @@ describe('Glossary', () => {
   it('searches, shows the article and other matches, remembers recent searches', async () => {
     const user = userEvent.setup()
     fakeWikipedia(pages)
-    renderApp('/glossary')
+    renderApp('/s/webprog/glossary')
     expect(screen.getByLabelText('Search term')).toHaveFocus()
     await user.type(screen.getByLabelText('Search term'), 'react{enter}')
     expect(await screen.findByRole('heading', { name: 'React (software)' })).toBeInTheDocument()
@@ -154,7 +191,7 @@ describe('Glossary', () => {
   it('says so when nothing matches', async () => {
     const user = userEvent.setup()
     fakeWikipedia(pages)
-    renderApp('/glossary')
+    renderApp('/s/webprog/glossary')
     await user.type(screen.getByLabelText('Search term'), 'qqqq{enter}')
     expect(await screen.findByText(/No article found/)).toBeInTheDocument()
   })
@@ -162,7 +199,7 @@ describe('Glossary', () => {
   it('opens a term from the By week tab', async () => {
     const user = userEvent.setup()
     fakeWikipedia(pages)
-    renderApp('/glossary')
+    renderApp('/s/webprog/glossary')
     await user.click(screen.getByRole('tab', { name: 'By week' }))
     await user.click(screen.getByRole('button', { name: 'Week 4: JavaScript I + II: DOM, libraries, async, REST, fetch' }))
     const panel = screen.getByRole('tabpanel', { name: 'By week' })
@@ -173,7 +210,7 @@ describe('Glossary', () => {
   it('keeps saved terms with editable notes', async () => {
     const user = userEvent.setup()
     fakeWikipedia(pages)
-    renderApp('/glossary?term=React_(software)')
+    renderApp('/s/webprog/glossary?term=React_(software)')
     await user.click(await screen.findByRole('button', { name: 'Save to my terms' }))
     await user.click(screen.getByRole('tab', { name: 'My terms' }))
     await user.type(screen.getByLabelText('Your note about React (software)'), 'UI library')
@@ -196,7 +233,7 @@ describe('Progress page', () => {
 })
 
 describe('accessibility (axe)', () => {
-  const routes = ['/', '/s/webprog', '/s/webprog/5', '/s/webprog/5/learn', '/s/webprog/5/practice', '/s/webprog/5/mock', '/progress', '/glossary']
+  const routes = ['/', '/s/webprog', '/s/webprog/5', '/s/webprog/5/learn', '/s/webprog/5/practice', '/s/webprog/5/mock', '/progress', '/s/webprog/glossary']
   it.each(routes)('has no detectable violations on %s', async (route) => {
     fakeWikipedia(REACT_PAGE)
     const { container } = renderApp(route)

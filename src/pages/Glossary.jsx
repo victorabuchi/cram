@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Accordion, Alert, Badge, Button, Card, Form, InputGroup, ListGroup, Spinner, Tab, Tabs } from 'react-bootstrap'
 import { useSearchParams } from 'react-router-dom'
+import Crumbs from '../components/Crumbs.jsx'
 import { toast } from 'react-toastify'
 import { searchTitles } from '../api/wikipedia'
 import { getSubject } from '../data/subjects'
@@ -193,6 +194,7 @@ function Glossary() {
 
   return (
     <>
+      <Crumbs subjectId="webprog" current="Glossary" />
       <h1 className="h3">Glossary</h1>
       <p className="text-body-secondary">Look up any term from the course. Summaries come live from the Wikipedia REST API; save the ones you want to remember and add your own notes.</p>
       <Tabs activeKey={tab} onSelect={(k) => setTab(k)} className="mb-3" mountOnEnter>

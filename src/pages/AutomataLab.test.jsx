@@ -5,7 +5,7 @@ import { renderApp } from '../test/helpers.jsx'
 
 describe('Automata lab', () => {
   it('draws the selected example and tests the strings', () => {
-    renderApp('/automata?preset=t4')
+    renderApp('/s/bmc/automata?preset=t4')
     expect(screen.getAllByRole('img', { name: /Finite automaton with states q0, q1, q2/ }).length).toBeGreaterThan(0)
     const table = screen.getByRole('table', { name: 'Test results' })
     const rows = within(table).getAllByRole('row').slice(1).map((r) => within(r).getAllByRole('cell').map((c) => c.textContent))
@@ -14,7 +14,7 @@ describe('Automata lab', () => {
 
   it('redraws when the text changes and shows parse errors', async () => {
     const user = userEvent.setup()
-    renderApp('/automata')
+    renderApp('/s/bmc/automata')
     const box = screen.getByLabelText('Automaton')
     await user.clear(box)
     await user.type(box, 'start: x\nx a y')
@@ -26,13 +26,13 @@ describe('Automata lab', () => {
   })
 
   it('warns about missing transitions', () => {
-    renderApp('/automata?preset=one-b')
+    renderApp('/s/bmc/automata?preset=one-b')
     expect(screen.getByRole('status')).toHaveTextContent('B has no transition on b')
   })
 
   it('steps through an input and reports the verdict', async () => {
     const user = userEvent.setup()
-    renderApp('/automata?preset=one-b')
+    renderApp('/s/bmc/automata?preset=one-b')
     const input = screen.getAllByLabelText('Input string')[0]
     await user.type(input, 'ab')
     await user.click(screen.getAllByRole('button', { name: 'Step' })[0])
@@ -42,7 +42,7 @@ describe('Automata lab', () => {
 
   it('says when the machine gets stuck, and shows no verdict before Step or Run', async () => {
     const user = userEvent.setup()
-    renderApp('/automata?preset=one-b')
+    renderApp('/s/bmc/automata?preset=one-b')
     const input = screen.getAllByLabelText('Input string')[0]
     await user.type(input, 'abb')
     expect(screen.queryByText(/Rejected/)).not.toBeInTheDocument()
@@ -51,12 +51,12 @@ describe('Automata lab', () => {
   })
 
   it('has the three download buttons', () => {
-    renderApp('/automata')
+    renderApp('/s/bmc/automata')
     for (const name of ['Download SVG', 'Download PNG', 'Download for JFLAP (.jff)']) expect(screen.getByRole('button', { name })).toBeInTheDocument()
   })
 
   it('has no detectable accessibility violations', async () => {
-    const { container } = renderApp('/automata?preset=t5')
+    const { container } = renderApp('/s/bmc/automata?preset=t5')
     expect(await axe(container)).toHaveNoViolations()
   })
 })

@@ -12,6 +12,7 @@ import react from '../assets/logos/react.svg'
 const logo = (src, alt) => ({ src, alt })
 
 // Dashboard cards. Items in content.json / bmc.json carry `subject` (id) and `week` (number).
+// `tools` are course-specific pages shown in the top bar while inside that course: /s/<id>/<path>.
 // To add a week: add it to `weeks` here, then add its learn cards and questions to the subject's data file.
 export const SUBJECTS = [
   {
@@ -19,6 +20,7 @@ export const SUBJECTS = [
     title: 'Web Programming I',
     org: 'School of Computing',
     courseDate: '2026-10-23',
+    tools: [{ path: 'glossary', label: 'Glossary' }],
     logos: [logo(html5, 'HTML'), logo(css, 'CSS'), logo(javascript, 'JavaScript'), logo(react, 'React')],
     weeks: [
       { n: 1, title: 'Intro to the web, HTML, CSS', logos: [logo(html5, 'HTML'), logo(css, 'CSS')] },
@@ -32,6 +34,7 @@ export const SUBJECTS = [
     id: 'bmc',
     title: 'Basic Models of Computation',
     org: 'School of Computing',
+    tools: [{ path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
     weeks: [{ n: 1, title: 'Deterministic finite automata (DFA)', logos: [logo(automaton, 'Finite automaton')] }], // more weeks are added as the materials arrive
   },
