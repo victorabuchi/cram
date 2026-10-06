@@ -1,7 +1,8 @@
 import { useReducer, useState } from 'react'
-import { Accordion, Button, Form, ProgressBar } from 'react-bootstrap'
+import { Accordion, Button, Form } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
+import Meter from '../components/Meter.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { KIND_NAMES, TOPICS, topicsIn } from '../data/content'
@@ -84,7 +85,7 @@ function Practice() {
   return (
     <>
       {crumbs}
-      <ProgressBar now={(session.index / session.items.length) * 100} className="mb-2" style={{ height: 8 }} />
+      <Meter now={(session.index / session.items.length) * 100} className="mb-2" label="Session progress" />
       <p className="text-body-secondary small">
         Question {session.index + 1} of {session.items.length} · {TOPICS[item.topic]} · {KIND_NAMES[item.kind]}
       </p>

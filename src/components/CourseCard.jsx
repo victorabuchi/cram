@@ -1,5 +1,6 @@
-import { Card, ProgressBar } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import Meter from './Meter.jsx'
 import { useProgress } from '../hooks/useProgress'
 import { isMastered } from '../storage'
 
@@ -21,7 +22,7 @@ function CourseCard({ cover, title, subtitle, color, items, to }) {
       <Card.Body>
         <Card.Title as="h3" className="fs-6">{title}</Card.Title>
         <Card.Subtitle className="text-body-secondary small mb-3">{subtitle}</Card.Subtitle>
-        <ProgressBar now={pct} style={{ height: 6 }} />
+        <Meter now={pct} height={6} label={`${title}: ${pct}% mastered`} />
         <small className="text-body-secondary">{pct}% mastered</small>
       </Card.Body>
     </Card>

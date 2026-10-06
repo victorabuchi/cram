@@ -148,7 +148,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext }) {
       )}
 
       {item.kind === 'explain' && instant && stage >= 1 && (
-        <Alert variant="light" className="border">
+        <Alert variant="light" className="border" role="region" aria-label="Model answer">
           <strong>Model answer</strong>
           <p>{item.model}</p>
           <strong>Tick the points your answer covered:</strong>

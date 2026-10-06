@@ -1,8 +1,9 @@
 import { useReducer, useState } from 'react'
-import { Accordion, Alert, Button, Form, ProgressBar } from 'react-bootstrap'
+import { Accordion, Alert, Button, Form } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Crumbs from '../components/Crumbs.jsx'
+import Meter from '../components/Meter.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
 import { topicsIn } from '../data/content'
@@ -56,7 +57,7 @@ function Mock() {
     return (
       <>
         {crumbs}
-        <ProgressBar now={(mock.index / mock.items.length) * 100} className="mb-2" style={{ height: 8 }} />
+        <Meter now={(mock.index / mock.items.length) * 100} className="mb-2" label="Test progress" />
         <p className="text-body-secondary small">
           Question {mock.index + 1} of {mock.items.length}{item.kind === 'explain' && ' · open question'}
         </p>

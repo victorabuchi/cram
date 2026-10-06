@@ -1,0 +1,186 @@
+import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { axe } from 'vitest-axe'
+import { fakeWikipedia, REACT_PAGE, renderApp } from './test/helpers.jsx'
+
+// jsdom has no canvas, so charts are replaced by a plain element that keeps the accessible name.
+vi.mock('react-chartjs-2', () => ({ Bar: (props) => <div role={props.role} aria-label={props['aria-label']} /> }))
+
+describe('navigation', () => {
+  it('goes dashboard → subject → week → learn', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+    await user.click(screen.getByRole('link', { name: /Web Programming I/ }))
+    expect(await screen.findByRole('heading', { name: 'Web Programming I' })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /Week 5/ }))
+    expect(await screen.findByRole('heading', { name: /Week 5: React basics/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /Learn/ }))
+    expect(await screen.findByRole('heading', { name: /^Learn/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Why React/ })).toBeInTheDocument()
+  })
+
+  it('moves focus to the page content after a route change', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+    await user.click(screen.getByRole('link', { name: 'Progress' }))
+    expect(screen.getByRole('main')).toHaveFocus()
+  })
+
+  it('falls back to the dashboard for an unknown route', () => {
+    renderApp('/nope')
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+  })
+})
+
+describe('practice session', () => {
+  it('runs a question, records progress and shows the summary at the end', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/webprog/5/practice')
+    await user.click(screen.getByRole('button', { name: 'Start session' }))
+    expect(await screen.findByText(/Question 1 of 10/)).toBeInTheDocument()
+
+    // Answer the first question whatever its kind (blank / typed answer / choice / essay).
+    const answerFirst = async () => {
+      const fillBox = screen.queryAllByLabelText(/^Blank/)
+      if (fillBox.length) for (const b of fillBox) await user.type(b, 'x')
+      else if (screen.queryByPlaceholderText('Type exactly what is printed')) await user.type(screen.getByPlaceholderText('Type exactly what is printed'), 'x')
+      else if (screen.queryByRole('group', { name: 'Answer options' })) await user.click(within(screen.getByRole('group', { name: 'Answer options' })).getAllByRole('button')[0])
+      else await user.type(screen.getByRole('textbox'), 'my answer')
+    }
+    for (let i = 0; i < 10; i++) {
+      await answerFirst()
+      const submit = screen.getByRole('button', { name: /^(Check|Reveal model answer)$/ })
+      await user.click(submit)
+      if (screen.queryByRole('button', { name: 'Done grading' })) await user.click(screen.getByRole('button', { name: 'Done grading' }))
+      await user.click(screen.getByRole('button', { name: /^(Next|Finish)$/ }))
+    }
+    expect(await screen.findByRole('heading', { name: /\/ 10 correct/ })).toBeInTheDocument()
+    const stored = JSON.parse(localStorage.getItem('scribletics_progress'))
+    expect(Object.keys(stored)).toHaveLength(10)
+  })
+})
+
+describe('practice test', () => {
+  it('runs without feedback and ends with an estimated score out of 30', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/webprog/2/mock')
+    await user.click(screen.getByRole('button', { name: 'Start practice test' }))
+    for (let guard = 0; guard < 30; guard++) {
+      if (screen.queryByRole('heading', { name: 'Practice test results' })) break
+      const group = screen.queryByRole('group', { name: 'Answer options' })
+      if (group) await user.click(within(group).getAllByRole('button')[0])
+      else if (screen.queryByRole('textbox')) await user.type(screen.getByRole('textbox'), 'answer')
+      await user.click(screen.getByRole('button', { name: /^(Next question|Finish test)$/ }))
+    }
+    expect(screen.getByRole('heading', { name: 'Practice test results' })).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent(/Estimated score: \d+ \/ 30/)
+    await user.click(screen.getByRole('button', { name: 'Save results to my progress' }))
+    expect(Object.keys(JSON.parse(localStorage.getItem('scribletics_progress'))).length).toBeGreaterThan(0)
+  })
+})
+
+describe('Learn cards and the Wikipedia modal', () => {
+  it('looks a term up from a card, then saves it', async () => {
+    const user = userEvent.setup()
+    const f = fakeWikipedia(REACT_PAGE)
+    renderApp('/s/webprog/5/learn')
+    await user.click(screen.getByRole('button', { name: /Why React/ }))
+    await user.click((await screen.findAllByRole('button', { name: /^React\s+on Wikipedia$/ }))[0])
+
+    const dialog = await screen.findByRole('dialog')
+    expect(await within(dialog).findByText(/free and open-source front-end/)).toBeInTheDocument()
+    expect(f).toHaveBeenCalledWith(expect.stringContaining('/summary/React_(software)'), expect.anything())
+
+    await user.click(within(dialog).getByRole('button', { name: 'Save to my terms' }))
+    expect(within(dialog).getByRole('button', { name: 'Remove from my terms' })).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('scribletics_saved_terms'))).toEqual([{ key: 'React_(software)', title: 'React (software)', note: '' }])
+  })
+
+  it('shows an error message when Wikipedia is unreachable', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }))
+    renderApp('/s/webprog/5/learn')
+    await user.click(screen.getByRole('button', { name: /Why React/ }))
+    await user.click((await screen.findAllByRole('button', { name: /^React\s+on Wikipedia$/ }))[0])
+    expect(await within(await screen.findByRole('dialog')).findByText(/status 500/)).toBeInTheDocument()
+  })
+})
+
+describe('Glossary', () => {
+  const pages = {
+    ...REACT_PAGE,
+    'React_(disambiguation)': { title: 'React disambiguation', description: 'Other uses', extract: 'x' },
+    JSON: { title: 'JSON', description: 'Data format', extract: 'JSON is an open standard file format.' },
+  }
+
+  it('searches, shows the article and other matches, remembers recent searches', async () => {
+    const user = userEvent.setup()
+    fakeWikipedia(pages)
+    renderApp('/glossary')
+    expect(screen.getByLabelText('Search term')).toHaveFocus()
+    await user.type(screen.getByLabelText('Search term'), 'react{enter}')
+    expect(await screen.findByRole('heading', { name: 'React (software)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /React disambiguation/ })).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('scribletics_recent_searches'))).toEqual(['react'])
+  })
+
+  it('says so when nothing matches', async () => {
+    const user = userEvent.setup()
+    fakeWikipedia(pages)
+    renderApp('/glossary')
+    await user.type(screen.getByLabelText('Search term'), 'qqqq{enter}')
+    expect(await screen.findByText(/No article found/)).toBeInTheDocument()
+  })
+
+  it('opens a term from the By week tab', async () => {
+    const user = userEvent.setup()
+    fakeWikipedia(pages)
+    renderApp('/glossary')
+    await user.click(screen.getByRole('tab', { name: 'By week' }))
+    await user.click(screen.getByRole('button', { name: 'Week 4: JavaScript I + II: DOM, libraries, async, REST, fetch' }))
+    const panel = screen.getByRole('tabpanel', { name: 'By week' })
+    await user.click(await within(panel).findByRole('button', { name: 'JSON' }))
+    expect(await screen.findByText(/open standard file format/)).toBeInTheDocument()
+  })
+
+  it('keeps saved terms with editable notes', async () => {
+    const user = userEvent.setup()
+    fakeWikipedia(pages)
+    renderApp('/glossary?term=React_(software)')
+    await user.click(await screen.findByRole('button', { name: 'Save to my terms' }))
+    await user.click(screen.getByRole('tab', { name: 'My terms' }))
+    await user.type(screen.getByLabelText('Your note about React (software)'), 'UI library')
+    expect(JSON.parse(localStorage.getItem('scribletics_saved_terms'))[0].note).toBe('UI library')
+    await user.click(screen.getByRole('button', { name: 'Remove React (software)' }))
+    expect(await screen.findByText(/Nothing saved yet/)).toBeInTheDocument()
+  })
+})
+
+describe('Progress page', () => {
+  it('reads from the shared progress and can reset it', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 } }))
+    renderApp('/progress')
+    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^1\//)
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    await user.click(screen.getByRole('button', { name: 'Reset all progress' }))
+    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\//)
+  })
+})
+
+describe('accessibility (axe)', () => {
+  const routes = ['/', '/s/webprog', '/s/webprog/5', '/s/webprog/5/learn', '/s/webprog/5/practice', '/s/webprog/5/mock', '/progress', '/glossary']
+  it.each(routes)('has no detectable violations on %s', async (route) => {
+    fakeWikipedia(REACT_PAGE)
+    const { container } = renderApp(route)
+    await screen.findByRole('main')
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('has a skip link as the first focusable element', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+    await user.tab()
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveFocus()
+  })
+})

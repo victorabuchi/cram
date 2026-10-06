@@ -1,7 +1,8 @@
-import { Accordion, Button, Card, Col, ProgressBar, Row } from 'react-bootstrap'
+import { Accordion, Button, Card, Col, Row } from 'react-bootstrap'
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Tooltip } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
+import Meter from '../components/Meter.jsx'
 import { SUBJECTS } from '../data/subjects'
 import { ITEMS } from '../data/content'
 import { useProgress } from '../hooks/useProgress'
@@ -79,7 +80,7 @@ function Progress() {
                   <strong>Week {w.n}: {w.title}</strong>
                   <span className="text-body-secondary small">{w.mastered} mastered · {w.attempted} attempted · {w.items.length} total</span>
                 </div>
-                <ProgressBar now={(w.mastered / w.items.length) * 100} style={{ height: 10 }} />
+                <Meter now={(w.mastered / w.items.length) * 100} height={10} label={`Week ${w.n} mastered`} />
                 {weak.length > 0 && (
                   <Accordion className="mt-2">
                     <Accordion.Item eventKey="0">

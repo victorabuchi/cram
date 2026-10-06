@@ -34,7 +34,7 @@ function Learn() {
                         <span className="small text-body-secondary">Look up:</span>
                         {terms.map((t) => (
                           <Button key={t.wiki} size="sm" variant="outline-primary" onClick={() => setTerm(t)}>
-                            {t.label}<span className="visually-hidden"> on Wikipedia</span>
+                            {t.label} <span className="visually-hidden">on Wikipedia</span>
                           </Button>
                         ))}
                       </div>

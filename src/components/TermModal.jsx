@@ -34,7 +34,7 @@ function TermModal({ term, onHide }) {
             {article.description && <p className="text-body-secondary fst-italic">{article.description}</p>}
             {article.thumbnail && <img className="thumb float-end ms-3 mb-2" src={article.thumbnail} alt={`Illustration for ${article.title}`} />}
             <p>{article.extract}</p>
-            <a href={article.url} target="_blank" rel="noreferrer">Read more on Wikipedia<span className="visually-hidden"> (opens in a new tab)</span></a>
+            <a href={article.url} target="_blank" rel="noreferrer">Read more on Wikipedia <span className="visually-hidden">(opens in a new tab)</span></a>
           </>
         )}
       </Modal.Body>

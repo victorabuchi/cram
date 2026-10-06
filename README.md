@@ -14,7 +14,7 @@ Course content is summarised from lectures for the *Web Programming I* course.
 | `/s/:subject/:week/practice` | Practice sessions: wrong answers come back sooner (Leitner boxes) |
 | `/s/:subject/:week/mock` | Practice test scored out of 30, with self-graded open questions |
 | `/progress` | Charts and per-week progress |
-| `/glossary` | Look up course terms live from Wikipedia |
+| `/glossary` | Search any term live on Wikipedia, browse course terms by week, save terms with your own notes |
 
 ## Tech
 
@@ -23,7 +23,17 @@ Course content is summarised from lectures for the *Web Programming I* course.
 - **Bootstrap + react-bootstrap** for styling and layout
 - **Chart.js + react-chartjs-2** for the progress charts
 - **react-toastify** for notifications
-- **Wikipedia REST API** (`fetch` + `async/await`, JSON) for the glossary: `src/api/wikipedia.js`
+- **Wikipedia REST API** (`fetch` + `async/await`, JSON): `src/api/wikipedia.js`. It powers the Glossary page and the **Look up** buttons on every Learn card (the card's text is scanned for course terms such as React, JSON or Git, and a click opens the Wikipedia summary in a popup). Requests are cancelled with `AbortController`, summaries are cached, and loading, error, rate-limit and not-found states are handled.
+- **Vitest + Testing Library + vitest-axe** for tests
+
+## React concepts used
+
+- Props, state (`useState`), effects (`useEffect`), refs (`useRef`: focus management and cancelling requests), reducers (`useReducer`: practice/mock sessions and saved terms), context (`ProgressContext` and `TermsContext`), custom hooks (`useScope`, `useWikiArticle`, `useProgress`, `useTerms`)
+- Controlled forms, conditional rendering, lists with keys, URL state (`useSearchParams`)
+
+## Accessibility
+
+Skip link, focus moved to the page content after each route change, focus moved to results and answers, `aria-live` regions for loading and results, named progress bars and charts, labelled form controls, visible focus outlines, and an automated axe check of every page in the test suite.
 
 ## Run it locally
 
@@ -35,6 +45,7 @@ npm run dev      # development server, http://localhost:5173
 npm run build    # production build into dist/
 npm run preview  # serve the production build
 npm run lint
+npm test         # unit and integration tests (Vitest)
 ```
 
 ## Deploy to GitHub Pages

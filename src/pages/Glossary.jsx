@@ -46,7 +46,7 @@ function ArticleCard({ termKey }) {
             <Button size="sm" variant={isSaved ? 'outline-secondary' : 'outline-primary'} onClick={toggle} aria-pressed={!!isSaved}>
               {isSaved ? 'Saved' : 'Save to my terms'}
             </Button>
-            <a href={article.url} target="_blank" rel="noreferrer">Read more on Wikipedia<span className="visually-hidden"> (opens in a new tab)</span></a>
+            <a href={article.url} target="_blank" rel="noreferrer">Read more on Wikipedia <span className="visually-hidden">(opens in a new tab)</span></a>
           </div>
         </div>
       </Card.Body>
