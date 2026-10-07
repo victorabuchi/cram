@@ -14,6 +14,7 @@ export const write = (key, value) => {
   }
 }
 
+// The app used to be called Scribletics. The storage keys keep that prefix so saved progress carries over.
 export const KEY_PROGRESS = 'scribletics_progress'
 export const KEY_DAYS = 'scribletics_days'
 const DAY = 86400000

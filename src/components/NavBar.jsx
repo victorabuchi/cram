@@ -10,7 +10,7 @@ function NavBar() {
   return (
     <Navbar aria-label="Main" bg="dark" data-bs-theme="dark" expand="sm" sticky="top">
       <Container>
-        <Navbar.Brand as={NavLink} to="/">Scribletics</Navbar.Brand>
+        <Navbar.Brand as={NavLink} to="/">Cram</Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">
           <Nav>
