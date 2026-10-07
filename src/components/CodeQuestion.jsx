@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Alert, Button, Form, Spinner, Table } from 'react-bootstrap'
 import { toast } from 'react-toastify'
+import { checkJava } from '../code/java'
 import { REQUIREMENTS, callText, runCode, show } from '../code/runner'
 import { read, write } from '../storage'
 
@@ -39,6 +40,15 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
   }
 
   const check = async () => {
+    if (item.lang === 'java') {
+      const j = checkJava(code, item.checks)
+      setOutcome({ error: null, java: j.results, results: j.results, missing: [] })
+      if (j.pass) {
+        if (!peeked.current && !passed) toast.success('All checks pass!')
+        onPassed?.()
+      }
+      return
+    }
     setRunning(true)
     const result = await runCode(code, item.fn, item.tests)
     const missing = (item.requires ?? []).filter((r) => !REQUIREMENTS[r].test(code)).map((r) => REQUIREMENTS[r].message)
@@ -67,7 +77,7 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
 
   const results = outcome?.results ?? []
   const passedCount = results.filter((r) => r.pass).length
-  const allPass = outcome && !outcome.error && results.length > 0 && passedCount === results.length && !outcome.missing.length
+  const allPass = outcome && !outcome.error && !outcome.java && results.length > 0 && passedCount === results.length && !outcome.missing.length
 
   return (
     <Form onSubmit={(e) => { e.preventDefault(); check() }}>
@@ -101,7 +111,26 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
 
       <div aria-live="polite">
         {outcome?.error && <Alert variant="danger" role="alert"><strong>Your code could not run.</strong> {outcome.error}</Alert>}
-        {outcome && !outcome.error && (
+        {outcome?.java && (
+          <>
+            <Alert variant={passedCount === results.length ? 'success' : 'warning'} role="status">
+              <strong>{passedCount === results.length ? 'All checks pass!' : `${passedCount} of ${results.length} checks pass.`}</strong>
+              {' '}Java is not run here: your code is checked for the parts a correct answer needs.
+            </Alert>
+            <Table size="sm" bordered responsive aria-label="Test results">
+              <thead><tr><th scope="col">Your code needs</th><th scope="col"><span className="visually-hidden">Result</span></th></tr></thead>
+              <tbody>
+                {results.map((r, i) => (
+                  <tr key={i} className={r.pass ? 'table-success' : 'table-danger'}>
+                    <td>{r.label}</td>
+                    <td>{r.pass ? '✓' : '✗'}<span className="visually-hidden">{r.pass ? ' passed' : ' failed'}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </>
+        )}
+        {outcome && !outcome.error && !outcome.java && (
           <>
             <Alert variant={allPass ? 'success' : 'warning'} role="status">
               <strong>{allPass ? 'All tests pass!' : `${passedCount} of ${results.length} tests pass.`}</strong>

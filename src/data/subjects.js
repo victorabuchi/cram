@@ -6,6 +6,7 @@ import copilot from '../assets/logos/githubcopilot.svg'
 import github from '../assets/logos/github.svg'
 import html5 from '../assets/logos/html5.svg'
 import javascript from '../assets/logos/javascript.svg'
+import java from '../assets/logos/java.svg'
 import json from '../assets/logos/json.svg'
 import react from '../assets/logos/react.svg'
 
@@ -39,6 +40,17 @@ export const SUBJECTS = [
     tools: [{ path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
     weeks: [{ n: 1, title: 'Deterministic finite automata (DFA)', logos: [logo(automaton, 'Finite automaton')] }], // more weeks are added as the materials arrive
+  },
+  {
+    id: 'prog2',
+    title: 'Programming II (Java)',
+    org: 'School of Computing',
+    tools: [{ path: 'all/code', label: 'Java exercises' }],
+    logos: [logo(java, 'Java')],
+    weeks: [
+      { n: 1, title: 'Foundations: variables, methods, conditionals, loops', logos: [logo(java, 'Java')] },
+      { n: 2, title: 'Test level: classes, OOP, JavaFX, threads', logos: [logo(java, 'Java')] },
+    ],
   },
 ]
 

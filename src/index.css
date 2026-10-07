@@ -23,3 +23,12 @@ main:focus { outline: none; }
 .navbar .nav-link { padding: .6rem .9rem; }
 .navbar .nav-link.active { background: #e9ecef; color: #212529; }
 @media (max-width: 575.98px) { .navbar .navbar-toggler { padding: .15rem .4rem; } }
+
+/* The top-bar font runs through the whole app: page titles, cards, buttons, breadcrumbs, learn cards.
+   Questions and anything the user types keep the plain system font and normal case. */
+body { font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif; }
+h1, h2, h3, h4, h5, h6, .btn, .card-title, .card-subtitle, .course-cover-label, .breadcrumb, .nav-tabs, .badge, .progress + small { text-transform: uppercase; letter-spacing: .04em; }
+form, form h1, form h2, form h3, form h4, form h5, form h6, form .btn, form .form-label, form .form-text, form .alert,
+input, textarea, select, pre, code, .modal-body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-transform: none; letter-spacing: normal; }
+form .btn { font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+textarea.font-monospace, pre, pre code, .font-monospace { font-family: var(--bs-font-monospace); }
