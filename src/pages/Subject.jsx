@@ -18,8 +18,9 @@ function Subject() {
       {subject.weeks.length === 0 && <p className="text-body-secondary">No weeks yet. Course materials are added week by week.</p>}
       {subject.weeks.length > 0 && <div className="d-flex gap-2 flex-wrap mb-4">
         <Button as={Link} to={`/s/${subjectId}/all/learn`} variant="outline-primary">Learn all weeks</Button>
-        <Button as={Link} to={`/s/${subjectId}/all/practice`} variant="outline-primary">Practice all weeks</Button>
-        <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>
+        {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/practice`} variant="outline-primary">Practice all weeks</Button>}
+        {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>}
+        {subject.quiz === false && <Button as={Link} to={`/s/${subjectId}/all/code`} variant="outline-primary">Code exercises (all weeks)</Button>}
       </div>}
       {subject.weeks.length > 0 && <h2 className="h5 mb-3">Weeks</h2>}
       <Row xs={1} sm={2} md={3} className="g-3">

@@ -2,7 +2,7 @@ import { Card, Col, Row } from 'react-bootstrap'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import { getSubject } from '../data/subjects'
-import { TOPICS, scopedItems, topicsIn } from '../data/content'
+import { TOPICS, scopedItems, scopedLearn, topicsIn } from '../data/content'
 
 const TOOLS = [
   { path: 'learn', title: 'Learn', text: 'Lecture summaries with code examples.' },
@@ -17,10 +17,14 @@ function WeekHub() {
   if (!subject || !w) return <Navigate to={subject ? `/s/${subjectId}` : '/'} replace />
 
   const scoped = scopedItems(subjectId, week)
-  const topics = topicsIn(scoped).map((k) => TOPICS[k])
+  const topics = [...new Set([...topicsIn(scoped), ...scopedLearn(subjectId, week).map((c) => c.topic)])].map((k) => TOPICS[k])
+  const base = subject.quiz === false ? TOOLS.filter((t) => t.path === 'learn') : TOOLS
+  const codeText = subject.quiz === false
+    ? 'Type your answer, check it, and see the solution.'
+    : 'Write the function and run the tests, like the Moodle JavaScript syntax exercise.'
   const tools = scoped.some((i) => i.kind === 'code')
-    ? [...TOOLS, { path: 'code', title: 'Code exercises', text: 'Write the function and run the tests, like the Moodle JavaScript syntax exercise.' }]
-    : TOOLS
+    ? [...base, { path: 'code', title: 'Code exercises', text: codeText }]
+    : base
   return (
     <>
       <Crumbs subjectId={subjectId} week={week} />

@@ -14,6 +14,7 @@ import react from '../assets/logos/react.svg'
 const logo = (src, alt) => ({ src, alt })
 
 // Dashboard cards. Items in content.json / bmc.json carry `subject` (id) and `week` (number).
+// `quiz: false` hides Practice and Practice test for a course that only has Learn and Code exercises.
 // `tools` are course-specific pages shown in the top bar while inside that course: /s/<id>/<path>.
 // To add a week: add it to `weeks` here, then add its learn cards and questions to the subject's data file.
 export const SUBJECTS = [
@@ -45,11 +46,17 @@ export const SUBJECTS = [
     id: 'prog2',
     title: 'Programming II (Java)',
     org: 'School of Computing',
-    tools: [{ path: 'all/code', label: 'Java exercises' }],
+    quiz: false, // Learn and Code exercises only: no Practice or Practice test
+    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/code', label: 'Code exercises' }],
     logos: [logo(java, 'Java')],
     weeks: [
-      { n: 1, title: 'Foundations: variables, methods, conditionals, loops', logos: [logo(java, 'Java')] },
-      { n: 2, title: 'Test level: classes, OOP, JavaFX, threads', logos: [logo(java, 'Java')] },
+      { n: 1, title: 'Java basics: variables, operators, conditionals, loops', logos: [logo(java, 'Java')] },
+      { n: 2, title: 'Methods, strings and arrays', logos: [logo(java, 'Java')] },
+      { n: 3, title: 'Classes and objects', logos: [logo(java, 'Java')] },
+      { n: 4, title: 'Inheritance, abstract classes, interfaces', logos: [logo(java, 'Java')] },
+      { n: 5, title: 'Exceptions, collections, generics, lambdas', logos: [logo(java, 'Java')] },
+      { n: 6, title: 'Threads', logos: [logo(java, 'Java')] },
+      { n: 7, title: 'JavaFX', logos: [logo(java, 'Java')] },
     ],
   },
 ]

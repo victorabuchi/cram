@@ -28,7 +28,7 @@ function Learn() {
                 <Accordion.Item eventKey={String(i)} key={c.title}>
                   <Accordion.Header>{c.title}</Accordion.Header>
                   <Accordion.Body>
-                    <p>{c.text}</p>
+                    <p style={{ whiteSpace: 'pre-line' }}>{c.text}</p>
                     {c.code && <pre className="code" tabIndex={0} aria-label={`Code example: ${c.title}`}><code>{c.code}</code></pre>}
                     {c.automaton && <AutomatonPlayer automaton={c.automaton} tryThese={c.tryThese} />}
                     {terms.length > 0 && (

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import NavBar from './components/NavBar.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -12,6 +12,13 @@ import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
 import Glossary from './pages/Glossary.jsx'
 import AutomataLab from './pages/AutomataLab.jsx'
+import { getSubject } from './data/subjects'
+
+// Practice and Practice test exist only for courses that have them (a course with quiz: false has Learn and Code exercises only).
+function QuizOnly({ children }) {
+  const { subjectId } = useParams()
+  return getSubject(subjectId)?.quiz === false ? <Navigate to={`/s/${subjectId}`} replace /> : children
+}
 
 function App() {
   const mainRef = useRef(null)
@@ -39,9 +46,9 @@ function App() {
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
-          <Route path="/s/:subjectId/:week/practice" element={<Practice />} />
-          <Route path="/s/:subjectId/:week/mock" element={<Mock />} />
-          <Route path="/s/:subjectId/:week/test" element={<Mock test />} />
+          <Route path="/s/:subjectId/:week/practice" element={<QuizOnly><Practice /></QuizOnly>} />
+          <Route path="/s/:subjectId/:week/mock" element={<QuizOnly><Mock /></QuizOnly>} />
+          <Route path="/s/:subjectId/:week/test" element={<QuizOnly><Mock test /></QuizOnly>} />
           <Route path="/s/:subjectId/progress" element={<Progress />} />
           <Route path="/progress" element={<Navigate to="/" replace />} />
           <Route path="/glossary" element={<Navigate to="/s/webprog/glossary" replace />} />
