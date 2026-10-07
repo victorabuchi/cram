@@ -16,3 +16,10 @@ pre.code input.bad { border-color: #c92a2a; background: #fdecec; }
 .skip-link { position: absolute; top: 8px; left: 8px; z-index: 2000; background: #fff; padding: 8px 12px; border-radius: 6px; }
 main:focus { outline: none; }
 :focus-visible { outline: 3px solid #3b5bdb; outline-offset: 2px; }
+
+/* Top bar: thin, uppercase, Source Sans like the w3schools reference */
+.navbar { --bs-navbar-padding-y: 0; font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .04em; font-size: .9rem; font-weight: 600; min-height: 40px; }
+.navbar .navbar-brand { font-size: 1rem; font-weight: 600; padding-block: 0; margin-right: 1rem; }
+.navbar .nav-link { padding: .6rem .9rem; }
+.navbar .nav-link.active { background: #e9ecef; color: #212529; }
+@media (max-width: 575.98px) { .navbar .navbar-toggler { padding: .15rem .4rem; } }
