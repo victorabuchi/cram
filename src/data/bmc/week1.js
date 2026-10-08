@@ -5,12 +5,6 @@ import * as A from './automata'
 
 const base = { subject: 'bmc', week: 1 }
 const auto = (text) => parseAutomaton(text)
-const chain = (text, input) => {
-  const r = run(auto(text), input)
-  return r.path.join(' → ') + (r.stuckAt !== null ? ' (stuck)' : '')
-}
-const yesNo = (text, input) => run(auto(text), input).accepted
-const finalState = (text, input) => run(auto(text), input).state
 
 // Lecture example 2 as a table: what the machine does with each input.
 const parityTable = ['input  ones  zeros  ends in  result', ...['01', '00', '11', '10', '101', '1100', '1000'].map((w) => {
@@ -135,126 +129,9 @@ c) accepting: a0b0, a1b1`,
 Result: look at the LAST state.` },
 ]
 
-// ---------- Questions ----------
-const mcq = (id, topic, q, options, why, automaton) => ({ ...base, id: `bmc1-${id}`, topic, kind: 'mcq', q, options, why, ...(automaton && { automaton }) })
-
-const concept = [
-  mcq('c1', 'bmc-dfa', 'When does a DFA accept an input string?',
-    ['When, after reading the whole string, it is in an accepting state', 'When it passes through an accepting state at some point', 'When it never gets stuck', 'When it ends in the start state'],
-    'Only the state where the input ENDS matters. Passing through an accepting state does not count.'),
-  mcq('c2', 'bmc-dfa', 'What does "deterministic" mean for a finite automaton?',
-    ['For every state and input symbol there is exactly one next state', 'The automaton always accepts', 'The automaton has only one state', 'The automaton can choose any arrow at random'],
-    'No choices: the next state is fully determined by the current state and the symbol.'),
-  mcq('c3', 'bmc-dfa', 'In the 5-tuple (Q, Σ, δ, s, F), what is δ?',
-    ['The transition function δ: Q × Σ → Q', 'The set of accepting states', 'The alphabet', 'The start state'],
-    'Q = states, Σ = alphabet, δ = transitions, s = start state, F = accepting states.'),
-  mcq('c4', 'bmc-dfa', 'In the 5-tuple (Q, Σ, δ, s, F), what is F?',
-    ['The set of accepting (final) states', 'The set of all states', 'The final symbol of the input', 'The failing state'],
-    'F is a subset of Q.'),
-  mcq('c5', 'bmc-dfa', 'How is an accepting state drawn in JFLAP and on the exercise sheets?',
-    ['As a double circle', 'As a circle with a triangle', 'As a filled black circle', 'As a square'],
-    'The triangle marks the START state.'),
-  mcq('c6', 'bmc-dfa', 'What happens when a state has no arrow for the next input symbol?',
-    ['The automaton is stuck and the input is rejected (in a strict DFA every state has all arrows)', 'The automaton stays in the same state and continues', 'The input is accepted', 'The automaton restarts from the start state'],
-    'A complete DFA has an arrow for every symbol, using a dead state if needed.'),
-  mcq('c7', 'bmc-dfa', 'What is a dead (trap) state?',
-    ['A non-accepting state that loops to itself on every symbol', 'The start state', 'An accepting state with no arrows', 'A state that cannot be reached'],
-    'Once the machine is in a dead state the input can never be accepted.'),
-  mcq('c8', 'bmc-dfa', 'Does the empty string get accepted by a DFA whose start state is accepting?',
-    ['Yes, the machine has read nothing and is in the start state, which is accepting', 'No, the empty string is never accepted', 'Only if the alphabet is empty', 'Only if there is a loop on the start state'],
-    'Input ends immediately, so the state is the start state.'),
-  mcq('c9', 'bmc-dfa', 'A DFA has 4 states. What is the most it can "remember" about the input read so far?',
-    ['Which of its 4 states it is in, nothing else', 'The whole input', 'The number of symbols read', 'The last 4 symbols'],
-    'A DFA has no memory except its current state. That is why the states must be chosen to hold exactly what matters.'),
-  mcq('c10', 'bmc-dfa', 'Why can T2 not simply add transitions labelled "-1", "-2", "-3"?',
-    ['δ is defined on single symbols (Q × Σ → Q); multi-character labels would need infinitely many pairs and break finiteness', 'Because negative numbers cannot be stored in a computer', 'Because JFLAP forbids the minus sign', 'Because a DFA can only have six states'],
-    'Instead add "-" to the alphabet and states that remember a minus was read.'),
-  mcq('c11', 'bmc-design', 'What is the purpose of the states q0-, q1-, ..., q5- in T2?',
-    ['They remember that a minus sign was just read, so the next digit is subtracted', 'They are extra accepting states', 'They store the sign of the final result', 'They count how many minus signs were read'],
-    'From qi- the digit k leads to q((i - k) mod 6).'),
-  mcq('c12', 'bmc-design', 'In T3 (no abc), which state is the trap?',
-    ['q_abc', 'q0', 'q_a', 'q_ab'],
-    'Once abc has been read the string can never be accepted, so q_abc loops on a, b and c and is not accepting.'),
-  mcq('c13', 'bmc-design', 'T6 b) and c) use the same four states. What differs?',
-    ['Which states are accepting', 'The alphabet', 'The start state', 'The transitions on c'],
-    'The states and arrows only track parities; "OR" or "XOR" is decided by the set F.'),
-  mcq('c14', 'bmc-design', 'How many states does the T1 automaton (sum modulo 6) need, and why?',
-    ['6, one for each possible remainder 0..5', '3, one for each input symbol', '1, the sum is stored in the state name', 'Infinitely many, since the sum grows'],
-    'Only the remainder modulo 6 matters, so the sum never has to be stored in full.'),
-]
-
-// "Does it accept ...?" with the answer computed from the automaton, never typed by hand
-function acceptQuestion(id, topic, text, input, wording) {
-  const ok = yesNo(text, input)
-  const end = finalState(text, input)
-  const shown = input === '' ? 'the empty string' : `"${input}"`
-  return {
-    ...mcq(id, topic, `Does this DFA accept ${shown}?`,
-      ok
-        ? [`Yes: it ends in ${end}, an accepting state`, `No: it ends in ${end}, which is not accepting`, 'No: it gets stuck', 'Yes: it never visits a non-accepting state']
-        : [`No: ${run(auto(text), input).stuckAt !== null ? 'it gets stuck' : `it ends in ${end}, which is not accepting`}`, `Yes: it ends in an accepting state`, 'Yes: it passes through an accepting state', 'Cannot be decided from the picture'],
-      `${wording} Path: ${chain(text, input)}.`, text),
-  }
-}
-
-const accept = [
-  acceptQuestion('a1', 'bmc-trace', A.EXACTLY_ONE_B, 'aba', 'One b was read.'),
-  acceptQuestion('a2', 'bmc-trace', A.EXACTLY_ONE_B, 'abb', 'The second b has no arrow in B.'),
-  acceptQuestion('a3', 'bmc-trace', A.AT_LEAST_ONE_B, 'aaabbb', 'B accepts and loops.'),
-  acceptQuestion('a4', 'bmc-trace', A.AT_LEAST_ONE_B, 'aaaa', 'No b was read, so it stays in A.'),
-  acceptQuestion('a5', 'bmc-trace', A.PARITY_01, '1100', 'Two ones and two zeros: both counts are even.'),
-  acceptQuestion('a6', 'bmc-trace', A.PARITY_01, '101', 'Two ones (even) and one zero (odd).'),
-  acceptQuestion('a7', 'bmc-trace', A.CONTAINS_00, '1101', 'There is no 00 in the string.'),
-  acceptQuestion('a8', 'bmc-trace', A.CONTAINS_00, '01001', 'The string has 00 at positions 3-4.'),
-  acceptQuestion('a9', 'bmc-trace', A.SUM_MOD_6, '33', '3 + 3 = 6 ≡ 0 (mod 6).'),
-  acceptQuestion('a10', 'bmc-trace', A.SUM_MOD_6, '1231', '1 + 2 + 3 + 1 = 7 ≡ 1 (mod 6).'),
-  acceptQuestion('a11', 'bmc-trace', A.NO_ABC, 'aabca', 'The string contains abc.'),
-  acceptQuestion('a12', 'bmc-trace', A.NO_ABC, 'cabbc', 'abb and bbc, but no abc.'),
-  acceptQuestion('a13', 'bmc-trace', A.HAS_112, '45,112,7', 'The list contains the number 112.'),
-  acceptQuestion('a14', 'bmc-trace', A.HAS_112, '1121,12', '1121 is not 112.'),
-  acceptQuestion('a15', 'bmc-trace', A.ODD_A, 'bcab', 'One a is an odd number of a.'),
-  acceptQuestion('a16', 'bmc-trace', A.A_ODD_OR_B_EVEN, 'ab', 'a is odd, so OR is true.'),
-  acceptQuestion('a17', 'bmc-trace', A.A_ODD_XOR_B_EVEN, 'a', 'a odd is true and b even is true: both are true, so "exactly one" fails.'),
-  acceptQuestion('a18', 'bmc-trace', A.A_ODD_XOR_B_EVEN, 'ab', 'a odd is true, b even is false: exactly one is true.'),
-]
-
-// Typed answers: the state the machine ends in.
-const stateQuestion = (id, text, input, ask) => ({
-  ...base, id: `bmc1-${id}`, topic: 'bmc-trace', kind: 'predict', title: ask ?? `In which state does the DFA end after reading ${input === '' ? 'the empty string' : `"${input}"`}?`,
-  answers: [finalState(text, input)], note: `Path: ${chain(text, input)}`, automaton: text,
-})
-const states = [
-  stateQuestion('s1', A.CONTAINS_00, '1101'),
-  stateQuestion('s2', A.CONTAINS_00, '01001'),
-  stateQuestion('s3', A.SUM_MOD_6, '123'),
-  stateQuestion('s4', A.SUM_MOD_6, '2312'),
-  stateQuestion('s5', A.NO_ABC, 'bcabca'),
-  stateQuestion('s6', A.PARITY_01, '1011'),
-  stateQuestion('s7', A.A_ODD_OR_B_EVEN, 'aabc'),
-  stateQuestion('s8', A.SUM_MOD_6_NEGATIVE, '-12'),
-  stateQuestion('s9', A.SUM_MOD_6_NEGATIVE, '3-1'),
-]
-
-const language = [
-  mcq('l1', 'bmc-trace', 'Which language does this DFA accept?',
-    ['All bit strings that contain the substring 00', 'All bit strings that end in 00', 'All bit strings that start with 00', 'All bit strings with an even number of zeros'],
-    'q1 = just read a 0; a second 0 right away reaches the accepting trap q2. A 1 resets to q0.', A.CONTAINS_00),
-  mcq('l2', 'bmc-trace', 'Which language does this DFA accept (Σ = {a, b, c})?',
-    ['Strings with an odd number of a', 'Strings with an even number of a', 'Strings that contain exactly one a', 'Strings that end in a'],
-    'a toggles between a0 and a1; b and c are loops. a1 accepts.', A.ODD_A),
-  mcq('l3', 'bmc-trace', 'Which language does this DFA accept (Σ = {a, b, c})?',
-    ['Strings that do NOT contain abc', 'Strings that contain abc', 'Strings that end with abc', 'Strings that start with abc'],
-    'q_abc is a non-accepting trap: reaching it means abc was seen.', A.NO_ABC),
-  mcq('l4', 'bmc-trace', 'Which language does this DFA accept?',
-    ['Strings where the number of ones is odd or the number of zeros is odd', 'Strings where both counts are odd', 'Strings with the same number of zeros and ones', 'Strings with an even length'],
-    'Only 00 (both even) rejects.', A.PARITY_01),
-  mcq('l5', 'bmc-trace', 'What does this DFA accept (inputs are numbers separated by commas)?',
-    ['Lists that contain the number 112', 'Lists whose first number is 112', 'Lists whose last number is 112', 'Lists that contain a number starting with 112'],
-    '1121 does not count: a digit after 112 leads to nope.', A.HAS_112),
-]
-
+// ---------- Exercise 1 ----------
 // Design tasks: the student draws on paper first, then compares with the model solution (diagram + formal definition).
-const design = (id, q, keyPoints, model, modelAutomaton) => ({ ...base, id: `bmc1-${id}`, topic: 'bmc-design', kind: 'explain', q, keyPoints, model, modelAutomaton })
+const design = (id, q, keyPoints, model, modelAutomaton) => ({ ...base, id: `bmc1-${id}`, topic: 'bmc-design', kind: 'explain', exercise: 'Exercise 1', q, keyPoints, model, modelAutomaton })
 const designs = [
   design('d1', 'T1. Make an automaton: Σ = {1, 2, 3}. It sums the numbers it receives modulo 6 and accepts when the sum is 0 (mod 6). Draw it on paper, then compare.',
     ['six states q0..q5; qi means "sum is i modulo 6"', 'start state q0, and q0 is the only accepting state', 'δ(qi, k) = q((i + k) mod 6)', 'every state has an arrow for each of 1, 2 and 3'],
@@ -285,4 +162,4 @@ const designs = [
     'It accepts exactly the words over {a, b} with at least one b. It stays in A while reading a; the first b moves to B, which is accepting and loops on a and b because once a b has been seen nothing can undo that. Trace of aaabbb: A →a A →a A →a A →b B →b B →b B, which ends in the accepting state B: accepted. aaaa ends in A and is rejected.', A.AT_LEAST_ONE_B),
 ]
 
-export const questions = [...concept, ...accept, ...states, ...language, ...designs]
+export const questions = designs

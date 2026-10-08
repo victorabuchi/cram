@@ -53,7 +53,7 @@ describe('subjects', () => {
     renderApp('/s/bmc')
     await user.click(screen.getByRole('link', { name: /Week 1/ }))
     expect(await screen.findByRole('heading', { name: /Deterministic finite automata/ })).toBeInTheDocument()
-    await user.click(screen.getByRole('link', { name: /Learn/ }))
+    await user.click(within(screen.getByRole('main')).getByRole('link', { name: /Learn/ }))
     await user.click(screen.getByRole('button', { name: /What a DFA is/ }))
     expect(screen.getAllByRole('img', { name: /Finite automaton with states A, B/ }).length).toBeGreaterThan(0)
   })
@@ -240,7 +240,7 @@ describe('Progress page (one per course)', () => {
     localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 } }))
     renderApp('/s/bmc/progress')
     expect(screen.getByRole('heading', { name: /Progress/ })).toHaveTextContent('Basic Models of Computation')
-    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/55$/)
+    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/15$/)
   })
 
   it('keeps study days per course, and moves old single-course data to Web Programming I', () => {

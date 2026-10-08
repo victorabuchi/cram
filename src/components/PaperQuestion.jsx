@@ -1,0 +1,42 @@
+import { useState } from 'react'
+import { Alert, Button } from 'react-bootstrap'
+import PdfViewer from './PdfViewer.jsx'
+
+// A pen-and-paper exercise: solve it on paper, show the teacher's answer, then say whether you got it.
+// onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
+function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
+  const [shown, setShown] = useState(false)
+  const [verdict, setVerdict] = useState(null)
+
+  const choose = (correct) => {
+    setVerdict(correct)
+    onScore(correct)
+  }
+
+  return (
+    <div>
+      <h2 className="h5">{item.title}</h2>
+      {item.prompt.map((p, i) => <p key={i} style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
+      <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
+
+      {!shown && <Button onClick={() => setShown(true)}>Show answer</Button>}
+      {shown && (
+        <>
+          <Alert variant="light" className="border" role="region" aria-label="Answer">
+            <strong>Answer</strong>
+            {item.answer.map((a, i) => <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>)}
+          </Alert>
+          <h3 className="h6">The teacher's page</h3>
+          <PdfViewer file={item.pdf} page={item.page} title={`${item.title} (answer page)`} height="70vh" />
+          <div className="d-flex flex-wrap gap-2 my-3" role="group" aria-label="How did it go?">
+            <Button variant={verdict === true ? 'success' : 'outline-success'} aria-pressed={verdict === true} onClick={() => choose(true)}>I solved it</Button>
+            <Button variant={verdict === false ? 'danger' : 'outline-danger'} aria-pressed={verdict === false} onClick={() => choose(false)}>I need to practise this</Button>
+            <Button variant="outline-secondary" onClick={onNext}>{lastLabel}</Button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+export default PaperQuestion

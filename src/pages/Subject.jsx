@@ -10,6 +10,10 @@ function Subject() {
   const subject = getSubject(subjectId)
   if (!subject) return <Navigate to="/" replace />
 
+  const all = scopedItems(subjectId, 'all')
+  const hasCode = all.some((i) => i.kind === 'code')
+  const hasExercises = all.some((i) => i.exercise)
+
   return (
     <>
       <Crumbs subjectId={subjectId} />
@@ -20,7 +24,8 @@ function Subject() {
         <Button as={Link} to={`/s/${subjectId}/all/learn`} variant="outline-primary">Learn all weeks</Button>
         {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/practice`} variant="outline-primary">Practice all weeks</Button>}
         {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>}
-        {subject.quiz === false && <Button as={Link} to={`/s/${subjectId}/all/code`} variant="outline-primary">Code exercises (all weeks)</Button>}
+        {subject.quiz === false && hasCode && <Button as={Link} to={`/s/${subjectId}/all/code`} variant="outline-primary">Code exercises (all weeks)</Button>}
+        {subject.quiz === false && hasExercises && <Button as={Link} to={`/s/${subjectId}/all/exercises`} variant="outline-primary">Exercises (all weeks)</Button>}
       </div>}
       {subject.weeks.length > 0 && <h2 className="h5 mb-3">Weeks</h2>}
       <Row xs={1} sm={2} md={3} className="g-3">

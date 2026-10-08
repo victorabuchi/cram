@@ -5,7 +5,7 @@ import { getSubject } from '../data/subjects'
 import { TOPICS, scopedItems, scopedLearn, topicsIn } from '../data/content'
 
 const TOOLS = [
-  { path: 'learn', title: 'Learn', text: 'Lecture summaries with code examples.' },
+  { path: 'learn', title: 'Learn', text: 'Lecture summaries and notes.' },
   { path: 'practice', title: 'Practice', text: 'Questions with instant feedback. Wrong answers come back sooner.' },
   { path: 'mock', title: 'Practice test', text: 'Mixed questions, no feedback until the end.' },
 ]
@@ -22,9 +22,11 @@ function WeekHub() {
   const codeText = subject.quiz === false
     ? 'Type your answer, check it, and see the solution.'
     : 'Write the function and run the tests, like the Moodle JavaScript syntax exercise.'
-  const tools = scoped.some((i) => i.kind === 'code')
-    ? [...base, { path: 'code', title: 'Code exercises', text: codeText }]
-    : base
+  const tools = [
+    ...base,
+    ...(scoped.some((i) => i.kind === 'code') ? [{ path: 'code', title: 'Code exercises', text: codeText }] : []),
+    ...(scoped.some((i) => i.exercise) ? [{ path: 'exercises', title: 'Exercises', text: 'The exercise tasks the test is built from. Solve on paper, then check the answer.' }] : []),
+  ]
   return (
     <>
       <Crumbs subjectId={subjectId} week={week} />

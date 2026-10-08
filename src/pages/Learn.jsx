@@ -3,15 +3,35 @@ import { Accordion, Button } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
+import PdfViewer from '../components/PdfViewer.jsx'
 import TermModal from '../components/TermModal.jsx'
 import { TOPICS } from '../data/content'
 import { findTerms } from '../data/terms'
 import { useScope } from '../useScope'
 
 function Learn() {
-  const { subjectId, week, valid, learn, label } = useScope()
+  const { subjectId, week, valid, learn, docs, label } = useScope()
   const [term, setTerm] = useState(null)
+  const [picked, setPicked] = useState(0)
   if (!valid) return <Navigate to="/" replace />
+
+  // A week with PDFs shows the PDF itself (one tab per document); other weeks show the learn cards.
+  if (docs.length) {
+    const doc = docs[Math.min(picked, docs.length - 1)]
+    return (
+      <>
+        <Crumbs subjectId={subjectId} week={week} current="Learn" />
+        <h1 className="h3 mb-3">Learn <small className="text-body-secondary fs-6">{label}</small></h1>
+        <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Documents">
+          {docs.map((d, i) => (
+            <Button key={d.file} variant={d === doc ? 'primary' : 'outline-primary'} aria-pressed={d === doc} onClick={() => setPicked(i)}>{d.title}</Button>
+          ))}
+        </div>
+        <PdfViewer key={doc.file} file={doc.file} title={doc.title} height="85vh" />
+        {learn.length > 0 && <p className="text-body-secondary small mt-3">This week also has {learn.length} short learn cards.</p>}
+      </>
+    )
+  }
 
   const topics = Object.keys(TOPICS).filter((k) => learn.some((c) => c.topic === k))
   return (

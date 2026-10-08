@@ -14,7 +14,7 @@ import react from '../assets/logos/react.svg'
 const logo = (src, alt) => ({ src, alt })
 
 // Dashboard cards. Items in content.json / bmc.json carry `subject` (id) and `week` (number).
-// `quiz: false` hides Practice and Practice test for a course that only has Learn and Code exercises.
+// `quiz: false` hides Practice and Practice test for a course that only has Learn and Code exercises / Exercises.
 // `tools` are course-specific pages shown in the top bar while inside that course: /s/<id>/<path>.
 // To add a week: add it to `weeks` here, then add its learn cards and questions to the subject's data file.
 export const SUBJECTS = [
@@ -38,9 +38,15 @@ export const SUBJECTS = [
     id: 'bmc',
     title: 'Basic Models of Computation',
     org: 'School of Computing',
-    tools: [{ path: 'automata', label: 'Automata lab' }],
+    quiz: false, // pen-and-paper theory test built from the exercises: Learn (the lecture PDFs) and Exercises only
+    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
-    weeks: [{ n: 1, title: 'Deterministic finite automata (DFA)', logos: [logo(automaton, 'Finite automaton')] }], // more weeks are added as the materials arrive
+    weeks: [
+      { n: 1, title: 'Deterministic finite automata (DFA) and exercise 1', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 2, title: 'DFA definition, the parking meter, regular expression basics', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 3, title: 'Languages, trap state, NFA, minimization', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 4, title: 'Grammars, regular expressions and exercise 2', logos: [logo(automaton, 'Finite automaton')] },
+    ],
   },
   {
     id: 'prog2',

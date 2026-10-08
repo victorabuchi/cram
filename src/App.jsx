@@ -7,6 +7,7 @@ import Subject from './pages/Subject.jsx'
 import WeekHub from './pages/WeekHub.jsx'
 import Learn from './pages/Learn.jsx'
 import CodeExercises from './pages/CodeExercises.jsx'
+import Exercises from './pages/Exercises.jsx'
 import Practice from './pages/Practice.jsx'
 import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
@@ -46,6 +47,7 @@ function App() {
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
+          <Route path="/s/:subjectId/:week/exercises" element={<Exercises />} />
           <Route path="/s/:subjectId/:week/practice" element={<QuizOnly><Practice /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/mock" element={<QuizOnly><Mock /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/test" element={<QuizOnly><Mock test /></QuizOnly>} />

@@ -12,6 +12,7 @@ const SOURCES = [webprog, jsSyntax, practiceSet, webprogWeek6, bmc, prog2]
 export const TOPICS = Object.assign({}, ...SOURCES.map((s) => s.topics))
 export const LEARN = SOURCES.flatMap((s) => s.learn)
 export const ITEMS = SOURCES.flatMap((s) => s.questions)
+export const DOCS = SOURCES.flatMap((s) => s.docs ?? []) // course PDFs, shown as they are
 
 export const KIND_NAMES = {
   code: 'Write the function',
@@ -19,6 +20,7 @@ export const KIND_NAMES = {
   predict: 'Predict the output',
   mcq: 'Multiple choice',
   explain: 'Explain the code',
+  paper: 'Pen and paper',
 }
 
 // week is a number, or 'all' for every week of the subject
@@ -29,6 +31,7 @@ export function inScope(item, subjectId, week) {
 }
 
 export const scopedItems = (subjectId, week) => ITEMS.filter((i) => inScope(i, subjectId, week))
+export const scopedDocs = (subjectId, week) => DOCS.filter((d) => inScope(d, subjectId, week))
 export const scopedLearn = (subjectId, week) => LEARN.filter((c) => inScope(c, subjectId, week))
 
 export const topicsIn = (items) => Object.keys(TOPICS).filter((k) => items.some((i) => i.topic === k))

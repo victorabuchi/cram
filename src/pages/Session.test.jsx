@@ -38,7 +38,7 @@ describe('Practice test: going back', () => {
 
   it('reviews every multiple-choice question afterwards, with your answer and the correct one', async () => {
     const user = userEvent.setup()
-    renderApp('/s/bmc/1/mock')
+    renderApp('/s/webprog/1/mock')
     await user.click(screen.getByRole('button', { name: 'Start practice test' }))
     const total = Number(screen.getByText(/Question 1 of (\d+)/).textContent.match(/of (\d+)/)[1])
     const answers = []
@@ -68,7 +68,7 @@ describe('Practice test: going back', () => {
 
   it('shows the explanation under each reviewed question', async () => {
     const user = userEvent.setup()
-    renderApp('/s/bmc/1/mock')
+    renderApp('/s/webprog/1/mock')
     await user.click(screen.getByRole('button', { name: 'Start practice test' }))
     for (let guard = 0; guard < 30 && !screen.queryByRole('heading', { name: 'Practice test results' }); guard++) {
       const group = screen.queryByRole('group', { name: 'Answer options' })
