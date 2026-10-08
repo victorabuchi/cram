@@ -2,6 +2,7 @@
 // kind "code" with lang "java": the student types Java and Check looks for the parts a correct answer needs
 // (`checks`: { label, re }; see src/code/java.js). `solution` is shown on request and is verified by index.test.js.
 import * as lessons from './learn.js'
+import { runs } from './runs.js'
 
 const c = (label, re) => ({ label, re })
 const ex = (week, topic) => ({ subject: 'prog2', week, topic, kind: 'code', lang: 'java' })
@@ -9,7 +10,7 @@ const ex = (week, topic) => ({ subject: 'prog2', week, topic, kind: 'code', lang
 export const topics = lessons.topics
 export const learn = lessons.learn
 
-export const questions = [
+const exercises = [
   // ---------- Week 1: foundations ----------
   { ...ex(1, 'j-basics'), id: 'j-1', title: 'Variables and data types',
     prompt: ['Inside main, declare: int years = 5, double val = 5.5, String name = "Luis", boolean boiling = false.', 'Then declare double temperature as val * 10 and int age as years + 1, and print all six variables with System.out.println.'],
@@ -313,3 +314,6 @@ class Helicopter extends Vehicle implements hasEngine {
     return true;
 }` },
 ]
+
+// Each exercise also knows how to be run for real (see runs.js); without the Java runner the pattern checks are used.
+export const questions = exercises.map((q) => (runs[q.id] ? { ...q, run: runs[q.id] } : q))

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Alert, Button, Form, Spinner, Table } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { checkJava } from '../code/java'
+import { runStudentJava, runnerAvailable } from '../code/javaRun'
 import { REQUIREMENTS, callText, runCode, show } from '../code/runner'
 import { read, write } from '../storage'
 
@@ -41,10 +42,21 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
 
   const check = async () => {
     if (item.lang === 'java') {
+      // With the Java runner (npm run java) the code is really compiled and run; without it only the pattern checks are used.
+      setRunning(true)
+      let live = null
+      if (item.run && (await runnerAvailable())) {
+        try {
+          live = await runStudentJava(item.run, code)
+        } catch {
+          live = null
+        }
+      }
       const j = checkJava(code, item.checks)
-      setOutcome({ error: null, java: j.results, results: j.results, missing: [] })
-      if (j.pass) {
-        if (!peeked.current && !passed) toast.success('All checks pass!')
+      setOutcome({ error: null, java: j.results, results: j.results, missing: [], live })
+      setRunning(false)
+      if (live ? live.pass : j.pass) {
+        if (!peeked.current && !passed) toast.success(live ? 'Your Java ran and printed the right output!' : 'All checks pass!')
         onPassed?.()
       }
       return
@@ -99,7 +111,7 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
           onChange={(e) => change(e.target.value)}
           onKeyDown={onKeyDown}
         />
-        <Form.Text id={`code-help-${item.id}`}>Tab indents. Press Esc, then Tab, to move to the next control.</Form.Text>
+        <Form.Text id={`code-help-${item.id}`}>Tab indents. Press Esc, then Tab, to move to the next control.{item.lang === 'java' && ' To run Java for real, start the Java runner with npm run java.'}</Form.Text>
       </Form.Group>
 
       <div className="d-flex flex-wrap gap-2 mb-3">
@@ -111,11 +123,36 @@ function CodeQuestion({ item, onPassed, onPeek, passed }) {
 
       <div aria-live="polite">
         {outcome?.error && <Alert variant="danger" role="alert"><strong>Your code could not run.</strong> {outcome.error}</Alert>}
-        {outcome?.java && (
+        {outcome?.live && (
+          <>
+            <Alert variant={outcome.live.pass ? 'success' : 'warning'} role="status">
+              <strong>
+                {outcome.live.stage === 'compile' ? 'Your code does not compile.' : outcome.live.pass ? 'Your Java ran and printed the right output!' : outcome.live.timedOut ? 'Time limit exceeded.' : 'The output is not what it should be.'}
+              </strong>
+              {' '}Run with real Java on this computer.
+            </Alert>
+            {(outcome.live.stage === 'compile' || outcome.live.error) && !outcome.live.pass && (
+              <pre className="code" aria-label="Compiler or runtime message"><code>{outcome.live.error}</code></pre>
+            )}
+            {outcome.live.stage === 'done' && (
+              <div className="row g-2 mb-3">
+                <div className="col-md-6">
+                  <h3 className="h6">Expected output</h3>
+                  <pre className="code" aria-label="Expected output"><code>{outcome.live.expected}</code></pre>
+                </div>
+                <div className="col-md-6">
+                  <h3 className="h6">Your output</h3>
+                  <pre className="code" aria-label="Your output"><code>{outcome.live.got || '(nothing printed)'}</code></pre>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        {outcome?.java && !outcome.live && (
           <>
             <Alert variant={passedCount === results.length ? 'success' : 'warning'} role="status">
               <strong>{passedCount === results.length ? 'All checks pass!' : `${passedCount} of ${results.length} checks pass.`}</strong>
-              {' '}Java is not run here: your code is checked for the parts a correct answer needs.
+              {' '}The Java runner is not running, so your code was not run: it was only checked for the parts a correct answer needs. Start it with <code>npm run java</code> to run it for real.
             </Alert>
             <Table size="sm" bordered responsive aria-label="Test results">
               <thead><tr><th scope="col">Your code needs</th><th scope="col"><span className="visually-hidden">Result</span></th></tr></thead>

@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { renderApp } from '../test/helpers.jsx'
 
 describe('Programming II (Java) has only Learn and Code exercises', () => {
@@ -29,7 +30,6 @@ describe('Programming II (Java) has only Learn and Code exercises', () => {
   })
 
   it('types a Java answer, checks it and shows the solution', async () => {
-    const { default: userEvent } = await import('@testing-library/user-event')
     const user = userEvent.setup()
     renderApp('/s/prog2/6/code')
     await user.click(screen.getByRole('button', { name: 'Check' }))
@@ -37,5 +37,44 @@ describe('Programming II (Java) has only Learn and Code exercises', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     await user.click(screen.getByRole('button', { name: 'Show solution' }))
     expect(within(document.body).getByText(/One possible solution/)).toBeInTheDocument()
+  })
+
+  it('runs the code with the Java runner when it is running, and compares the output', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.fn(async (url) => ({
+      json: async () => (String(url).endsWith('/health')
+        ? { ok: true, java: true }
+        : { ok: true, stage: 'run', stdout: 'Same\nNot same\nSame\nNot same\n', stderr: '', timedOut: false }),
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    renderApp('/s/prog2/1/code')
+    await user.click(screen.getByRole('button', { name: 'Question 2' }))
+    await user.click(screen.getByRole('button', { name: 'Check' }))
+    expect(await screen.findByText('Your Java ran and printed the right output!', { selector: 'strong' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Expected output')).toHaveTextContent(/Same\s*Not same\s*Same\s*Not same/)
+    const run = fetchMock.mock.calls.find(([u]) => String(u).endsWith('/run'))
+    expect(JSON.parse(run[1].body).main).toBe('Main')
+  })
+
+  it('shows the compiler message when the code does not compile', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async (url) => ({
+      json: async () => (String(url).endsWith('/health')
+        ? { ok: true, java: true }
+        : { ok: false, stage: 'compile', stdout: '', stderr: 'Main.java:3: error: \';\' expected', timedOut: false }),
+    })))
+    renderApp('/s/prog2/1/code')
+    await user.click(screen.getByRole('button', { name: 'Check' }))
+    expect(await screen.findByText('Your code does not compile.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Compiler or runtime message')).toHaveTextContent("error: ';' expected")
+  })
+
+  it('falls back to the pattern checks, and says so, when the runner is not running', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch') }))
+    renderApp('/s/prog2/1/code')
+    await user.click(screen.getByRole('button', { name: 'Check' }))
+    expect(await screen.findByText(/The Java runner is not running/)).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: 'Test results' })).toBeInTheDocument()
   })
 })

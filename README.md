@@ -51,6 +51,16 @@ npm run lint
 npm test         # unit and integration tests (Vitest)
 ```
 
+## Running Java for real (Programming II)
+
+The Java exercises can compile and run your code with the JDK on your computer. Start the runner in a second terminal and keep it open:
+
+```
+npm run java
+```
+
+Then press Check on a Java exercise: the code is compiled and run, and your output is compared with the expected output. Without the runner the exercises fall back to checking that your code contains the needed parts. The runner listens on 127.0.0.1:8787 only, answers only this site and localhost pages, and does not sandbox the code, so run only your own code. On the live site some browsers (Safari) block a web page from talking to localhost; use Chrome or Firefox, or `npm run dev`, then.
+
 ## Deploy to GitHub Pages
 
 1. Push the repository to GitHub (public).
