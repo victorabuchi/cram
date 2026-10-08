@@ -143,24 +143,38 @@ describe('practice test', () => {
   })
 })
 
-describe('Learn cards: W3Schools links and the Wikipedia fallback', () => {
+describe('Learn cards: term popups (MDN, with a Wikipedia fallback)', () => {
   const VITE_PAGE = { 'Vite_(software)': { title: 'Vite (software)', description: 'Build tool', extract: 'Vite is a free and open-source front-end build tool.' } }
+  const MDN_PAGE = `---
+title: React
+slug: Learn_web_development/Core/Frameworks_libraries/React_getting_started
+---
 
-  it('links a term to its W3Schools page in a new tab', async () => {
+React is a **JavaScript** library for building user interfaces, see {{glossary("API", "the API")}}.
+`
+  const stubMdn = () => vi.stubGlobal('fetch', vi.fn(async (url) => (String(url).includes('raw.githubusercontent.com/mdn/content')
+    ? { ok: true, status: 200, text: async () => MDN_PAGE }
+    : { ok: false, status: 404, json: async () => ({}) })))
+
+  it('shows the MDN explanation in a popup, with links to MDN and W3Schools', async () => {
     const user = userEvent.setup()
+    stubMdn()
     renderApp('/s/webprog/5/learn')
     await user.click(screen.getByRole('button', { name: /Why React/ }))
-    const link = (await screen.findAllByRole('link', { name: /^React\s+on W3Schools/ }))[0]
-    expect(link).toHaveAttribute('href', 'https://www.w3schools.com/react/default.asp')
-    expect(link).toHaveAttribute('target', '_blank')
+    await user.click((await screen.findAllByRole('button', { name: /^React\s*: open the explanation$/ }))[0])
+    const dialog = await screen.findByRole('dialog')
+    expect(await within(dialog).findByText(/React is a JavaScript library for building user interfaces, see the API\./)).toBeInTheDocument()
+    expect(within(dialog).getByRole('link', { name: /W3Schools page/ })).toHaveAttribute('href', 'https://www.w3schools.com/react/default.asp')
+    expect(within(dialog).getAllByRole('link', { name: /MDN/ })[0]).toHaveAttribute('href', 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Frameworks_libraries/React_getting_started')
+    expect(within(dialog).getByText(/CC BY-SA 2\.5/)).toBeInTheDocument()
   })
 
-  it('uses a Wikipedia summary for a term W3Schools has no page for, then saves it', async () => {
+  it('uses a Wikipedia summary for a term MDN has no page for, then saves it', async () => {
     const user = userEvent.setup()
     const f = fakeWikipedia(VITE_PAGE)
     renderApp('/s/webprog/5/learn')
     await user.click(screen.getByRole('button', { name: /Starting a React project with Vite/ }))
-    await user.click((await screen.findAllByRole('button', { name: /^Vite\s+on Wikipedia$/ }))[0])
+    await user.click((await screen.findAllByRole('button', { name: /^Vite\s*: open the explanation$/ }))[0])
 
     const dialog = await screen.findByRole('dialog')
     expect(await within(dialog).findByText(/free and open-source front-end/)).toBeInTheDocument()
@@ -171,12 +185,12 @@ describe('Learn cards: W3Schools links and the Wikipedia fallback', () => {
     expect(JSON.parse(localStorage.getItem('scribletics_saved_terms'))).toEqual([{ key: 'Vite_(software)', title: 'Vite (software)', note: '' }])
   })
 
-  it('shows an error message when Wikipedia is unreachable', async () => {
+  it('shows an error message when the explanation cannot be loaded', async () => {
     const user = userEvent.setup()
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}), text: async () => '' }))
     renderApp('/s/webprog/5/learn')
     await user.click(screen.getByRole('button', { name: /Starting a React project with Vite/ }))
-    await user.click((await screen.findAllByRole('button', { name: /^Vite\s+on Wikipedia$/ }))[0])
+    await user.click((await screen.findAllByRole('button', { name: /^Vite\s*: open the explanation$/ }))[0])
     expect(await within(await screen.findByRole('dialog')).findByText(/status 500/)).toBeInTheDocument()
   })
 })
@@ -210,14 +224,17 @@ describe('Glossary', () => {
 
   it('opens a term from the By week tab', async () => {
     const user = userEvent.setup()
-    fakeWikipedia(pages)
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      text: async () => '---\ntitle: JSON\nslug: Web/JavaScript/Reference/Global_Objects/JSON\n---\n\nThe **JSON** namespace object is an open standard file format helper.\n',
+    })))
     renderApp('/s/webprog/glossary')
     await user.click(screen.getByRole('tab', { name: 'By week' }))
     await user.click(screen.getByRole('button', { name: 'Week 4: JavaScript I + II: DOM, libraries, async, REST, fetch' }))
     const panel = screen.getByRole('tabpanel', { name: 'By week' })
-    expect(within(panel).getByRole('link', { name: /^JSON/ })).toHaveAttribute('href', 'https://www.w3schools.com/js/js_json_intro.asp')
-    await user.click(await within(panel).findByRole('button', { name: 'REST' }))
-    expect(await screen.findByText(/software architectural style/)).toBeInTheDocument()
+    await user.click(await within(panel).findByRole('button', { name: 'JSON' }))
+    expect(await screen.findByText(/open standard file format helper/)).toBeInTheDocument()
   })
 
   it('keeps saved terms with editable notes', async () => {

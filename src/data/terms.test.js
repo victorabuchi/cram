@@ -18,3 +18,28 @@ describe('findTerms', () => {
     expect(new Set(keys).size).toBe(keys.length)
   })
 })
+
+import { parseMdn } from '../api/mdn'
+describe('MDN pages', () => {
+  it('turns an MDN Markdown file into a short plain-text summary', () => {
+    const md = `---
+title: "Fetch: demo"
+slug: Web/API/Fetch_API
+---
+
+{{DefaultAPISidebar("Fetch API")}}
+
+The **Fetch API** gives {{domxref("Request")}} and {{glossary("HTTP", "web")}} access, see [the guide](/en-US/docs/x) and \`fetch()\`.
+
+Intro:
+
+## Concepts
+
+Not part of the summary.
+`
+    const page = parseMdn(md)
+    expect(page.title).toBe('Fetch: demo')
+    expect(page.slug).toBe('Web/API/Fetch_API')
+    expect(page.paragraphs).toEqual(['The Fetch API gives Request and web access, see the guide and fetch().'])
+  })
+})

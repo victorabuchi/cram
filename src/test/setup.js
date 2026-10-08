@@ -12,4 +12,5 @@ afterEach(() => {
   clearSummaryCache()
   localStorage.clear()
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })

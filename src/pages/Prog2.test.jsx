@@ -31,9 +31,10 @@ describe('Programming II (Java) has only Learn and Code exercises', () => {
 
   it('types a Java answer, checks it and shows the solution', async () => {
     const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch') })) // no Java runner
     renderApp('/s/prog2/6/code')
     await user.click(screen.getByRole('button', { name: 'Check' }))
-    expect(screen.getByRole('table', { name: 'Test results' })).toBeInTheDocument()
+    expect(await screen.findByRole('table', { name: 'Test results' })).toBeInTheDocument()
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     await user.click(screen.getByRole('button', { name: 'Show solution' }))
     expect(within(document.body).getByText(/One possible solution/)).toBeInTheDocument()

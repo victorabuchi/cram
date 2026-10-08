@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Accordion, Alert, Badge, Button, Card, Form, InputGroup, ListGroup, Spinner, Tab, Tabs } from 'react-bootstrap'
 import { useSearchParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
+import TermModal from '../components/TermModal.jsx'
 import { toast } from 'react-toastify'
 import { searchTitles } from '../api/wikipedia'
 import { getSubject } from '../data/subjects'
-import { TERMS, w3Url } from '../data/terms'
+import { TERMS } from '../data/terms'
 import { useTerms } from '../hooks/useTerms'
 import { useWikiArticle } from '../hooks/useWikiArticle'
 import { read, write } from '../storage'
@@ -140,25 +141,25 @@ function SearchTab({ termKey, open }) {
   )
 }
 
-function ByWeekTab({ open }) {
+function ByWeekTab() {
   const weeks = getSubject('webprog').weeks // the term list belongs to Web Programming I
+  const [term, setTerm] = useState(null)
   return (
-    <Accordion defaultActiveKey="1">
-      {weeks.map((w) => (
-        <Accordion.Item eventKey={String(w.n)} key={w.n}>
-          <Accordion.Header>Week {w.n}: {w.title}</Accordion.Header>
-          <Accordion.Body className="d-flex flex-wrap gap-2">
-            {TERMS.filter((t) => t.week === w.n).map((t) => t.w3 ? (
-              <a key={t.wiki} className="btn btn-outline-primary btn-sm" href={w3Url(t)} target="_blank" rel="noreferrer">
-                {t.label} <span className="visually-hidden">on W3Schools (opens in a new tab)</span>
-              </a>
-            ) : (
-              <Button key={t.wiki} size="sm" variant="outline-secondary" onClick={() => open(t.wiki)}>{t.label}</Button>
-            ))}
-          </Accordion.Body>
-        </Accordion.Item>
-      ))}
-    </Accordion>
+    <>
+      <Accordion defaultActiveKey="1">
+        {weeks.map((w) => (
+          <Accordion.Item eventKey={String(w.n)} key={w.n}>
+            <Accordion.Header>Week {w.n}: {w.title}</Accordion.Header>
+            <Accordion.Body className="d-flex flex-wrap gap-2">
+              {TERMS.filter((t) => t.week === w.n).map((t) => (
+                <Button key={t.wiki} size="sm" variant="outline-primary" onClick={() => setTerm(t)}>{t.label}</Button>
+              ))}
+            </Accordion.Body>
+          </Accordion.Item>
+        ))}
+      </Accordion>
+      <TermModal term={term} onHide={() => setTerm(null)} />
+    </>
   )
 }
 
@@ -200,10 +201,10 @@ function Glossary() {
     <>
       <Crumbs subjectId="webprog" current="Glossary" />
       <h1 className="h3">Glossary</h1>
-      <p className="text-body-secondary">In “By week”, blue terms open the matching W3Schools page in a new tab; grey terms (W3Schools has no page for them) and the Search tab show a Wikipedia summary. Save the ones you want to remember and add your own notes.</p>
+      <p className="text-body-secondary">In “By week”, every course term opens a popup: the MDN Web Docs explanation (with links to the full MDN page and to W3Schools), or a Wikipedia summary for terms MDN has no page for. The Search tab looks up any word on Wikipedia. Save Wikipedia articles you want to remember and add your own notes.</p>
       <Tabs activeKey={tab} onSelect={(k) => setTab(k)} className="mb-3" mountOnEnter>
         <Tab eventKey="search" title="Search"><SearchTab termKey={termKey} open={open} /></Tab>
-        <Tab eventKey="weeks" title="By week"><ByWeekTab open={open} /></Tab>
+        <Tab eventKey="weeks" title="By week"><ByWeekTab /></Tab>
         <Tab eventKey="saved" title="My terms"><SavedTab open={open} /></Tab>
       </Tabs>
     </>
