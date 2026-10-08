@@ -6,7 +6,7 @@ import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import PdfViewer from '../components/PdfViewer.jsx'
 import TermModal from '../components/TermModal.jsx'
 import { TOPICS } from '../data/content'
-import { findTerms } from '../data/terms'
+import { findTerms, w3Url } from '../data/terms'
 import { useScope } from '../useScope'
 
 function Learn() {
@@ -52,9 +52,13 @@ function Learn() {
                     {c.automaton && <AutomatonPlayer automaton={c.automaton} tryThese={c.tryThese} />}
                     {terms.length > 0 && (
                       <div className="d-flex flex-wrap align-items-center gap-2">
-                        <span className="small text-body-secondary">Look up:</span>
-                        {terms.map((t) => (
-                          <Button key={t.wiki} size="sm" variant="outline-primary" onClick={() => setTerm(t)}>
+                        <span className="small text-body-secondary">Look up (W3Schools):</span>
+                        {terms.map((t) => t.w3 ? (
+                          <a key={t.wiki} className="btn btn-outline-primary btn-sm" href={w3Url(t)} target="_blank" rel="noreferrer">
+                            {t.label} <span className="visually-hidden">on W3Schools (opens in a new tab)</span>
+                          </a>
+                        ) : (
+                          <Button key={t.wiki} size="sm" variant="outline-secondary" onClick={() => setTerm(t)}>
                             {t.label} <span className="visually-hidden">on Wikipedia</span>
                           </Button>
                         ))}

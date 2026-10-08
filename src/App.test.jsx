@@ -143,29 +143,40 @@ describe('practice test', () => {
   })
 })
 
-describe('Learn cards and the Wikipedia modal', () => {
-  it('looks a term up from a card, then saves it', async () => {
+describe('Learn cards: W3Schools links and the Wikipedia fallback', () => {
+  const VITE_PAGE = { 'Vite_(software)': { title: 'Vite (software)', description: 'Build tool', extract: 'Vite is a free and open-source front-end build tool.' } }
+
+  it('links a term to its W3Schools page in a new tab', async () => {
     const user = userEvent.setup()
-    const f = fakeWikipedia(REACT_PAGE)
     renderApp('/s/webprog/5/learn')
     await user.click(screen.getByRole('button', { name: /Why React/ }))
-    await user.click((await screen.findAllByRole('button', { name: /^React\s+on Wikipedia$/ }))[0])
+    const link = (await screen.findAllByRole('link', { name: /^React\s+on W3Schools/ }))[0]
+    expect(link).toHaveAttribute('href', 'https://www.w3schools.com/react/default.asp')
+    expect(link).toHaveAttribute('target', '_blank')
+  })
+
+  it('uses a Wikipedia summary for a term W3Schools has no page for, then saves it', async () => {
+    const user = userEvent.setup()
+    const f = fakeWikipedia(VITE_PAGE)
+    renderApp('/s/webprog/5/learn')
+    await user.click(screen.getByRole('button', { name: /Starting a React project with Vite/ }))
+    await user.click((await screen.findAllByRole('button', { name: /^Vite\s+on Wikipedia$/ }))[0])
 
     const dialog = await screen.findByRole('dialog')
     expect(await within(dialog).findByText(/free and open-source front-end/)).toBeInTheDocument()
-    expect(f).toHaveBeenCalledWith(expect.stringContaining('/summary/React_(software)'), expect.anything())
+    expect(f).toHaveBeenCalledWith(expect.stringContaining('/summary/Vite_(software)'), expect.anything())
 
     await user.click(within(dialog).getByRole('button', { name: 'Save to my terms' }))
     expect(within(dialog).getByRole('button', { name: 'Remove from my terms' })).toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem('scribletics_saved_terms'))).toEqual([{ key: 'React_(software)', title: 'React (software)', note: '' }])
+    expect(JSON.parse(localStorage.getItem('scribletics_saved_terms'))).toEqual([{ key: 'Vite_(software)', title: 'Vite (software)', note: '' }])
   })
 
   it('shows an error message when Wikipedia is unreachable', async () => {
     const user = userEvent.setup()
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }))
     renderApp('/s/webprog/5/learn')
-    await user.click(screen.getByRole('button', { name: /Why React/ }))
-    await user.click((await screen.findAllByRole('button', { name: /^React\s+on Wikipedia$/ }))[0])
+    await user.click(screen.getByRole('button', { name: /Starting a React project with Vite/ }))
+    await user.click((await screen.findAllByRole('button', { name: /^Vite\s+on Wikipedia$/ }))[0])
     expect(await within(await screen.findByRole('dialog')).findByText(/status 500/)).toBeInTheDocument()
   })
 })
@@ -175,6 +186,7 @@ describe('Glossary', () => {
     ...REACT_PAGE,
     'React_(disambiguation)': { title: 'React disambiguation', description: 'Other uses', extract: 'x' },
     JSON: { title: 'JSON', description: 'Data format', extract: 'JSON is an open standard file format.' },
+    REST: { title: 'REST', description: 'Architecture', extract: 'REST is a software architectural style.' },
   }
 
   it('searches, shows the article and other matches, remembers recent searches', async () => {
@@ -203,8 +215,9 @@ describe('Glossary', () => {
     await user.click(screen.getByRole('tab', { name: 'By week' }))
     await user.click(screen.getByRole('button', { name: 'Week 4: JavaScript I + II: DOM, libraries, async, REST, fetch' }))
     const panel = screen.getByRole('tabpanel', { name: 'By week' })
-    await user.click(await within(panel).findByRole('button', { name: 'JSON' }))
-    expect(await screen.findByText(/open standard file format/)).toBeInTheDocument()
+    expect(within(panel).getByRole('link', { name: /^JSON/ })).toHaveAttribute('href', 'https://www.w3schools.com/js/js_json_intro.asp')
+    await user.click(await within(panel).findByRole('button', { name: 'REST' }))
+    expect(await screen.findByText(/software architectural style/)).toBeInTheDocument()
   })
 
   it('keeps saved terms with editable notes', async () => {
