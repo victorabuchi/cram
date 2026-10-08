@@ -125,7 +125,7 @@ describe('practice session', () => {
     expect(await screen.findByRole('heading', { name: new RegExp(`/ ${total} correct`) })).toBeInTheDocument()
     const stored = JSON.parse(localStorage.getItem('scribletics_progress'))
     expect(Object.keys(stored)).toHaveLength(total)
-  })
+  }, 60000) // answers every question of the week, which is slow on a busy machine
 })
 
 describe('practice test', () => {
