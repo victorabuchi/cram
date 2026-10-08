@@ -1,14 +1,14 @@
-import * as week1 from './week1'
+import * as exercise1 from './exercise1'
 import * as exercise2 from './exercise2'
+import * as exercise3 from './exercise3'
 import { docs } from './docs'
 
-// One entry per source file, merged in the shape content.js expects: { topics, learn, questions, docs }.
-// Exercise 2 and the lecture PDFs (docs) come with the later lectures.
-const parts = [week1, exercise2]
+// Basic Models of Computation: the lecture PDFs (docs, shown by Learn) and the exercise tasks. No learn cards.
+const exercises = [exercise1, exercise2, exercise3]
 
 export default {
-  topics: { ...Object.assign({}, ...parts.map((w) => w.topics ?? {})), 'bmc-ex2': 'Exercise 2' },
-  learn: parts.flatMap((w) => w.learn ?? []),
-  questions: parts.flatMap((w) => w.questions),
+  topics: { 'bmc-ex1': 'Exercise 1', 'bmc-ex2': 'Exercise 2', 'bmc-ex3': 'Exercise 3' },
+  learn: [],
+  questions: exercises.flatMap((e) => e.questions),
   docs,
 }

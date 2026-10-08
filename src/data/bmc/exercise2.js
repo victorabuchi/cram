@@ -1,6 +1,6 @@
 // Exercise 2 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-2.pdf.
 // Pen-and-paper tasks: the student solves it on paper, shows the answer (the PDF page, plus a short written version) and self-grades.
-const base = { subject: 'bmc', week: 4, topic: 'bmc-ex2', kind: 'paper', exercise: 'Exercise 2', pdf: 'bmc-exercise-2.pdf' }
+const base = { subject: 'bmc', week: 2, topic: 'bmc-ex2', kind: 'paper', exercise: 'Exercise 2', pdf: 'bmc-exercise-2.pdf' }
 
 export const questions = [
   { ...base, id: 'bmc-x2-1', page: 1, title: 'X2 T1. Binary numbers',

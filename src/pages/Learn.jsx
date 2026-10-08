@@ -28,7 +28,6 @@ function Learn() {
           ))}
         </div>
         <PdfViewer key={doc.file} file={doc.file} title={doc.title} height="85vh" />
-        {learn.length > 0 && <p className="text-body-secondary small mt-3">This week also has {learn.length} short learn cards.</p>}
       </>
     )
   }

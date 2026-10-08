@@ -61,16 +61,9 @@ describe('Automata lab', () => {
   })
 })
 
-describe('Basic Models of Computation week 1', () => {
-  it('shows diagrams in the learn cards and a stepper', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/1/learn')
-    await user.click(screen.getByRole('button', { name: /T4: read a DFA/ }))
-    expect(screen.getAllByRole('img', { name: /Finite automaton with states q0, q1, q2/ }).length).toBeGreaterThan(0)
-  })
-
-  it('accessibility of the learn and practice pages', async () => {
-    for (const route of ['/s/bmc/1/learn', '/s/bmc/1/practice', '/s/bmc']) {
+describe('Basic Models of Computation pages', () => {
+  it('have no detectable accessibility violations (the exercises and the course page)', async () => {
+    for (const route of ['/s/bmc/1/exercises', '/s/bmc/2/exercises', '/s/bmc']) {
       const { container, unmount } = renderApp(route)
       await screen.findByRole('main')
       expect(await axe(container)).toHaveNoViolations()

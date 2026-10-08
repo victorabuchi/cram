@@ -48,14 +48,13 @@ describe('subjects', () => {
     screen.getAllByRole('link', { name: /Week \d/ }).forEach((card) => expect(within(card).getAllByRole('img').length).toBeGreaterThan(0))
   })
 
-  it('has the first week of Basic Models of Computation with its diagrams', async () => {
+  it('has the two groups of Basic Models of Computation, with the lectures as PDFs', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc')
     await user.click(screen.getByRole('link', { name: /Week 1/ }))
-    expect(await screen.findByRole('heading', { name: /Deterministic finite automata/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /Finite automata and regular expressions/ })).toBeInTheDocument()
     await user.click(within(screen.getByRole('main')).getByRole('link', { name: /Learn/ }))
-    await user.click(screen.getByRole('button', { name: /What a DFA is/ }))
-    expect(screen.getAllByRole('img', { name: /Finite automaton with states A, B/ }).length).toBeGreaterThan(0)
+    expect(screen.getByTitle('Lecture 1')).toHaveAttribute('src', expect.stringContaining('bmc-lecture-1.pdf'))
   })
 })
 
@@ -240,7 +239,7 @@ describe('Progress page (one per course)', () => {
     localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-1': { box: 4, seen: 5, right: 5, due: 0 } }))
     renderApp('/s/bmc/progress')
     expect(screen.getByRole('heading', { name: /Progress/ })).toHaveTextContent('Basic Models of Computation')
-    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/15$/)
+    expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/20$/)
   })
 
   it('keeps study days per course, and moves old single-course data to Web Programming I', () => {

@@ -41,11 +41,10 @@ export const SUBJECTS = [
     quiz: false, // pen-and-paper theory test built from the exercises: Learn (the lecture PDFs) and Exercises only
     tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
+    // Two groups: lectures 1 to 4 with exercise 1, and lectures 5 and 6 with exercises 2 and 3.
     weeks: [
-      { n: 1, title: 'Deterministic finite automata (DFA) and exercise 1', logos: [logo(automaton, 'Finite automaton')] },
-      { n: 2, title: 'DFA definition, the parking meter, regular expression basics', logos: [logo(automaton, 'Finite automaton')] },
-      { n: 3, title: 'Languages, trap state, NFA, minimization', logos: [logo(automaton, 'Finite automaton')] },
-      { n: 4, title: 'Grammars, regular expressions and exercise 2', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 1, title: 'Finite automata and regular expressions', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 2, title: 'Regular expressions', logos: [logo(automaton, 'Finite automaton')] },
     ],
   },
   {

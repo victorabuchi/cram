@@ -1,0 +1,38 @@
+// Exercise 1 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-1.pdf.
+// Pen-and-paper tasks: the student solves it on paper, shows the answer (the PDF page, plus a written version) and self-grades.
+const base = { subject: 'bmc', week: 1, topic: 'bmc-ex1', kind: 'paper', exercise: 'Exercise 1', pdf: 'bmc-exercise-1.pdf' }
+
+export const questions = [
+  { ...base, id: "bmc1-d1", page: 1, title: "X1 T1. Sum modulo 6",
+    prompt: ["Make an automaton: Σ = {1, 2, 3}. It sums the numbers it receives modulo 6 and accepts when the sum is 0 (mod 6). Draw it on paper, then compare."],
+    answer: ["Q = {q0..q5}, Σ = {1, 2, 3}, s = q0, F = {q0}. The only thing to remember is the sum modulo 6, so state qi stands for \"the sum so far is ≡ i (mod 6)\". Reading k moves from qi to q((i + k) mod 6). Start with the three arrows from q0 (to q1, q2, q3), then give every other state all three arrows. For example δ(q3, 3) = q0 and δ(q5, 2) = q1.",
+      "What a full answer has: six states q0..q5; qi means \"sum is i modulo 6\"; start state q0, and q0 is the only accepting state; δ(qi, k) = q((i + k) mod 6); every state has an arrow for each of 1, 2 and 3."] },
+  { ...base, id: "bmc1-d2", page: 3, title: "X1 T2. Negative values",
+    prompt: ["Modify the T1 automaton so that it also accepts negative values -1, -2, -3. Explain why a transition labelled \"-1\" is not allowed."],
+    answer: ["A DFA transition reads one symbol of a finite alphabet, δ: Q × Σ → Q. A label like \"-1\" would be a string, requiring δ: Q × Σ* → Q with infinitely many pairs. Instead put \"-\" into the alphabet and add six minus-remembering states: from qi a minus leads to qi-, and from qi- the digit k goes to q((i - k) mod 6). The accepting state is still only q0. The excerpt shows the arrows from q0; the full automaton is in the Automata lab.",
+      "What a full answer has: add \"-\" to the alphabet: Σ = {1, 2, 3, -}; add states q0-..q5- that remember a minus sign was read; δ(qi, -) = qi- and δ(qi-, k) = q((i - k) mod 6); a multi-character label would need δ on Q × Σ*, which has infinitely many pairs, so the automaton would not be finite."] },
+  { ...base, id: "bmc1-d3", page: 4, title: "X1 T3. No substring abc",
+    prompt: ["Make an automaton (Σ = {a, b, c}) that does not accept any input containing the string abc as a part (but accepts all others)."],
+    answer: ["Remember how much of abc has just been read. q0 = nothing useful yet, q_a = last symbol a, q_ab = last two symbols ab, q_abc = abc was seen (trap, not accepting, loops on a, b, c). F = {q0, q_a, q_ab}. Arrows: q0 on a → q_a, on b or c → q0; q_a on a → q_a, on b → q_ab, on c → q0; q_ab on a → q_a, on b → q0, on c → q_abc.",
+      "What a full answer has: states track the progress of abc: q0, q_a, q_ab; a trap state q_abc that is not accepting and loops on a, b and c; all states except q_abc are accepting; correct arrows back: q_a on a stays in q_a, q_ab on a goes to q_a, wrong symbols go to q0."] },
+  { ...base, id: "bmc1-d4", page: 5, title: "X1 T4. Read a DFA and solve the chains",
+    prompt: ["The DFA has Q = {q0, q1, q2}, Σ = {0, 1}, δ(q0,1) = q0, δ(q0,0) = q1, δ(q1,1) = q0, δ(q1,0) = q2, δ(q2,0) = δ(q2,1) = q2, s = q0, F = {q2}. Draw it, say what it does, and solve the chains for 1101 and 01001."],
+    answer: ["L = { w ∈ {0,1}* | w contains the substring \"00\" }. q0: no 0 pending, q1: the last symbol was a 0, q2: 00 has been seen and the input is accepted whatever follows. Chain for 1101: q0 →1 q0 →1 q0 →0 q1 →1 q0 (rejected). Chain for 01001: q0 →0 q1 →1 q0 →0 q1 →0 q2 →1 q2 (accepted).",
+      "What a full answer has: the automaton accepts exactly the bit strings that contain the substring 00; q2 is an accepting trap, q1 means \"last symbol was 0\"; 1101: q0 → q0 → q0 → q1 → q0, ends in q0, rejected; 01001: q0 → q1 → q0 → q1 → q2 → q2, ends in q2, accepted."] },
+  { ...base, id: "bmc1-d5", page: 6, title: "X1 T5. List contains 112",
+    prompt: ["Make a DFA that reads numbers separated by commas from a list and accepts if the list contains the number 112. Example: 2575,45777,9803,112,3567 is accepted but 295,430,1121,23,0 is not."],
+    answer: ["States: new (start of a number), \"1\", \"11\", \"112\" (accepting), OK (accepting, absorbing) and nope (this number is not 112). new on 1 → \"1\"; \"1\" on 1 → \"11\"; \"11\" on 2 → \"112\"; \"112\" on comma → OK; a comma in new, \"1\" or \"11\" → new; any other digit → nope; nope on comma → new; \"112\" followed by a digit → nope (so 1121 is rejected). OK loops on commas and digits because the list already contains 112.",
+      "What a full answer has: states follow the digits of the current number: new, 1, 11, 112; a comma goes back to new (from 112 to OK); OK is accepting and stays accepting on commas and digits; a wrong digit leads to nope until the next comma, and a digit after 112 goes to nope so 1121 does not count."] },
+  { ...base, id: "bmc1-d6a", page: 7, title: "X1 T6 a). Odd number of a",
+    prompt: ["Σ = {a, b, c}. Construct an automaton that accepts exactly the strings in which the number of a is odd. Justify."],
+    answer: ["Two states are enough because only the parity of the number of a matters. a0 (start, rejecting) means an even number of a so far, a1 (accepting) means an odd number. Reading a switches between a0 and a1; b and c leave the state unchanged. Justification: by induction on the input, the automaton is in a1 exactly when |w|a is odd, so it accepts exactly those strings.",
+      "What a full answer has: two states a0 (even number of a, start) and a1 (odd, accepting); a toggles between the states; b and c are loops on both states; justification: the state is a1 exactly when an odd number of a has been read."] },
+  { ...base, id: "bmc1-d6b", page: 8, title: "X1 T6 b). a odd OR b even",
+    prompt: ["Σ = {a, b, c}. Construct an automaton that accepts exactly the strings in which the number of a is odd OR the number of b is even. Justify."],
+    answer: ["The automaton must remember two parities, so it has four states a0b0, a0b1, a1b0, a1b1. Reading a flips the a-part, reading b flips the b-part and c changes nothing. The start state is a0b0. Accepting: a is odd OR b is even gives a0b0 (b even), a1b0 and a1b1 (a odd). Only a0b1 is rejecting. Justification: the state always records the parities of a and b read so far, and the accepting set is exactly the pairs for which the condition holds.",
+      "What a full answer has: four states, one for each pair of parities (a, b); a toggles the first parity, b toggles the second, c is a loop; start in a0b0 (both even); accepting states: where a is odd or b is even: a0b0, a1b0, a1b1."] },
+  { ...base, id: "bmc1-d6c", page: 9, title: "X1 T6 c). Either a odd or b even",
+    prompt: ["Σ = {a, b, c}. Construct an automaton that accepts exactly the strings in which EITHER the number of a is odd OR the number of b is even (exactly one of the two holds). Justify."],
+    answer: ["Use the same four-state machine as in b). \"Either a is odd or b is even\" means exactly one of the two is true, so a1b0 (both true) and a0b1 (both false) are rejecting. The accepting states are a0b0 (a even, b even: only \"b even\" holds) and a1b1 (a odd, b odd: only \"a odd\" holds). Truth table: (0,0)→1, (0,1)→0, (1,0)→0, (1,1)→1.",
+      "What a full answer has: the same four parity states and arrows as in b); only the accepting set changes; accepting states: a0b0 and a1b1; in a0b0 only \"b even\" holds, in a1b1 only \"a odd\" holds; in a1b0 both hold and in a0b1 neither."] },
+]
