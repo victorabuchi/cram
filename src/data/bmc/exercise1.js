@@ -3,7 +3,7 @@
 const base = { subject: 'bmc', week: 1, topic: 'bmc-ex1', kind: 'paper', exercise: 'Exercise 1', pdf: 'bmc-exercise-1.pdf' }
 
 export const questions = [
-  { ...base, id: "bmc1-d1", page: 1, title: "X1 T1. Sum modulo 6",
+  { ...base, id: "bmc1-d1", page: 1, pages: [1, 2], title: "X1 T1. Sum modulo 6",
     prompt: ["Make an automaton: Σ = {1, 2, 3}. It sums the numbers it receives modulo 6 and accepts when the sum is 0 (mod 6). Draw it on paper, then compare."],
     answer: ["Q = {q0..q5}, Σ = {1, 2, 3}, s = q0, F = {q0}. The only thing to remember is the sum modulo 6, so state qi stands for \"the sum so far is ≡ i (mod 6)\". Reading k moves from qi to q((i + k) mod 6). Start with the three arrows from q0 (to q1, q2, q3), then give every other state all three arrows. For example δ(q3, 3) = q0 and δ(q5, 2) = q1.",
       "What a full answer has: six states q0..q5; qi means \"sum is i modulo 6\"; start state q0, and q0 is the only accepting state; δ(qi, k) = q((i + k) mod 6); every state has an arrow for each of 1, 2 and 3."] },

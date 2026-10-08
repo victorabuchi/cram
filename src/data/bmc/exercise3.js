@@ -1,4 +1,4 @@
-// Exercise 3 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-3.pdf (T3 starts on page 3 and continues on page 4).
+// Exercise 3 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-3.pdf (T3 uses pages 3 and 4; the images are in public/docs/pages).
 // Pen-and-paper tasks: the student solves it on paper, shows the answer (the PDF page, plus a written version) and self-grades.
 // Lines starting "Also" are explanations added here, they are not from the teacher's page.
 const base = { subject: 'bmc', week: 2, topic: 'bmc-ex3', kind: 'paper', exercise: 'Exercise 3', pdf: 'bmc-exercise-3.pdf' }
@@ -18,11 +18,11 @@ export const questions = [
       'Parity DFA:\nS → 0N | 1Y\nN → 0S | 1M | ε\nY → 0M | 1S | ε\nM → 0Y | 1N',
       'Also, they differ in determinism: in the first grammar S has several rules that start with the same terminal (r appears three times: rR, rO, rC), which is the NFA choice. In the second, every nonterminal has exactly one rule for each of 0 and 1, so it is a DFA.',
     ] },
-  { ...base, id: 'bmc-x3-3', page: 3, title: 'X3 T3. Java floating-point constants',
+  { ...base, id: 'bmc-x3-3', page: 3, pages: [3, 4], title: 'X3 T3. Java floating-point constants',
     prompt: ['Last week\'s tasks dealt with Java floating-point constants.', 'a) Based on which features is the given grammar context-free and not regular?', 'b) Although the given grammar is context-free, the language of floating-point numbers is regular. Demonstrate this by providing a finite automaton that accepts Java floating-point constants. How does a Java floating-point number differ from the JSON number in last week\'s tasks?', 'c) Consider why Java floating-point numbers are presented as a context-free grammar in the documentation, if the language of floating-point numbers is regular.'],
     answer: [
       'a) It is not regular because rules have multiple nonterminals on the right-hand side, and the grammar is neither left-linear nor right-linear. It is not context-sensitive in the strict sense because on the left-hand side every rule has a single nonterminal (no surrounding context), so it is context-free.',
-      'b) The teacher\'s page (page 4) shows the Java automaton next to the JSON one, and a right-linear regular grammar for it (simplified so that 0 stands for [0-9]), for example L → 0D | .O, D → 0D | _U | fF | dF | eX | .P, U → _U | 0D, F → ε, P → ε | eX | 0I | fF | dF, O → 0I, and so on. Every rule is a terminal followed by at most one nonterminal, so the language is regular.',
+      'b) The teacher\'s page 4 shows the Java automaton next to the JSON one, and a right-linear regular grammar for it (simplified so that 0 stands for [0-9]), for example L → 0D | .O, D → 0D | _U | fF | dF | eX | .P, U → _U | 0D, F → ε, P → ε | eX | 0I | fF | dF, O → 0I, and so on. Every rule is a terminal followed by at most one nonterminal, so the language is regular.',
       'Also, for (b): compared with a JSON number, a Java literal may contain underscores between digits, can start with a dot (.5), and can end with a type suffix f, F, d or D. A JSON number can have a leading minus, but no underscores and no suffix.',
       'Also, for (c): every regular grammar is also context-free, and the documentation uses the compact context-free notation with named parts (Digits, ExponentPart, ...) because it is easier to read and to write than a long right-linear grammar.',
     ] },

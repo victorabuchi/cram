@@ -48,9 +48,18 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     expect(screen.getByRole('heading', { name: 'X2 T1. Binary numbers' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Show answer' }))
     expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('00')
-    expect(screen.getByTitle(/answer page/)).toHaveAttribute('src', expect.stringContaining('page=1'))
+    expect(screen.getAllByRole('img', { name: /teacher's answer/ })).toHaveLength(1)
+    expect(screen.getByRole('img', { name: /teacher's answer/ })).toHaveAttribute('src', expect.stringContaining('pages/bmc-exercise-2-1.jpg'))
+    expect(screen.queryByTitle(/PDF|answer page/)).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'I solved it' }))
     expect(screen.getByRole('button', { name: /Exercise 2, task 1, done/ })).toBeInTheDocument()
+  })
+
+  it('shows both pages for a task that spans two, and every page image exists', () => {
+    expect([...exercise1, ...exercise2, ...exercise3].filter((q) => q.pages).map((q) => q.pages)).toEqual([[1, 2], [3, 4]])
+    for (const q of [...exercise1, ...exercise2, ...exercise3]) {
+      for (const n of q.pages ?? [q.page]) expect(existsSync(`public/docs/pages/${q.pdf.replace('.pdf', '')}-${n}.jpg`)).toBe(true)
+    }
   })
 
   it('lists Exercise 1 and Exercise 2 together across both groups', () => {
