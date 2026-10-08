@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
+import { scopedItems } from './data/content'
 import { fakeWikipedia, REACT_PAGE, renderApp } from './test/helpers.jsx'
 
 // jsdom has no canvas, so charts are replaced by a plain element that keeps the accessible name.
@@ -99,9 +100,12 @@ describe('course tools in the top bar', () => {
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()
+    const total = scopedItems('webprog', 5).filter((i) => i.kind !== 'code').length // practice asks every question of the chosen topics
+    expect(total).toBeGreaterThan(10)
     renderApp('/s/webprog/5/practice')
+    expect(screen.getByText(new RegExp(`\\(${total} now\\)`))).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Start session' }))
-    expect(await screen.findByText(/Question 1 of 10/)).toBeInTheDocument()
+    expect(await screen.findByText(new RegExp(`Question 1 of ${total}`))).toBeInTheDocument()
 
     // Answer the first question whatever its kind (blank / typed answer / choice / essay).
     const answerFirst = async () => {
@@ -111,16 +115,16 @@ describe('practice session', () => {
       else if (screen.queryByRole('group', { name: 'Answer options' })) await user.click(within(screen.getByRole('group', { name: 'Answer options' })).getAllByRole('button')[0])
       else await user.type(screen.getByRole('textbox'), 'my answer')
     }
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < total; i++) {
       await answerFirst()
       const submit = screen.getByRole('button', { name: /^(Check|Reveal model answer)$/ })
       await user.click(submit)
       if (screen.queryByRole('button', { name: 'Done grading' })) await user.click(screen.getByRole('button', { name: 'Done grading' }))
       await user.click(screen.getByRole('button', { name: /^(Next|Finish)$/ }))
     }
-    expect(await screen.findByRole('heading', { name: /\/ 10 correct/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: new RegExp(`/ ${total} correct`) })).toBeInTheDocument()
     const stored = JSON.parse(localStorage.getItem('scribletics_progress'))
-    expect(Object.keys(stored)).toHaveLength(10)
+    expect(Object.keys(stored)).toHaveLength(total)
   })
 })
 

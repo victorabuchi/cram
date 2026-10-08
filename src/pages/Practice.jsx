@@ -12,14 +12,12 @@ import { isDue, shuffle } from '../storage'
 import { isFinished, sessionReducer } from '../reducers/session'
 import { useScope } from '../useScope'
 
-const SESSION_SIZE = 10
-
-// Due and new questions first, lowest Leitner box first; then shuffled for variety.
+// Every selected question is asked. The ones that are due or new come first (lowest Leitner box first), then the rest, shuffled.
 function pickItems(pool, progress) {
   const byBox = (a) => shuffle(a).sort((x, y) => (progress[x.id]?.box ?? -1) - (progress[y.id]?.box ?? -1))
   const due = pool.filter((d) => isDue(progress, d.id))
   const rest = pool.filter((d) => !due.includes(d))
-  return shuffle([...byBox(due), ...byBox(rest)].slice(0, SESSION_SIZE))
+  return [...byBox(due), ...shuffle(rest)]
 }
 
 function Practice() {
@@ -32,8 +30,8 @@ function Practice() {
   const { progress, record } = useProgress()
   if (!valid) return <Navigate to="/" replace />
 
+  const pool = items.filter((d) => selected.includes(d.topic) && (withExplain || d.kind !== 'explain'))
   const start = () => {
-    const pool = items.filter((d) => selected.includes(d.topic) && (withExplain || d.kind !== 'explain'))
     if (pool.length) dispatch({ type: 'start', items: pickItems(pool, progress) })
   }
 
@@ -44,7 +42,7 @@ function Practice() {
       <>
         {crumbs}
         <h1 className="h3">Practice <small className="text-body-secondary fs-6">{label}</small></h1>
-        <p>Pick topics. You get {SESSION_SIZE} questions: new ones and the ones you missed come first.</p>
+        <p>Pick topics. You get every question of the topics you pick ({pool.length} now): new ones and the ones you missed come first.</p>
         <TopicPicker topics={topics} items={items} selected={selected} onChange={setSelected} />
         <Form.Check
           id="with-explain"
