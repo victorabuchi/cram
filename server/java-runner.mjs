@@ -1,5 +1,5 @@
 // A tiny local server that compiles and runs Java for the exercises: `npm run java`.
-// It listens on this computer only (127.0.0.1) and answers only the Cram site and localhost pages.
+// It listens on this computer only (127.0.0.1) and answers only the Cram site (GitHub Pages) and localhost pages.
 // It runs the code with your JDK without a sandbox, so use it for your own code only.
 import { createServer } from 'node:http'
 import { javaAvailable, runJava } from './runner-core.mjs'
