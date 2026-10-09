@@ -55,3 +55,40 @@ form .btn { font-family: Verdana, 'DejaVu Sans', Geneva, sans-serif; text-transf
 .course-cover-label { background: #444444; color: #fff; padding: 2px 8px; font-size: .72rem; }
 .list-group, .list-group-item, .alert, .form-control, .form-select, .accordion, .accordion-item, .modal-content, .pdf-frame, .answer-page, .thumb { border-radius: 4px; }
 .accordion-item:first-of-type, .accordion-item:last-of-type { border-radius: 4px; }
+
+/* ---- The badge theme: the shields.io flat look from the GitHub profile, across the app ----
+   Verdana, mixed case, solid colours, 3px corners. Questions and what the user types keep the plain system font. */
+body { font-family: Verdana, 'DejaVu Sans', Geneva, sans-serif; font-size: .9rem; }
+h1, h2, h3, h4, h5, h6, .card-title, .card-subtitle, .nav-tabs, .navbar, .breadcrumb { text-transform: none; letter-spacing: 0; font-family: Verdana, 'DejaVu Sans', Geneva, sans-serif; }
+h1, .h3 { font-size: 1.45rem; }
+h1 small, h2 small { text-transform: none; }
+
+/* Top bar: every link is a badge */
+.navbar { font-size: .8rem; font-weight: 400; }
+.navbar .navbar-brand { font-weight: 700; font-size: .95rem; text-transform: none; }
+.navbar .nav-link { background: #444444; color: #fff; border-radius: 3px; padding: .25rem .7rem; margin: .45rem .2rem; }
+.navbar .nav-link:hover, .navbar .nav-link:focus-visible { background: #3178C6; color: #fff; }
+.navbar .nav-link.active { background: #3178C6; color: #fff; }
+
+/* Breadcrumbs: Dashboard / Course / Week as badges */
+.breadcrumb { gap: 6px; margin-bottom: 1rem; }
+.breadcrumb-item { display: inline-flex; align-items: center; padding: 0; }
+.breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+.breadcrumb-item + .breadcrumb-item::before { content: ''; padding: 0; }
+.breadcrumb-item a, .breadcrumb-item.active { display: inline-block; background: #444444; color: #fff; text-decoration: none; padding: 3px 10px; border-radius: 3px; font-size: .78rem; }
+.breadcrumb-item a:hover { background: #303030; color: #fff; }
+.breadcrumb-item.active { background: #3178C6; }
+
+/* Cards: a solid colour with white (or black) text, logo, title and progress, like a badge */
+.badge-card { border: 0; border-radius: 3px; color: var(--badge-fg, #fff); }
+.badge-card .card-body { padding: 1rem 1.1rem; }
+.badge-card .card-title, .badge-card .card-text, .badge-card .card-subtitle, .badge-card small, .badge-card div { color: inherit; }
+.badge-card .card-subtitle, .badge-card .card-text, .badge-card small { opacity: .88; }
+.badge-card .course-logos { gap: 14px; }
+.badge-card .course-logos img { max-width: 64px; }
+.badge-card .course-cover-label { position: static; background: color-mix(in srgb, var(--badge-fg, #fff) 22%, transparent); color: inherit; }
+.badge-card .progress { background: color-mix(in srgb, var(--badge-fg, #fff) 25%, transparent); border-radius: 3px; }
+.badge-card .progress-bar { background: var(--badge-fg, #fff); }
+.course-card.badge-card:hover { filter: brightness(.92); border: 0; }
+.course-card.badge-card:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
+.badge-card small { text-transform: none; }

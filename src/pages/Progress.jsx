@@ -1,4 +1,5 @@
 import { Accordion, Button, Card, Col, Row } from 'react-bootstrap'
+import { badgeStyle } from '../badge'
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Tooltip } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
@@ -41,9 +42,9 @@ function Progress() {
       <Crumbs subjectId={subjectId} current="Progress" />
       <h1 className="h3 mb-3">Progress <small className="text-body-secondary fs-6">{subject.title}</small></h1>
       <Row xs={1} md={3} className="g-3 mb-4">
-        <Col><Card body><div className="fs-3 fw-bold">{totalMastered}/{total}</div><div className="text-body-secondary small">questions mastered</div></Card></Col>
-        <Col><Card body><div className="fs-3 fw-bold">{streak(days)}</div><div className="text-body-secondary small">day streak</div></Card></Col>
-        <Col><Card body><div className="fs-3 fw-bold">{days[todayKey()] || 0}</div><div className="text-body-secondary small">answered today</div></Card></Col>
+        <Col><Card body className="badge-card" style={badgeStyle('#3178C6')}><div className="fs-3 fw-bold">{totalMastered}/{total}</div><div className="small">questions mastered</div></Card></Col>
+        <Col><Card body className="badge-card" style={badgeStyle('#4EAA25')}><div className="fs-3 fw-bold">{streak(days)}</div><div className="small">day streak</div></Card></Col>
+        <Col><Card body className="badge-card" style={badgeStyle('#E76F00')}><div className="fs-3 fw-bold">{days[todayKey()] || 0}</div><div className="small">answered today</div></Card></Col>
       </Row>
 
       <Row className="g-3 mb-4">

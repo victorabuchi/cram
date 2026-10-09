@@ -41,6 +41,7 @@ function Subject() {
                 logos={w.logos}
                 items={items}
                 to={`/s/${subjectId}/${w.n}`}
+                color={w.color}
               />
             </Col>
           )

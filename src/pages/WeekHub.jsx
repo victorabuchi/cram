@@ -1,8 +1,11 @@
 import { Card, Col, Row } from 'react-bootstrap'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
+import { badgeStyle } from '../badge'
 import { getSubject } from '../data/subjects'
 import { TOPICS, scopedItems, scopedLearn, topicsIn } from '../data/content'
+
+const COLORS = { learn: '#3178C6', practice: '#4EAA25', mock: '#EA4335', code: '#363636', exercises: '#E76F00' }
 
 const TOOLS = [
   { path: 'learn', title: 'Learn', text: 'Lecture summaries and notes.' },
@@ -35,10 +38,10 @@ function WeekHub() {
       <Row xs={1} md={2} lg={tools.length > 3 ? 4 : 3} className="g-3">
         {tools.map((t) => (
           <Col key={t.path}>
-            <Card as={Link} to={`/s/${subjectId}/${week}/${t.path}`} className="course-card h-100 text-decoration-none">
+            <Card as={Link} to={`/s/${subjectId}/${week}/${t.path}`} className="course-card badge-card h-100 text-decoration-none" style={badgeStyle(COLORS[t.path] ?? '#444444')}>
               <Card.Body>
                 <Card.Title as="h2" className="fs-5">{t.title}</Card.Title>
-                <Card.Text className="text-body-secondary">{t.text}</Card.Text>
+                <Card.Text>{t.text}</Card.Text>
               </Card.Body>
             </Card>
           </Col>

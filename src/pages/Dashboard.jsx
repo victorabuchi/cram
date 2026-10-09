@@ -17,6 +17,7 @@ function Dashboard() {
               logos={s.logos}
               items={scopedItems(s.id, 'all')}
               to={`/s/${s.id}`}
+              color={s.color}
             />
           </Col>
         ))}
