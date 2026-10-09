@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Form } from 'react-bootstrap'
 import { shuffle } from '../storage'
 import Automaton from './Automaton.jsx'
+import LearnMore from './LearnMore.jsx'
 import AutomatonPlayer from './AutomatonPlayer.jsx'
 
 const norm = (x) => x.trim().replace(/\s+/g, ' ')
@@ -202,6 +203,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext, onBa
         <Alert variant={feedback.unanswered ? 'warning' : feedback.ok ? 'success' : 'danger'} className="mt-3" role={readOnly ? 'region' : 'alert'} aria-label={readOnly ? 'Result' : undefined}>
           <strong>{feedback.unanswered ? 'Not answered.' : feedback.ok ? 'Correct!' : 'Not quite.'}</strong>
           {feedback.lines.map((l) => <div key={l}>{l}</div>)}
+          {!feedback.unanswered && <LearnMore item={item} />}
         </Alert>
       )}
     </Form>

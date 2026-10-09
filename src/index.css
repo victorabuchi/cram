@@ -104,3 +104,4 @@ h1 small, h2 small { text-transform: none; }
 .set-answer { background: #fff; border-left: 4px solid #3178C6; padding: 10px 14px; border-radius: 3px; }
 .set-nav { position: sticky; top: 46px; z-index: 5; background: var(--bs-tertiary-bg); padding: 8px 0; }
 @media (max-width: 767.98px) { .set-info { border-right: 0; border-bottom: 1px solid var(--bs-border-color); } }
+.learn-more a { color: inherit; font-weight: 600; text-decoration: underline; }

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import QuestionCard from './QuestionCard.jsx'
 
@@ -77,5 +77,29 @@ describe('explain the code', () => {
     await user.click(screen.getByRole('button', { name: 'Done grading' }))
     expect(onScore).toHaveBeenCalledWith(0.5, { text: 'my answer' })
     expect(screen.getByRole('alert')).toHaveTextContent('1 of 2')
+  })
+})
+
+describe('Learn more links after the answer (Web Programming I)', () => {
+  const css = { id: 'c1', subject: 'webprog', kind: 'mcq', q: 'Which CSS selector has the highest specificity value?', options: ['#main (id selector)', '.item (class selector)', 'p (element selector)'], why: 'Specificity order: id beats class beats element.' }
+
+  it('shows MDN and W3Schools links under the explanation', async () => {
+    const { user } = setup(css)
+    expect(screen.queryByText('Learn more:')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /^#main/ }))
+    await user.click(screen.getByRole('button', { name: 'Check' }))
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('Learn more:')
+    const links = within(alert).getAllByRole('link')
+    expect(links.map((l) => l.getAttribute('href'))).toContain('https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Specificity')
+    expect(links.map((l) => l.getAttribute('href'))).toContain('https://www.w3schools.com/css/css_specificity.asp')
+    expect(links.every((l) => l.getAttribute('target') === '_blank')).toBe(true)
+  })
+
+  it('is not shown for other courses', async () => {
+    const { user } = setup({ ...css, subject: 'bmc' })
+    await user.click(screen.getByRole('button', { name: /^#main/ }))
+    await user.click(screen.getByRole('button', { name: 'Check' }))
+    expect(screen.queryByText('Learn more:')).not.toBeInTheDocument()
   })
 })

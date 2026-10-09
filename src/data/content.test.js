@@ -45,3 +45,28 @@ describe('Web Programming I practice set', () => {
     for (const week of [1, 2, 3, 4, 5, 6]) expect(web.filter((i) => i.week === week && i.kind !== 'code').length).toBeGreaterThan(5)
   })
 })
+
+import { learnMoreLinks } from './related'
+describe('Learn more links', () => {
+  const ep = (n) => ITEMS.find((i) => i.setNo === n)
+  const labels = (item) => learnMoreLinks(item).map((t) => t.label)
+  it('point a CSS specificity question to specificity, with MDN and W3Schools', () => {
+    const [first] = learnMoreLinks(ep(6))
+    expect(first.label).toMatch(/specificity|selectors/)
+    expect(first.links.map((l) => l.name)).toEqual(['MDN', 'W3Schools'])
+    expect(first.links.every((l) => l.url.startsWith('https://'))).toBe(true)
+  })
+  it('point a useState question to React state, not to unrelated topics', () => {
+    expect(labels(ep(5))[0]).toBe('React state (useState)')
+    expect(labels(ep(3)).join()).not.toMatch(/React/) // the Bootstrap question mentions "components" but is not about React
+  })
+  it('give most Moodle questions at least one link', () => {
+    const withLinks = ITEMS.filter((i) => i.setNo).filter((i) => learnMoreLinks(i).length > 0)
+    expect(withLinks.length).toBeGreaterThanOrEqual(24)
+  })
+  it('never link to a page outside MDN, W3Schools or Wikipedia', () => {
+    for (const i of ITEMS.filter((x) => x.subject === 'webprog' && x.kind !== 'code')) {
+      for (const t of learnMoreLinks(i)) for (const l of t.links) expect(l.url).toMatch(/^https:\/\/(developer\.mozilla\.org|www\.w3schools\.com|en\.wikipedia\.org)\//)
+    }
+  })
+})

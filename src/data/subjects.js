@@ -29,7 +29,7 @@ export const SUBJECTS = [
     logos: [logo(html5, 'HTML'), logo(css, 'CSS'), logo(javascript, 'JavaScript'), logo(react, 'React')],
     weeks: [
       { n: 1, color: '#E34F26', title: 'Intro to the web, HTML, CSS', logos: [logo(html5, 'HTML'), logo(css, 'CSS')] },
-      { n: 2, color: '#F05032', title: 'Git + GitHub', logos: [logo(git, 'Git'), logo(github, 'GitHub')] },
+      { n: 2, color: '#2DA44E', title: 'Git + GitHub', logos: [logo(git, 'Git'), logo(github, 'GitHub')] },
       { n: 3, color: '#7952B3', title: 'Accessibility + Bootstrap', logos: [logo(bootstrap, 'Bootstrap')] },
       { n: 4, color: '#F7DF1E', title: 'JavaScript I + II: DOM, libraries, async, REST, fetch', logos: [logo(javascript, 'JavaScript'), logo(json, 'JSON')] },
       { n: 5, color: '#61DAFB', title: 'React basics', logos: [logo(react, 'React')] },
