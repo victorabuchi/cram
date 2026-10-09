@@ -2,6 +2,7 @@ import webprog from './content.json'
 import bmc from './bmc/index.js'
 import * as webprogWeek6 from './webprog/week6.js'
 import * as jsSyntax from './webprog/jsSyntax.js'
+import { docs as webprogDocs } from './webprog/docs.js'
 import * as practiceSet from './webprog/practiceSet.js'
 import * as prog2 from './prog2/index.js'
 import { RELATED_IDS } from './webprog/practiceSet.js'
@@ -15,7 +16,7 @@ export const LEARN = SOURCES.flatMap((s) => s.learn)
 // Web Programming I offers the Moodle practice-quiz questions, the code exercises and the related questions in practiceSet.js, nothing else.
 const offered = (q) => q.subject !== 'webprog' || q.setNo || q.kind === 'code' || RELATED_IDS.has(q.id)
 export const ITEMS = SOURCES.flatMap((s) => s.questions).filter(offered)
-export const DOCS = SOURCES.flatMap((s) => s.docs ?? []) // course PDFs, shown as they are
+export const DOCS = [...SOURCES.flatMap((s) => s.docs ?? []), ...webprogDocs] // course PDFs, shown as they are
 
 export const KIND_NAMES = {
   code: 'Write the function',

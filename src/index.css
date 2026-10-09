@@ -92,3 +92,15 @@ h1 small, h2 small { text-transform: none; }
 .course-card.badge-card:hover { filter: brightness(.92); border: 0; }
 .course-card.badge-card:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
 .badge-card small { text-transform: none; }
+
+/* All test questions: laid out like a Moodle quiz (info box on the left, question on the right) */
+.set-question { border: 1px solid var(--bs-border-color); border-radius: 4px; overflow: hidden; background: #fff; scroll-margin-top: 56px; }
+.set-info { background: #eef1f4; padding: 12px 14px; border-right: 1px solid var(--bs-border-color); }
+.set-body { padding: 14px 18px; background: #e8f1f4; }
+.set-text { font-size: 1rem; white-space: pre-line; }
+.set-options { padding-left: 1.5rem; }
+.set-options li { margin-bottom: .35rem; }
+.set-options li.correct { color: #1b6b13; font-weight: 600; }
+.set-answer { background: #fff; border-left: 4px solid #3178C6; padding: 10px 14px; border-radius: 3px; }
+.set-nav { position: sticky; top: 46px; z-index: 5; background: var(--bs-tertiary-bg); padding: 8px 0; }
+@media (max-width: 767.98px) { .set-info { border-right: 0; border-bottom: 1px solid var(--bs-border-color); } }

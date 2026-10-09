@@ -15,33 +15,32 @@ function Learn() {
   const [picked, setPicked] = useState(0)
   if (!valid) return <Navigate to="/" replace />
 
-  // A week with PDFs shows the PDF itself (one tab per document); other weeks show the learn cards.
-  if (docs.length) {
-    const doc = docs[Math.min(picked, docs.length - 1)]
-    return (
-      <>
-        <Crumbs subjectId={subjectId} week={week} current="Learn" />
-        <h1 className="h3 mb-3">Learn <small className="text-body-secondary fs-6">{label}</small></h1>
-        <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Documents">
-          {docs.map((d, i) => (
-            <Button key={d.file} variant={d === doc ? 'primary' : 'outline-primary'} aria-pressed={d === doc} onClick={() => setPicked(i)}>{d.title}</Button>
-          ))}
-        </div>
-        <PdfViewer key={doc.file} file={doc.file} title={doc.title} height="85vh" />
-      </>
-    )
-  }
+  // Weeks with slides show the PDF itself (one tab per document). Weeks without slides yet keep their learn cards.
+  const doc = docs.length ? docs[Math.min(picked, docs.length - 1)] : null
+  const slideWeeks = new Set(docs.map((d) => d.week))
+  const cards = learn.filter((c) => !slideWeeks.has(c.week))
 
-  const topics = Object.keys(TOPICS).filter((k) => learn.some((c) => c.topic === k))
+  const topics = Object.keys(TOPICS).filter((k) => cards.some((c) => c.topic === k))
   return (
     <>
       <Crumbs subjectId={subjectId} week={week} current="Learn" />
       <h1 className="h3 mb-3">Learn <small className="text-body-secondary fs-6">{label}</small></h1>
+      {doc && (
+        <>
+          <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Documents">
+            {docs.map((d, i) => (
+              <Button key={d.file} variant={d === doc ? 'primary' : 'outline-primary'} aria-pressed={d === doc} onClick={() => setPicked(i)}>{d.title}</Button>
+            ))}
+          </div>
+          <PdfViewer key={doc.file} file={doc.file} title={doc.title} height="85vh" />
+        </>
+      )}
+      {doc && topics.length > 0 && <h2 className="h5 mt-4 mb-3">Notes for the weeks without slides yet</h2>}
       {topics.map((topic) => (
         <section key={topic} className="mb-4" aria-labelledby={`topic-${topic}`}>
           <h2 className="h5" id={`topic-${topic}`}>{TOPICS[topic]}</h2>
           <Accordion alwaysOpen>
-            {learn.filter((c) => c.topic === topic).map((c, i) => {
+            {cards.filter((c) => c.topic === topic).map((c, i) => {
               const terms = c.subject === 'webprog' ? findTerms(c.title, c.text).slice(0, 8) : [] // the term list is for Web Programming I
               return (
                 <Accordion.Item eventKey={String(i)} key={c.title}>
@@ -67,7 +66,7 @@ function Learn() {
           </Accordion>
         </section>
       ))}
-      {!topics.length && <p className="text-body-secondary">No learn cards here yet.</p>}
+      {!doc && !topics.length && <p className="text-body-secondary">No learn cards here yet.</p>}
       <TermModal term={term} onHide={() => setTerm(null)} />
     </>
   )
