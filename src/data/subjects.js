@@ -21,6 +21,7 @@ export const SUBJECTS = [
   {
     id: 'webprog',
     color: '#3178C6',
+    mock: false, // no random practice test: Practice (the test-style questions of each week) and Practice quiz (all 26 Moodle questions) cover it
     title: 'Web Programming I',
     org: 'School of Computing',
     courseDate: '2026-10-23',

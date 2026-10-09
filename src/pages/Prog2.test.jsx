@@ -17,11 +17,24 @@ describe('Programming II (Java) has only Learn and Code exercises', () => {
     expect(screen.getByRole('heading', { name: 'Programming II (Java)' })).toBeInTheDocument()
   })
 
-  it('leaves Practice and Practice test in the other courses', () => {
+  it('Web Programming I keeps Practice (no separate Practice test), with only the test-style questions', () => {
     renderApp('/s/webprog')
     const main = within(screen.getByRole('main'))
     expect(main.getByText('Practice all weeks')).toBeInTheDocument()
-    expect(main.getByText(/Practice test/)).toBeInTheDocument()
+    expect(main.queryByText(/Practice test/)).not.toBeInTheDocument()
+  })
+
+  it('a Web Programming I week has Learn and Practice only (plus the code exercises in week 4)', () => {
+    const { unmount } = renderApp('/s/webprog/1')
+    let main = within(screen.getByRole('main'))
+    expect(main.getByRole('link', { name: /Learn/ })).toBeInTheDocument()
+    expect(main.getByRole('link', { name: /Practice/ })).toBeInTheDocument()
+    expect(main.queryByRole('link', { name: /Practice test/ })).not.toBeInTheDocument()
+    expect(main.queryByRole('link', { name: /Code exercises/ })).not.toBeInTheDocument()
+    unmount()
+    renderApp('/s/webprog/4')
+    main = within(screen.getByRole('main'))
+    expect(main.getByRole('link', { name: /Code exercises/ })).toBeInTheDocument()
   })
 
   it('has learn cards for every week', () => {

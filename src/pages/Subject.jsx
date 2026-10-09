@@ -23,7 +23,7 @@ function Subject() {
       {subject.weeks.length > 0 && <div className="d-flex gap-2 flex-wrap mb-4">
         <Button as={Link} to={`/s/${subjectId}/all/learn`} variant="outline-primary">Learn all weeks</Button>
         {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/practice`} variant="outline-primary">Practice all weeks</Button>}
-        {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>}
+        {subject.quiz !== false && subject.mock !== false && <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>}
         {subject.quiz === false && hasCode && <Button as={Link} to={`/s/${subjectId}/all/code`} variant="outline-primary">Code exercises (all weeks)</Button>}
         {subject.quiz === false && hasExercises && <Button as={Link} to={`/s/${subjectId}/all/exercises`} variant="outline-primary">Exercises (all weeks)</Button>}
       </div>}

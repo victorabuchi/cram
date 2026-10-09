@@ -4,6 +4,7 @@ import * as webprogWeek6 from './webprog/week6.js'
 import * as jsSyntax from './webprog/jsSyntax.js'
 import * as practiceSet from './webprog/practiceSet.js'
 import * as prog2 from './prog2/index.js'
+import { RELATED_IDS } from './webprog/practiceSet.js'
 import { getSubject } from './subjects'
 
 // One data file per subject, each { topics, learn, questions }. Topic keys must be unique across subjects.
@@ -11,7 +12,9 @@ const SOURCES = [webprog, jsSyntax, practiceSet, webprogWeek6, bmc, prog2]
 
 export const TOPICS = Object.assign({}, ...SOURCES.map((s) => s.topics))
 export const LEARN = SOURCES.flatMap((s) => s.learn)
-export const ITEMS = SOURCES.flatMap((s) => s.questions)
+// Web Programming I offers the Moodle practice-quiz questions, the code exercises and the related questions in practiceSet.js, nothing else.
+const offered = (q) => q.subject !== 'webprog' || q.setNo || q.kind === 'code' || RELATED_IDS.has(q.id)
+export const ITEMS = SOURCES.flatMap((s) => s.questions).filter(offered)
 export const DOCS = SOURCES.flatMap((s) => s.docs ?? []) // course PDFs, shown as they are
 
 export const KIND_NAMES = {

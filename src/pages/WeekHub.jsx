@@ -21,7 +21,7 @@ function WeekHub() {
 
   const scoped = scopedItems(subjectId, week)
   const topics = [...new Set([...topicsIn(scoped), ...scopedLearn(subjectId, week).map((c) => c.topic)])].map((k) => TOPICS[k])
-  const base = subject.quiz === false ? TOOLS.filter((t) => t.path === 'learn') : TOOLS
+  const base = subject.quiz === false ? TOOLS.filter((t) => t.path === 'learn') : TOOLS.filter((t) => t.path !== 'mock' || subject.mock !== false)
   const codeText = subject.quiz === false
     ? 'Type your answer, check it, and see the solution.'
     : 'Write the function and run the tests, like the Moodle JavaScript syntax exercise.'
