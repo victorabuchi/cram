@@ -42,6 +42,10 @@ describe('Practice quiz', () => {
     expect(screen.getByRole('heading', { name: 'Practice quiz results' })).toBeInTheDocument()
     const mcqs = questions.filter((q) => q.kind === 'mcq').length
     expect(screen.getByRole('status')).toHaveTextContent(`Multiple choice: ${mcqs} of ${mcqs} correct.`)
+    // the multiple-choice answers are in progress without pressing Save
+    const saved = JSON.parse(localStorage.getItem('scribletics_progress'))
+    expect(Object.keys(saved)).toHaveLength(mcqs)
+    expect(Object.values(saved).every((p) => p.box === 1)).toBe(true)
   })
 
   it('shows the code of the explain-the-code questions and a model answer to compare with at the end', async () => {

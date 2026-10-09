@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import { Accordion, Alert, Button, Form } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -30,6 +30,14 @@ function Mock({ test = false }) {
   const { record } = useProgress()
   const [ticks, setTicks] = useState({}) // explain id -> boolean[]
   const [saved, setSaved] = useState(false)
+  // The multiple-choice answers go into progress by themselves when the test is finished (once); the self-graded open questions on request.
+  const savedMcq = useRef(false)
+  const finished = !!mock && isFinished(mock)
+  useEffect(() => {
+    if (!finished || savedMcq.current) return
+    savedMcq.current = true
+    mock.items.filter((i) => i.kind === 'mcq').forEach((i) => record(i.id, mock.results[i.id]?.score === 1))
+  }, [finished]) // eslint-disable-line -- runs once per finished test
   if (!valid) return <Navigate to="/" replace />
 
   const crumbs = <Crumbs subjectId={subjectId} week={week} current={test ? 'Practice quiz' : 'Practice test'} />
@@ -38,6 +46,7 @@ function Mock({ test = false }) {
     dispatch({ type: 'start', items })
     setTicks(Object.fromEntries(items.filter((i) => i.kind === 'explain').map((i) => [i.id, i.keyPoints.map(() => false)])))
     setSaved(false)
+    savedMcq.current = false
   }
 
   const start = () => {
@@ -48,6 +57,7 @@ function Mock({ test = false }) {
     dispatch({ type: 'start', items: [...mcq, ...exp] })
     setTicks(Object.fromEntries(exp.map((i) => [i.id, i.keyPoints.map(() => false)])))
     setSaved(false)
+    savedMcq.current = false
   }
 
   if (!mock && test) {
@@ -109,9 +119,8 @@ function Mock({ test = false }) {
   const scaled = maxPoints ? Math.round(((mcqPts + expPts) / maxPoints) * 30) : 0
   const wrong = mcqs.filter((i) => mock.results[i.id]?.score !== 1)
 
-  // Multiple-choice results go into progress once, when the test finishes; open questions on request.
+  // Multiple-choice results were saved when the test finished; the open questions you graded yourself are saved on request.
   const saveAll = () => {
-    mcqs.forEach((i) => record(i.id, mock.results[i.id]?.score === 1))
     exps.forEach((i) => record(i.id, ticks[i.id].filter(Boolean).length / ticks[i.id].length >= 0.7))
     setSaved(true)
     toast.success('Results saved to your progress')
@@ -189,6 +198,7 @@ function Mock({ test = false }) {
 
       <div className="d-flex gap-2">
         <Button variant="outline-primary" onClick={saveAll} disabled={saved}>{saved ? 'Saved to progress' : 'Save results to my progress'}</Button>
+        <span className="align-self-center small text-body-secondary">Multiple-choice results are already saved. This also saves your self-graded open questions.</span>
         <Button onClick={() => dispatch({ type: 'end' })}>{test ? 'Attempt again' : 'New practice test'}</Button>
       </div>
     </>

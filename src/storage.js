@@ -36,7 +36,8 @@ export const migrateDays = (raw) =>
 
 export const bumpDay = (days, key = todayKey()) => ({ ...days, [key]: (days[key] || 0) + 1 })
 
-export const isMastered = (progress, id) => (progress[id]?.box || 0) >= 3
+export const isMastered = (progress, id) => (progress[id]?.box || 0) >= 3 // right 3 times in a row
+export const isDone = (progress, id) => (progress[id]?.box || 0) >= 1 // the last answer was right
 export const isDue = (progress, id, now = Date.now()) => !progress[id] || progress[id].due <= now
 
 export function streak(days, now = new Date()) {

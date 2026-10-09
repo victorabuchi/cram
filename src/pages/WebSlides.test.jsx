@@ -77,3 +77,18 @@ describe('Web Programming I: all test questions', () => {
     expect(screen.getAllByRole('button', { name: 'Hide answer' })).toHaveLength(26)
   })
 })
+
+describe('Progress on the cards', () => {
+  it('counts a question answered right once as done, and mastered only after three right in a row', () => {
+    const ep1 = test[0].id
+    localStorage.setItem('scribletics_progress', JSON.stringify({ [ep1]: { box: 1, seen: 1, right: 1, due: 0 } }))
+    renderApp('/')
+    const card = screen.getAllByRole('link').find((l) => /Web Programming I/.test(l.textContent) && /answered correctly/.test(l.textContent))
+    expect(card).toHaveTextContent(/1 of \d+ answered correctly · 0 mastered/)
+  })
+
+  it('the PDF viewer has zoom controls (or the plain frame where pages cannot be drawn)', () => {
+    renderApp('/s/webprog/1/learn')
+    expect(screen.getByTitle('Web programming (course intro)')).toBeInTheDocument() // jsdom cannot draw canvases, so the frame is used
+  })
+})
