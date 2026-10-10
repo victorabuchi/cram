@@ -92,6 +92,8 @@ describe('Plain-words help on the BMC exercises', () => {
     })))
     renderApp('/s/bmc/1/exercises')
     expect(screen.getByRole('heading', { name: /X1 T1/ })).toBeInTheDocument()
+    expect(screen.getByText('Notation used in every task:')).toBeInTheDocument() // above the tasks, once, not per task
+    expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument() // only after pressing the button
 
     await user.click(screen.getByRole('button', { name: 'Explain it simply' }))
     const help = screen.getByRole('region', { name: 'Simple explanation' })
@@ -100,11 +102,11 @@ describe('Plain-words help on the BMC exercises', () => {
     await user.click(screen.getByRole('button', { name: 'Hide the simple explanation' }))
     expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Notation help (Q, Σ, δ)' }))
+    await user.click(screen.getByRole('button', { name: 'Full cheat sheet' }))
     const sheet = screen.getByRole('region', { name: 'Notation help' })
     expect(sheet).toHaveTextContent('start state')
     expect(sheet).toHaveTextContent('accepting states')
-    await user.click(screen.getByRole('button', { name: 'Hide notation help' }))
+    await user.click(screen.getByRole('button', { name: 'Hide cheat sheet' }))
     expect(screen.queryByRole('region', { name: 'Notation help' })).not.toBeInTheDocument()
 
     expect(screen.queryByText('Look up:')).not.toBeInTheDocument() // topics appear only with the answer
