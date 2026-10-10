@@ -5,8 +5,8 @@ import TermModal from './TermModal.jsx'
 
 const base = import.meta.env.BASE_URL ?? './'
 
-// A pen-and-paper exercise: read it (with a plain-words explanation and topics to look up if you need them), solve it on paper,
-// show the teacher's answer, then say whether you got it.
+// A pen-and-paper exercise: read it (with a plain-words explanation if you need it), solve it on paper, show the teacher's answer
+// (the topics to look up appear with the answer), then say whether you got it.
 // onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
 function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
   const [shown, setShown] = useState(false)
@@ -36,13 +36,6 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
           <ol className="mb-0 mt-2">{item.simple.map((s) => <li key={s} className="mb-2">{s}</li>)}</ol>
         </Alert>
       )}
-      {item.terms && (
-        <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-          <span className="small text-body-secondary">Look up:</span>
-          {item.terms.map((t) => <Button key={t.wiki} size="sm" variant="primary" onClick={() => setTerm(t)}>{t.label}</Button>)}
-        </div>
-      )}
-
       <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
       <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown} className="mb-3">{shown ? 'Hide answer' : 'Show answer'}</Button>
       {shown && (
@@ -51,6 +44,12 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
             <strong>Answer</strong>
             {item.answer.map((a, i) => <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>)}
           </Alert>
+          {item.terms && (
+            <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <span className="small text-body-secondary">Look up:</span>
+              {item.terms.map((t) => <Button key={t.wiki} size="sm" variant="primary" onClick={() => setTerm(t)}>{t.label}</Button>)}
+            </div>
+          )}
           <h3 className="h6">The teacher's {pages.length > 1 ? 'pages' : 'page'}</h3>
           {pages.map((n) => (
             <img

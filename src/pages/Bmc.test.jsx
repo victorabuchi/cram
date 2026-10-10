@@ -106,6 +106,9 @@ describe('Plain-words help on the BMC exercises', () => {
     expect(sheet).toHaveTextContent('accepting states')
     await user.click(within(sheet).getByRole('button', { name: /close/i }))
 
+    expect(screen.queryByText('Look up:')).not.toBeInTheDocument() // topics appear only with the answer
+    expect(screen.queryByRole('button', { name: /Modular arithmetic/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
     await user.click(screen.getByRole('button', { name: /Modular arithmetic/ }))
     const popup = await screen.findByRole('dialog')
     expect(await within(popup).findByText(/numbers wrap around/)).toBeInTheDocument()
