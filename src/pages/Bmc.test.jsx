@@ -101,10 +101,11 @@ describe('Plain-words help on the BMC exercises', () => {
     expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Notation help (Q, Σ, δ)' }))
-    const sheet = await screen.findByRole('dialog')
+    const sheet = screen.getByRole('region', { name: 'Notation help' })
     expect(sheet).toHaveTextContent('start state')
     expect(sheet).toHaveTextContent('accepting states')
-    await user.click(within(sheet).getByRole('button', { name: /close/i }))
+    await user.click(screen.getByRole('button', { name: 'Hide notation help' }))
+    expect(screen.queryByRole('region', { name: 'Notation help' })).not.toBeInTheDocument()
 
     expect(screen.queryByText('Look up:')).not.toBeInTheDocument() // topics appear only with the answer
     expect(screen.queryByRole('button', { name: /Modular arithmetic/ })).not.toBeInTheDocument()

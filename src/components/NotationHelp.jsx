@@ -1,13 +1,11 @@
-import { Modal, Table } from 'react-bootstrap'
+import { Alert, Table } from 'react-bootstrap'
 
-// The formal DFA notation in plain words, with the Exercise 1 task 1 automaton as the example.
-function NotationModal({ show, onHide }) {
+// The formal DFA notation in plain words, with the Exercise 1 task 1 automaton as the example (an inline panel, like the simple explanation).
+function NotationHelp() {
   return (
-    <Modal show={show} onHide={onHide} centered size="lg" aria-labelledby="notation-title">
-      <Modal.Header closeButton>
-        <Modal.Title id="notation-title" as="h2" className="h5">Notation cheat sheet: Q, Σ, s, F, δ</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+    <Alert variant="light" className="border" role="region" aria-label="Notation help">
+      <strong>Notation cheat sheet: Q, Σ, s, F, δ</strong>
+      <div className="mt-2">
         <p>A DFA is a machine that reads a word one symbol at a time and, at the end, says <strong>accept</strong> or <strong>reject</strong>. The formal block is just five facts about the machine:</p>
         <Table size="sm" bordered responsive>
           <thead><tr><th scope="col">Symbol</th><th scope="col">Means</th><th scope="col">In the example</th></tr></thead>
@@ -31,9 +29,9 @@ function NotationModal({ show, onHide }) {
         </Table>
         <p><strong>Running it.</strong> Input 1 2 3: start in q0; read 1 → q1; read 2 → q3; read 3 → q0. The input is used up and q0 is in F, so the word is <strong>accepted</strong>. (Their sum 1 + 2 + 3 = 6 leaves remainder 0 when divided by 6, which is why q0 accepts.)</p>
         <p className="mb-0"><strong>Words to know.</strong> <em>word / string</em>: a sequence of symbols. <em>mod 6</em>: the remainder after dividing by 6 (7 mod 6 = 1). <em>chain</em>: writing the states you pass through, q0 → q1 → q3 → q0.</p>
-      </Modal.Body>
-    </Modal>
+      </div>
+    </Alert>
   )
 }
 
-export default NotationModal
+export default NotationHelp

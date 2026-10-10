@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
-import NotationModal from './NotationModal.jsx'
+import NotationHelp from './NotationHelp.jsx'
 import TermModal from './TermModal.jsx'
 
 const base = import.meta.env.BASE_URL ?? './'
@@ -28,7 +28,6 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
 
       <div className="d-flex flex-wrap gap-2 mb-3">
         {item.simple && <Button variant={simple ? 'secondary' : 'success'} onClick={() => setSimple(!simple)} aria-expanded={simple}>{simple ? 'Hide the simple explanation' : 'Explain it simply'}</Button>}
-        <Button variant="dark" onClick={() => setNotation(true)}>Notation help (Q, Σ, δ)</Button>
       </div>
       {simple && (
         <Alert variant="light" className="border" role="region" aria-label="Simple explanation">
@@ -36,6 +35,10 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
           <ol className="mb-0 mt-2">{item.simple.map((s) => <li key={s} className="mb-2">{s}</li>)}</ol>
         </Alert>
       )}
+      <div className="mb-3">
+        <Button variant={notation ? 'secondary' : 'dark'} onClick={() => setNotation(!notation)} aria-expanded={notation}>{notation ? 'Hide notation help' : 'Notation help (Q, Σ, δ)'}</Button>
+      </div>
+      {notation && <NotationHelp />}
       <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
       <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown} className="mb-3">{shown ? 'Hide answer' : 'Show answer'}</Button>
       {shown && (
@@ -69,7 +72,6 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
         </>
       )}
       <TermModal term={term} onHide={() => setTerm(null)} />
-      <NotationModal show={notation} onHide={() => setNotation(false)} />
     </div>
   )
 }
