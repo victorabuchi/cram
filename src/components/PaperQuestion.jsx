@@ -21,7 +21,7 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
       {item.prompt.map((p, i) => <p key={i} style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
       <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
 
-      {!shown && <Button onClick={() => setShown(true)}>Show answer</Button>}
+      <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown} className="mb-3">{shown ? 'Hide answer' : 'Show answer'}</Button>
       {shown && (
         <>
           <Alert variant="light" className="border" role="region" aria-label="Answer">
