@@ -6,6 +6,7 @@ import { docs } from '../data/bmc/docs'
 import { questions as exercise1 } from '../data/bmc/exercise1'
 import { questions as exercise2 } from '../data/bmc/exercise2'
 import { questions as exercise3 } from '../data/bmc/exercise3'
+import { questions as exercise4 } from '../data/bmc/exercise4'
 import { renderApp } from '../test/helpers.jsx'
 
 describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
@@ -39,6 +40,8 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     expect(exercise1.map((q) => q.page)).toEqual([1, 3, 4, 5, 6, 7, 8, 9])
     expect(exercise2.map((q) => q.page)).toEqual([1, 2, 3, 4, 5, 6])
     expect(exercise3.map((q) => q.page)).toEqual([1, 2, 3, 5, 6, 8])
+    expect(exercise4.map((q) => q.page)).toEqual([1, 2, 4, 5, 6, 8])
+    expect(exercise4.every((q) => q.week === 3)).toBe(true)
     expect(exercise1.every((q) => q.week === 1) && [...exercise2, ...exercise3].every((q) => q.week === 2)).toBe(true)
   })
 
@@ -61,22 +64,22 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
   })
 
   it('shows both pages for a task that spans two, and every page image exists', () => {
-    expect([...exercise1, ...exercise2, ...exercise3].filter((q) => q.pages).map((q) => q.pages)).toEqual([[1, 2], [3, 4]])
-    for (const q of [...exercise1, ...exercise2, ...exercise3]) {
+    expect([...exercise1, ...exercise2, ...exercise3, ...exercise4].filter((q) => q.pages).map((q) => q.pages)).toEqual([[1, 2], [3, 4], [2, 3], [6, 7], [8, 9]])
+    for (const q of [...exercise1, ...exercise2, ...exercise3, ...exercise4]) {
       for (const n of q.pages ?? [q.page]) expect(existsSync(`public/docs/pages/${q.pdf.replace('.pdf', '')}-${n}.jpg`)).toBe(true)
     }
   })
 
   it('lists Exercise 1 and Exercise 2 together across both groups', () => {
     renderApp('/s/bmc/all/exercises')
-    expect(screen.getByText(/Exercise 1 · task 1 of 20/)).toBeInTheDocument()
+    expect(screen.getByText(/Exercise 1 · task 1 of 26/)).toBeInTheDocument()
   })
 })
 
 describe('Plain-words help on the BMC exercises', () => {
   it('every task has a simple explanation and topics to look up', () => {
     const tasks = ITEMS.filter((i) => i.subject === 'bmc' && i.exercise)
-    expect(tasks).toHaveLength(20)
+    expect(tasks).toHaveLength(26)
     for (const q of tasks) {
       expect(q.simple?.length, q.id).toBeGreaterThanOrEqual(3)
       expect(q.terms?.length, q.id).toBeGreaterThan(0)
@@ -120,12 +123,15 @@ describe('Practice: the exercise tasks again with other values', () => {
     expect(within(screen.getByRole('main')).getByRole('link', { name: /Practice/ })).toBeInTheDocument()
   })
 
-  it('has 20 practice tasks (8 in group 1, 12 in group 2)', () => {
+  it('has 26 practice tasks (8 in group 1, 12 in group 2, 6 in group 3)', () => {
     const { unmount } = renderApp('/s/bmc/1/variants')
     expect(screen.getByText(/Practice task 1 of 8/)).toBeInTheDocument()
     unmount()
-    renderApp('/s/bmc/2/variants')
+    const second = renderApp('/s/bmc/2/variants')
     expect(screen.getByText(/Practice task 1 of 12/)).toBeInTheDocument()
+    second.unmount()
+    renderApp('/s/bmc/3/variants')
+    expect(screen.getByText(/Practice task 1 of 6/)).toBeInTheDocument()
   })
 
   it('shows the question with other values and then the answer, with a diagram', async () => {
@@ -152,5 +158,41 @@ describe('Practice: the exercise tasks again with other values', () => {
     expect(screen.getByText(/the same idea as/)).toHaveTextContent('X2 T2. Minimize the automaton')
     await user.click(screen.getByRole('button', { name: 'Show answer' }))
     expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('three states')
+  })
+})
+
+describe('Groups 3 and 4: pushdown automata, context-sensitive grammars and Turing machines', () => {
+  it('group 3 has lectures 7 and 8 and exercise 4; group 4 has lectures 9 and 10', () => {
+    const titles = (week) => docs.filter((d) => d.week === week).map((d) => d.title)
+    expect(titles(3)).toEqual(['Lecture 7', 'Lecture 8', 'Exercise 4: questions and answers'])
+    expect(titles(4)).toEqual(['Lecture 9', 'Lecture 10'])
+  })
+
+  it('names the groups and opens the slides', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/3/learn')
+    expect(screen.getByTitle('Lecture 7')).toHaveAttribute('src', expect.stringContaining('bmc-lecture-7.pdf'))
+    await user.click(screen.getByRole('button', { name: /Exercise 4/ }))
+    expect(screen.getByTitle(/Exercise 4/)).toHaveAttribute('src', expect.stringContaining('bmc-exercise-4.pdf'))
+  })
+
+  it('group 4 has the lectures but no exercises yet, so only Learn', () => {
+    renderApp('/s/bmc/4')
+    const main = within(screen.getByRole('main'))
+    expect(main.getByRole('link', { name: /Learn/ })).toBeInTheDocument()
+    expect(main.queryByRole('link', { name: /Exercises/ })).not.toBeInTheDocument()
+    expect(main.queryByRole('link', { name: /Practice/ })).not.toBeInTheDocument()
+  })
+
+  it('shows the PDA answer of exercise 4 task 1 and the parse trees of task 6 in their own layout', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/3/exercises')
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
+    expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('A → B: b, Z ; cZ')
+    await user.click(screen.getByRole('button', { name: /Exercise 4, task 6$/ }))
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
+    const answer = screen.getByRole('region', { name: 'Answer' })
+    expect(answer).toHaveTextContent('n*(n+n)')
+    expect(within(answer).getAllByText(/└─/, { selector: 'code' }).length).toBeGreaterThan(0)
   })
 })

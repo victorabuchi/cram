@@ -237,12 +237,136 @@ describe('BMC practice variants: exercise 3', () => {
 })
 
 describe('BMC practice variants: the data', () => {
-  it('has one variant for each of the 20 exercise tasks, each with an answer', () => {
-    expect(variants).toHaveLength(20)
-    expect(new Set(variants.map((q) => q.of)).size).toBe(20)
+  it('has one variant for each exercise task, each with an answer', () => {
+    expect(variants).toHaveLength(26)
+    expect(new Set(variants.map((q) => q.of)).size).toBe(26)
     for (const q of variants) {
       expect(q.answer.length, q.id).toBeGreaterThan(0)
       for (const text of [q.diagram, q.answerDiagram].filter(Boolean)) expect(() => parseAutomaton(text), q.id).not.toThrow()
     }
+  })
+})
+
+// ----- exercise 4: pushdown automata, grammars and parse trees -----
+import { expressionTree, leaves } from './trees'
+import { PDAS } from './variants'
+
+// Runs a pushdown automaton (nondeterministic: all choices are explored). Accepts when the input is used up in an accepting state.
+function pdaAccepts(pda, input, limit = 20000) {
+  const seen = new Set()
+  const stack = [[pda.start, 0, 'Z']]
+  let steps = 0
+  while (stack.length && steps++ < limit) {
+    const [state, pos, st] = stack.pop()
+    const key = `${state}|${pos}|${st}`
+    if (seen.has(key) || st.length > 30) continue
+    seen.add(key)
+    if (pos === input.length && pda.accept.includes(state)) return true
+    for (const [from, read, top, to, push] of pda.rules) {
+      if (from !== state || st[0] !== top) continue
+      if (read !== '' && input[pos] !== read) continue
+      stack.push([to, pos + (read === '' ? 0 : 1), push + st.slice(1)])
+    }
+  }
+  return false
+}
+const counts = (w) => ({ a: [...w].filter((c) => c === 'a').length, b: [...w].filter((c) => c === 'b').length, c: [...w].filter((c) => c === 'c').length })
+const shape = (w) => /^a*b*c*$/.test(w)
+const balanced = (w) => {
+  const st = []
+  for (const ch of w) {
+    if (ch === '(' || ch === '[') st.push(ch)
+    else if (st.pop() !== (ch === ')' ? '(' : '[')) return false
+  }
+  return st.length === 0
+}
+// Number of parse trees of `str` for the grammar `text` (one character = one symbol, S/E start symbol given).
+function countTrees(text, start, str) {
+  const rules = {}
+  for (const line of text.split('\n')) {
+    const [lhs, rhs] = line.split('→').map((x) => x.trim())
+    rules[lhs] = rhs.split('|').map((alt) => alt.replace(/\s+/g, ''))
+  }
+  const memo = new Map()
+  const seq = (symbols, i, j) => {
+    if (!symbols.length) return i === j ? 1 : 0
+    const [first, ...rest] = symbols
+    let total = 0
+    if (rules[first]) {
+      for (let k = i; k <= j; k++) total += tree(first, i, k) * seq(rest, k, j)
+    } else if (str[i] === first && i < j) total += seq(rest, i + 1, j)
+    return total
+  }
+  const tree = (nt, i, j) => {
+    const key = `${nt}|${i}|${j}`
+    if (memo.has(key)) return memo.get(key)
+    memo.set(key, 0) // guards against left recursion on an empty span
+    const n = rules[nt].reduce((sum, alt) => sum + seq([...alt], i, j), 0)
+    memo.set(key, n)
+    return n
+  }
+  return tree(start, 0, str.length)
+}
+
+describe('BMC practice variants: exercise 4', () => {
+  it('P4 T1: the PDA accepts a^k b^l c^(2k+l) and nothing else', () => {
+    for (const w of words(['a', 'b', 'c'], 8)) {
+      const { a, b, c } = counts(w)
+      expect(pdaAccepts(PDAS.abc2, w), w).toBe(shape(w) && c === 2 * a + b)
+    }
+    expect(['abccc', 'aacccc', ''].map((w) => pdaAccepts(PDAS.abc2, w))).toEqual([true, true, true])
+    expect(pdaAccepts(PDAS.abc2, 'abcc')).toBe(false)
+  })
+
+  it('P4 T2: the grammar generates the same language as the PDA', () => {
+    const lang = language(GRAMMARS.abc2.replace('S →', 'S →'), 8)
+    for (const w of words(['a', 'b', 'c'], 8)) {
+      const { a, b, c } = counts(w)
+      expect(lang.has(w), w).toBe(shape(w) && c === 2 * a + b)
+    }
+  })
+
+  it('P4 T3: k + l ≤ m, by the PDA and by the grammar', () => {
+    const lang = language(GRAMMARS.atMost, 8)
+    for (const w of words(['a', 'b', 'c'], 8)) {
+      const { a, b, c } = counts(w)
+      const inLanguage = shape(w) && a + b <= c
+      expect(pdaAccepts(PDAS.atMost, w), w).toBe(inLanguage)
+      expect(lang.has(w), w).toBe(inLanguage)
+    }
+    expect([pdaAccepts(PDAS.atMost, 'abcc'), pdaAccepts(PDAS.atMost, 'abccc'), pdaAccepts(PDAS.atMost, 'abc')]).toEqual([true, true, false])
+  })
+
+  it('P4 T4: the bracket PDA accepts exactly the correctly nested words', () => {
+    for (const w of words(['(', ')', '[', ']'], 8)) expect(pdaAccepts(PDAS.brackets, w), w).toBe(balanced(w))
+    expect(['([])[()]', '()'].map((w) => pdaAccepts(PDAS.brackets, w))).toEqual([true, true])
+    expect(['([)]', '(()', ']('].map((w) => pdaAccepts(PDAS.brackets, w))).toEqual([false, false, false])
+  })
+
+  it('P4 T5: E → E+E | E*E | n is ambiguous: n+n*n has two parse trees, and the two derivations in the answer exist', () => {
+    expect(countTrees(GRAMMARS.ambiguous, 'E', 'n+n*n')).toBe(2)
+    expect(countTrees(GRAMMARS.ambiguous, 'E', 'n+n')).toBe(1)
+    expect(countTrees(GRAMMARS.ambiguous, 'E', 'n+n+n')).toBe(2)
+    const answer = variants.find((q) => q.id === 'bmc-v-x4t5').answer.filter((a) => a.code).map((a) => a.code)
+    expect(answer[0]).toBe('E → E + E → n + E → n + E * E → n + n * E → n + n * n')
+    expect(answer[1]).toBe('E → E * E → E + E * E → n + E * E → n + n * E → n + n * n')
+    expect(answer[2].split('\n').filter((l) => /[n+*]$/.test(l)).map((l) => l.slice(-1)).join('')).toBe('n+n*n') // the leaves, read in order
+    expect(answer[3].split('\n').filter((l) => /[n+*]$/.test(l)).map((l) => l.slice(-1)).join('')).toBe('n+n*n')
+  })
+
+  it('P4 T6 and X4 T6: the parse trees are drawn by the grammar of the exercise and have the right leaves', () => {
+    const grammar = 'S → E\nE → E+T | T\nT → T*F | F\nF → n | (E)'
+    for (const w of ['(n+n)*n', 'n*n+n*n', 'n+n+n', 'n*(n+n)', 'n+n*n', 'n*n+n']) {
+      expect(leaves(expressionTree(w)), w).toBe(w)
+      expect(countTrees(grammar, 'S', w), w).toBe(1) // unambiguous: exactly one tree
+    }
+    // + is applied last in n+n*n (it is the top E), * last in (n+n)*n
+    expect(expressionTree('n+n*n').kids[0].kids.map((k) => k.sym)).toEqual(['E', '+', 'T'])
+    expect(expressionTree('(n+n)*n').kids[0].kids[0].kids.map((k) => k.sym)).toEqual(['T', '*', 'F'])
+  })
+
+  it('has one practice task for each of the 26 exercise tasks', () => {
+    expect(variants).toHaveLength(26)
+    expect(new Set(variants.map((q) => q.of)).size).toBe(26)
   })
 })

@@ -1,6 +1,8 @@
 // Practice: every exercise task again with different values, with the answers. Each variant has `of` (the exercise task it
 // repeats), the question, and the answer as text and, where there is one, as a diagram (`diagram` in the question, `answerDiagram` in the
 // answer, both in the text format of src/automata/model.js). variants.test.js checks the diagrams and grammars against the languages they claim.
+import { expressionTree, node, treeText } from './trees'
+
 const base = { subject: 'bmc', kind: 'paper' }
 const ids = (n, prefix = 'q') => Array.from({ length: n }, (_, i) => `${prefix}${i}`)
 
@@ -215,10 +217,39 @@ q3 a -> q0
 q3 b -> q1`,
 }
 
+// Pushdown automata as data (shown in the answers and run in the tests). A rule is [state, read, top, next, push]:
+// in `state`, reading `read` ('' = nothing) with `top` on top of the stack, go to `next` and replace the top by `push` (top first, '' = pop).
+// A word is accepted when the input is used up in an accepting state.
+export const PDAS = {
+  abc2: { start: 'A', accept: ['ok'], rules: [
+    ['A', 'a', 'Z', 'A', 'ccZ'], ['A', 'a', 'c', 'A', 'ccc'],
+    ['A', 'b', 'Z', 'B', 'cZ'], ['A', 'b', 'c', 'B', 'cc'], ['B', 'b', 'c', 'B', 'cc'],
+    ['A', 'c', 'c', 'C', ''], ['B', 'c', 'c', 'C', ''], ['C', 'c', 'c', 'C', ''],
+    ['A', '', 'Z', 'ok', ''], ['C', '', 'Z', 'ok', ''],
+  ] },
+  atMost: { start: 'A', accept: ['ok'], rules: [
+    ['A', 'a', 'Z', 'A', 'cZ'], ['A', 'a', 'c', 'A', 'cc'],
+    ['A', 'b', 'Z', 'B', 'cZ'], ['A', 'b', 'c', 'B', 'cc'], ['B', 'b', 'c', 'B', 'cc'],
+    ['A', 'c', 'c', 'C', ''], ['B', 'c', 'c', 'C', ''], ['C', 'c', 'c', 'C', ''],
+    ['A', '', 'Z', 'ok', 'Z'], ['C', '', 'Z', 'ok', 'Z'], ['ok', 'c', 'Z', 'ok', 'Z'],
+  ] },
+  brackets: { start: 'q', accept: ['ok'], rules: [
+    ...['Z', '(', '['].flatMap((top) => [['q', '(', top, 'q', `(${top}`], ['q', '[', top, 'q', `[${top}`]]),
+    ['q', ')', '(', 'q', ''], ['q', ']', '[', 'q', ''],
+    ['q', '', 'Z', 'ok', ''],
+  ] },
+}
+
+// The rules the way JFLAP and the teacher write them: "read, top ; replacement".
+export const pdaText = (pda) => pda.rules.map(([from, read, top, to, push]) => `${from} → ${to}:  ${read || 'ε'}, ${top} ; ${push || 'ε'}`).join('\n')
+
 // Grammars as text (for the answers and for the tests).
 export const GRAMMARS = {
   intLiteral: 'S → 0X | NY\nX → l | ε\nY → TY | X\nN → 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\nT → 0 | N',
   binaryLiteral: 'S → 0A\nA → bX\nX → _Y | 0Z | 1Z\nY → 0Z | 1Z\nZ → _Y | 0Z | 1Z | ε',
+  abc2: 'S → aScc | B\nB → bBc | ε',
+  atMost: 'S → A\nA → aAc | B\nB → bBc | C\nC → cC | ε',
+  ambiguous: 'E → E+E | E*E | n',
 }
 
 const v = (of, id, title, prompt, answer, extra = {}) => ({ ...base, id: `bmc-v-${id}`, of, exercise: 'Practice', title, prompt, answer, ...extra })
@@ -359,5 +390,62 @@ export const variants = [
       GRAMMARS.binaryLiteral,
       '0b101: S → 0A → 0bX → 0b1Z → 0b10Z → 0b101Z → 0b101 (Z → ε). 0b_1: S → 0A → 0bX → 0b_Y → 0b_1Z → 0b_1.',
       '0b1_ is rejected: after 0b1 we are in Z, the rule Z → _Y leads to Y, and Y must produce a digit (Y → 0Z | 1Z, there is no ε in Y), but the word has ended. The nonterminal Y remains, so there is no valid derivation. A final underscore is not allowed because an underscore must be followed by a digit.',
+    ]),
+
+  // ---------- Exercise 4 ----------
+  v('bmc-x4-1', 'x4t1', 'P4 T1. Pushdown automaton for a^k b^l c^(2k+l)',
+    ['Let\'s define the words accepted by a language such that the language includes words { a^k b^l c^(2k+l) | k, l ∈ N }. For example abccc (k = 1, l = 1) and aacccc (k = 2, l = 0).', 'Define a pushdown automaton that accepts the language.'],
+    [
+      'Every a is matched by TWO c, every b by one c. So: for every a push two c onto the stack, for every b push one c, and for every c pop one c. At the end only Z may be left (the stack is empty), and then the word is accepted.',
+      { code: pdaText(PDAS.abc2) },
+      'Reading rule: "A → A:  a, c ; ccc" means in state A, reading a with c on top, replace that c by ccc, which is two new c on top (a push of two). "C → C:  c, c ; ε" pops one c. A → ok:  ε, Z ; ε accepts the empty word (k = l = 0).',
+      'Check abccc: a pushes cc, b pushes c, so the stack holds ccc; the three c pop them one by one; ε, Z ; ε leads to ok. Check abcc: after two c one c is left on the stack, so the word is rejected.',
+    ]),
+  v('bmc-x4-2', 'x4t2', 'P4 T2. Grammar for a^k b^l c^(2k+l)',
+    ['Define a grammar for the language { a^k b^l c^(2k+l) | k, l ∈ N }.'],
+    [
+      'Grow the word from the middle outwards. Each a is paired with two c on the right, each b with one c, and the pairs are nested: the a pairs on the outside, the b pairs inside.',
+      { code: GRAMMARS.abc2 },
+      'S → aScc adds an a on the left and two c on the right. S → B stops the a part. B → bBc adds a b on the left and one c on the right. B → ε ends the word.',
+      'Check abccc: S → aScc → aBcc → abBccc → abccc.',
+    ]),
+  v('bmc-x4-3', 'x4t3', 'P4 T3. Pushdown automaton and grammar for k + l ≤ m',
+    ['Let\'s define the words accepted by a language such that the language includes words { a^k b^l c^m | k + l ≤ m, k, l, m ∈ N }. For example abcc and abccc, but not abc.', 'a) define a pushdown automaton that accepts the language', 'b) define a grammar for this language'],
+    [
+      'a) Push a c for every a and every b, and pop a c for every c. Now at least as many c as a and b together are enough, so when the stack is back at Z the word may be accepted, and further c may follow (they just do nothing to the stack).',
+      { code: pdaText(PDAS.atMost) },
+      'b) Compared with the previous exercise (strictly more c) the extra c is now optional: the nonterminal C in the middle may produce any number of c, including none.',
+      { code: GRAMMARS.atMost },
+      'Check abcc: a pushes c, b pushes c, two c pop them, the stack is Z, ε, Z ; Z leads to ok. Check abc: after one c a c is still on the stack, so the word cannot finish.',
+    ]),
+  v('bmc-x4-4', 'x4t4', 'P4 T4. A pushdown automaton for nested brackets',
+    ['Define a pushdown automaton that checks that round and square brackets are correctly nested. For example ([])[()] and () are accepted, but ([)], (() and ]( are not.'],
+    [
+      'This is the same idea as the HTML automaton: push every opening bracket, and pop it when the matching closing bracket comes. The stack always shows which brackets are still open. A closing bracket that does not match the top has no rule, so the word is rejected.',
+      { code: pdaText(PDAS.brackets) },
+      'Check ([])[()]: ( [ push, ] pops [, ) pops (, then [ ( push and ) ] pop. The stack is Z, ε, Z ; ε accepts. Check ([)]: ) comes while [ is on top, no rule: rejected. Check (() : one ( is left on the stack at the end: rejected.',
+    ]),
+  v('bmc-x4-5', 'x4t5', 'P4 T5. Another ambiguous grammar',
+    ['Consider the grammar  E → E + E | E * E | n   (Σ = { +, *, n }).', 'a) Derive the string  n + n * n  with the grammar.', 'b) Present two different parse trees for the string.', 'c) Briefly explain why the two trees differ and why this shows that the grammar is ambiguous.'],
+    [
+      'a) One derivation:',
+      { code: 'E → E + E → n + E → n + E * E → n + n * E → n + n * n' },
+      'Another derivation of the same string:',
+      { code: 'E → E * E → E + E * E → n + E * E → n + n * E → n + n * n' },
+      'b) Two parse trees (the first has + at the top, the second has * at the top):',
+      { code: treeText(node('E', node('E', node('n')), node('+'), node('E', node('E', node('n')), node('*'), node('E', node('n'))))) },
+      { code: treeText(node('E', node('E', node('E', node('n')), node('+'), node('E', node('n'))), node('*'), node('E', node('n')))) },
+      'c) Both trees have the same leaves n + n * n. In the first tree the * is applied first (n * n is a subtree) and then the +, so it means n + (n * n). In the second tree the + is applied first and then the *, so it means (n + n) * n. A grammar is ambiguous when some string has two or more parse trees. Here one string has two trees with different meaning, so the grammar is ambiguous. (The grammar of exercise 4 task 6 avoids this by putting * lower than +.)',
+    ]),
+  v('bmc-x4-6', 'x4t6', 'P4 T6. Parse trees of arithmetic expressions',
+    ['Use the grammar from exercise 4 task 6:  S → E,  E → E + T | T,  T → T * F | F,  F → n | ( E ).', 'Present parse trees for:\na) (n+n)*n\nb) n*n+n*n\nc) n+n+n'],
+    [
+      'The lower a nonterminal is in the grammar, the tighter it binds: * (in T) binds tighter than + (in E), and parentheses (F → ( E )) start a new expression.',
+      'a) (n+n)*n: the parentheses make the sum a factor F, so the * is applied last.',
+      { code: treeText(expressionTree('(n+n)*n')) },
+      'b) n*n+n*n: two products (T) joined by +.',
+      { code: treeText(expressionTree('n*n+n*n')) },
+      'c) n+n+n: operators of the same level group from the left, so it means (n+n)+n.',
+      { code: treeText(expressionTree('n+n+n')) },
     ]),
 ]

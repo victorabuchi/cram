@@ -42,7 +42,9 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
         <>
           <Alert variant="light" className="border" role="region" aria-label="Answer">
             <strong>Answer</strong>
-            {item.answer.map((a, i) => <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>)}
+            {item.answer.map((a, i) => (typeof a === 'string'
+              ? <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>
+              : <pre key={i} className="code"><code>{a.code}</code></pre>))}
           </Alert>
           {item.terms && (
             <div className="d-flex flex-wrap align-items-center gap-2 mb-3">

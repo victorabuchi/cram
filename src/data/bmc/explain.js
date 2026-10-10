@@ -13,6 +13,12 @@ const REGLANG = t('Regular language', 'Regular_language')
 const TABLE = t('State-transition table', 'State-transition_table')
 const HIER = t('Chomsky hierarchy', 'Chomsky_hierarchy')
 const KLEENE = t('Kleene star', 'Kleene_star')
+const PDA = t('Pushdown automaton (PDA)', 'Pushdown_automaton')
+const STACK = t('Stack', 'Stack_(abstract_data_type)')
+const TREE = t('Parse tree', 'Parse_tree')
+const AMBIG = t('Ambiguous grammar', 'Ambiguous_grammar')
+const DANGLING = t('Dangling else', 'Dangling_else')
+const ORDER = t('Order of operations', 'Order_of_operations')
 
 export const explain = {
   'bmc1-d1': {
@@ -195,6 +201,63 @@ export const explain = {
       'Turn each named part into one capital letter with rules, using ε for "optional" and recursion for "repeat" (just as in Exercise 2 task 5).',
       'To test 3.14 you start with S and apply rules until only symbols remain: S → F → D.OE → 3.14. Writing the derivation step by step is how you "test" a grammar.',
       '1e fails: after "1e" the grammar still needs at least one digit for the exponent, but the word ends. A leftover nonterminal means there is no valid derivation, so the word is rejected. (Python agrees: float("1e") raises ValueError.)',
+    ],
+  },
+
+  'bmc-x4-1': {
+    terms: [PDA, STACK, t('Context-free language', 'Context-free_language')],
+    simple: [
+      'A pushdown automaton (PDA) is a finite automaton with a stack: a pile where you can only add to the top (push) and take from the top (pop). The stack gives it a memory, so it can count.',
+      'Here it must check that the number of c equals the number of a plus the number of b. So: every time it reads an a or a b, it pushes one c on the stack. Every time it reads a c, it pops one c. If the stack is empty again exactly when the input ends, the counts matched.',
+      'Reading a transition "a, Z ; cZ": the next input symbol is a, the top of the stack is Z (the bottom marker), and we replace Z by cZ, which is pushing a c on top of Z. "c, c ; ε" means: read c, top is c, replace it by nothing, which is a pop. ε in the first place means "read nothing".',
+      'The states only follow the order of the letters: A while reading a\'s, B while reading b\'s, C while reading c\'s, and ok when the stack is empty. After a\'s the word may go straight to c\'s (l = 0), and a word with no a or b at all goes straight to ok.',
+      'Check aabbcccc: two a push cc, two b push cc, four c pop all four, and ε, Z ; ε leads to ok.',
+    ],
+  },
+  'bmc-x4-2': {
+    terms: [t('Context-free grammar', 'Context-free_grammar'), PDA],
+    simple: [
+      'A grammar builds a word by rewriting. Here: a^k b^l c^(k+l) means every a and every b is matched by one c, and the matching pairs are nested like brackets: the first a pairs with the LAST c, the last b with the FIRST c of the c-block.',
+      'So grow the word from the middle outwards. A → aAc puts an a on the left and a c on the right (an "ac" pair). B → bBc puts a "bc" pair. The a pairs go on the outside and the b pairs inside, so the a\'s come first, then the b\'s, then the c\'s.',
+      'A → B lets the a-part stop and the b-part begin; A → ε and B → ε end the word. S → ε allows the empty word.',
+      'To turn a grammar into a PDA: for each production X → α, a rule that pops X and pushes α; for each terminal t, a rule that pops t and reads t from the input. The PDA starts by pushing S, and accepts when the stack is empty again.',
+    ],
+  },
+  'bmc-x4-3': {
+    terms: [PDA, t('Context-free grammar', 'Context-free_grammar')],
+    simple: [
+      'Same idea as task 1, but the condition is k + l < m: strictly MORE c than a and b together. So after all the matching c are popped there must be at least ONE more c.',
+      'PDA: push a c for every a and b, pop a c for every c. When the stack is down to Z, a c can still be read (c, Z ; ε) and that goes to the accepting state ok. In ok, more c are allowed, but any other symbol leads to the trap and the word is rejected.',
+      'Grammar: take the task 2 grammar (a^k b^l c^(k+l)) and make sure there is always one extra c: replace the empty productions by c. Then let a new nonterminal C produce any further c: C → cC | c, and use it in the middle of the word.',
+      'Check abcccc: k = 1, l = 1, m = 4 and 1 + 1 < 4, so it is in the language. Derivation: S → A → aAc → aBc → abBcc → abCcc → abcCcc → abcccc.',
+    ],
+  },
+  'bmc-x4-4': {
+    terms: [PDA, STACK, t('HTML', 'HTML')],
+    simple: [
+      'HTML tags must be closed in the right order: <html><head></head></html> is fine, <html><head></html></head> is not. That is exactly what a stack is good at: the most recently opened tag is the first to be closed.',
+      'So the PDA pushes the tag name when it reads an opening tag, and pops it when it reads the closing tag with the same name. If the closing tag does not match the top of the stack, there is no rule, and the input is rejected.',
+      'The rules write which tag may open where: "<title>, <head> ; <title><head>" says that <title> may be opened when <head> is on top (a title lives inside the head). "<h1>, <body> ; <h1><body>" says an <h1> lives inside the <body>.',
+      'The words between the tags (t, a dot, a space) are just read without touching the stack.',
+    ],
+  },
+  'bmc-x4-5': {
+    terms: [AMBIG, TREE, DANGLING],
+    simple: [
+      'A derivation rewrites the start symbol step by step until only terminals are left. A parse tree is the picture of the same thing: the start symbol at the top, each node\'s children are the right-hand side of the rule used.',
+      'The string "if c then if c then s else s" has two ifs but only one else. The grammar does not say which if the else belongs to.',
+      'If the else belongs to the OUTER if, the outer statement is an <if-then-else> whose then-part is the inner <if-then>. If the else belongs to the INNER if, the outer statement is an <if-then> whose body is the inner <if-then-else>.',
+      'Both trees have the same leaves, so the grammar gives two meanings for one string. That is the definition of ambiguous. Programming languages avoid it by a rule (the else belongs to the nearest if).',
+    ],
+  },
+  'bmc-x4-6': {
+    terms: [TREE, ORDER, t('Context-free grammar', 'Context-free_grammar')],
+    simple: [
+      'To build a parse tree for a string, start from S and split it by the rules: S → E, then E is either E + T or just T, T is either T * F or F, and F is a number n or a parenthesised ( E ).',
+      'The lower a nonterminal is in the grammar, the tighter it binds. * lives in T, which is below E (where + lives). So in n+n*n the n*n is grouped first (as a T) and the + joins it later. That is why multiplication comes before addition.',
+      'Parentheses restart the whole thing inside: F → ( E ). In n*(n+n) the sum is inside an F, so it is computed before the multiplication.',
+      'Same-level operators group from the left, because E → E + T and T → T * F put the repeated part on the left: n*n+n is (n*n)+n, and n+n+n is (n+n)+n.',
+      'Practical method: first find the top-level + (outside any parentheses): split the string there. If there is none, split at the top-level *. If there is none, it is a single n or a parenthesised expression.',
     ],
   },
 }
