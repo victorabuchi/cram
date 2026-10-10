@@ -55,7 +55,7 @@ function TermModal({ term, onHide }) {
         {term?.w3 && <a className="btn btn-outline-primary" href={w3Url(term)} target="_blank" rel="noreferrer">W3Schools page <span className="visually-hidden">(opens in a new tab)</span></a>}
         {term?.mdn && <a className="btn btn-outline-primary" href={`https://developer.mozilla.org/en-US/docs/${article?.slug ?? ''}`} target="_blank" rel="noreferrer" hidden={!article}>Full MDN page <span className="visually-hidden">(opens in a new tab)</span></a>}
         {status === 'ready' && !term.mdn && <Button variant={isSaved ? 'outline-secondary' : 'outline-primary'} onClick={toggleSave}>{isSaved ? 'Remove from my terms' : 'Save to my terms'}</Button>}
-        {term && <Button as={Link} to={`/s/webprog/glossary?term=${encodeURIComponent(term.wiki)}`} onClick={onHide}>Open in Glossary</Button>}
+        {term && !term.noGlossary && <Button as={Link} to={`/s/webprog/glossary?term=${encodeURIComponent(term.wiki)}`} onClick={onHide}>Open in Glossary</Button>}
       </Modal.Footer>
     </Modal>
   )

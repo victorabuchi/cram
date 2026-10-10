@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ITEMS } from '../data/content'
 import { docs } from '../data/bmc/docs'
 import { questions as exercise1 } from '../data/bmc/exercise1'
 import { questions as exercise2 } from '../data/bmc/exercise2'
@@ -69,5 +70,45 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
   it('lists Exercise 1 and Exercise 2 together across both groups', () => {
     renderApp('/s/bmc/all/exercises')
     expect(screen.getByText(/Exercise 1 · task 1 of 20/)).toBeInTheDocument()
+  })
+})
+
+describe('Plain-words help on the BMC exercises', () => {
+  it('every task has a simple explanation and topics to look up', () => {
+    const tasks = ITEMS.filter((i) => i.subject === 'bmc' && i.exercise)
+    expect(tasks).toHaveLength(20)
+    for (const q of tasks) {
+      expect(q.simple?.length, q.id).toBeGreaterThanOrEqual(3)
+      expect(q.terms?.length, q.id).toBeGreaterThan(0)
+    }
+  })
+
+  it('explains the notation of task 1 and opens a Wikipedia summary of a topic', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ title: 'Modular arithmetic', extract: 'Modular arithmetic is a system of arithmetic for integers where numbers wrap around.', titles: { canonical: 'Modular_arithmetic' } }),
+    })))
+    renderApp('/s/bmc/1/exercises')
+    expect(screen.getByRole('heading', { name: /X1 T1/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Explain it simply' }))
+    const help = screen.getByRole('region', { name: 'Simple explanation' })
+    expect(help).toHaveTextContent('remainder')
+    expect(help).toHaveTextContent('δ(q4, 3) = q1')
+    await user.click(screen.getByRole('button', { name: 'Hide the simple explanation' }))
+    expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Notation help (Q, Σ, δ)' }))
+    const sheet = await screen.findByRole('dialog')
+    expect(sheet).toHaveTextContent('start state')
+    expect(sheet).toHaveTextContent('accepting states')
+    await user.click(within(sheet).getByRole('button', { name: /close/i }))
+
+    await user.click(screen.getByRole('button', { name: /Modular arithmetic/ }))
+    const popup = await screen.findByRole('dialog')
+    expect(await within(popup).findByText(/numbers wrap around/)).toBeInTheDocument()
+    expect(within(popup).queryByRole('link', { name: 'Open in Glossary' })).not.toBeInTheDocument()
   })
 })
