@@ -109,9 +109,3 @@ h1 small, h2 small { text-transform: none; }
 /* PDF viewer: pages fit the screen width, with zoom buttons; pinch-zoom and panning work on phones */
 .pdf-scroll { overflow: auto; background: #6b7280; border-radius: 4px; padding: 8px; touch-action: pan-x pan-y pinch-zoom; -webkit-overflow-scrolling: touch; }
 .pdf-page { display: block; background: #fff; margin: 0 auto 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
-
-/* Notation bar above the BMC exercises: two-tone badges (symbol | meaning), like the shields.io label|value badges */
-.notation-bar { background: #fff; border: 1px solid var(--bs-border-color); border-radius: 4px; padding: 10px 14px; }
-.kn-chip { display: inline-flex; font-family: Verdana, 'DejaVu Sans', Geneva, sans-serif; font-size: .78rem; line-height: 1; border-radius: 3px; overflow: hidden; }
-.kn-chip-key { background: #444444; color: #fff; padding: 6px 9px; font-weight: 700; }
-.kn-chip-value { background: #3178C6; color: #fff; padding: 6px 9px; }

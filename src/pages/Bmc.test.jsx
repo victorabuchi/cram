@@ -83,7 +83,7 @@ describe('Plain-words help on the BMC exercises', () => {
     }
   })
 
-  it('explains the notation of task 1 and opens a Wikipedia summary of a topic', async () => {
+  it('after Show answer: a simple explanation on request and a Wikipedia summary of a topic', async () => {
     const user = userEvent.setup()
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
@@ -92,26 +92,18 @@ describe('Plain-words help on the BMC exercises', () => {
     })))
     renderApp('/s/bmc/1/exercises')
     expect(screen.getByRole('heading', { name: /X1 T1/ })).toBeInTheDocument()
-    expect(screen.getByText('Notation used in every task:')).toBeInTheDocument() // above the tasks, once, not per task
-    expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument() // only after pressing the button
+    expect(screen.queryByText(/Notation/)).not.toBeInTheDocument() // no cheat sheet on the platform
+    expect(screen.queryByRole('button', { name: 'Explain it simply' })).not.toBeInTheDocument() // only after Show answer
 
+    expect(screen.queryByText('Look up:')).not.toBeInTheDocument() // topics appear only with the answer
+    expect(screen.queryByRole('button', { name: /Modular arithmetic/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
     await user.click(screen.getByRole('button', { name: 'Explain it simply' }))
     const help = screen.getByRole('region', { name: 'Simple explanation' })
     expect(help).toHaveTextContent('remainder')
     expect(help).toHaveTextContent('δ(q4, 3) = q1')
     await user.click(screen.getByRole('button', { name: 'Hide the simple explanation' }))
     expect(screen.queryByRole('region', { name: 'Simple explanation' })).not.toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Full cheat sheet' }))
-    const sheet = screen.getByRole('region', { name: 'Notation help' })
-    expect(sheet).toHaveTextContent('start state')
-    expect(sheet).toHaveTextContent('accepting states')
-    await user.click(screen.getByRole('button', { name: 'Hide cheat sheet' }))
-    expect(screen.queryByRole('region', { name: 'Notation help' })).not.toBeInTheDocument()
-
-    expect(screen.queryByText('Look up:')).not.toBeInTheDocument() // topics appear only with the answer
-    expect(screen.queryByRole('button', { name: /Modular arithmetic/ })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Show answer' }))
     await user.click(screen.getByRole('button', { name: /Modular arithmetic/ }))
     const popup = await screen.findByRole('dialog')
     expect(await within(popup).findByText(/numbers wrap around/)).toBeInTheDocument()

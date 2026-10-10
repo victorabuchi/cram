@@ -4,8 +4,8 @@ import TermModal from './TermModal.jsx'
 
 const base = import.meta.env.BASE_URL ?? './'
 
-// A pen-and-paper exercise: read it (with a plain-words explanation if you need it), solve it on paper, show the teacher's answer
-// (the topics to look up appear with the answer), then say whether you got it.
+// A pen-and-paper exercise: read it, solve it on paper, show the teacher's answer. Only then do the extras appear: the plain-words
+// explanation (on request) and the topics to look up. Then say whether you got it.
 // onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
 function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
   const [shown, setShown] = useState(false)
@@ -27,9 +27,9 @@ function PaperQuestion({ item, onScore, onNext, lastLabel = 'Next' }) {
       <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
       <div className="d-flex flex-wrap gap-2 mb-3">
         <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown}>{shown ? 'Hide answer' : 'Show answer'}</Button>
-        {item.simple && <Button variant={simple ? 'secondary' : 'success'} onClick={() => setSimple(!simple)} aria-expanded={simple}>{simple ? 'Hide the simple explanation' : 'Explain it simply'}</Button>}
+        {shown && item.simple && <Button variant={simple ? 'secondary' : 'success'} onClick={() => setSimple(!simple)} aria-expanded={simple}>{simple ? 'Hide the simple explanation' : 'Explain it simply'}</Button>}
       </div>
-      {simple && (
+      {shown && simple && (
         <Alert variant="light" className="border" role="region" aria-label="Simple explanation">
           <strong>The idea, step by step</strong>
           <ol className="mb-0 mt-2">{item.simple.map((s) => <li key={s} className="mb-2">{s}</li>)}</ol>

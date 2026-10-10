@@ -21,7 +21,7 @@ export const explain = {
       'The machine only has to remember one thing: the sum so far, but only its remainder when you divide by 6 (that is what "mod 6" means: 7 mod 6 = 1, 12 mod 6 = 0). A remainder can only be 0, 1, 2, 3, 4 or 5, so six states are enough.',
       'State qi means "the sum so far leaves remainder i". You start with sum 0, so the start state is q0, and q0 is the only accepting state (accept when the sum is 0 mod 6).',
       'Reading a number k moves you from qi to q(i + k mod 6). Example: in q4, reading 3 gives 4 + 3 = 7, and 7 mod 6 = 1, so you go to q1. That is exactly the line δ(q4, 3) = q1 in the big block.',
-      'The big block in the picture is just this rule written out as a table: one row per state, one column per symbol (1, 2, 3). Every state has an arrow for every symbol.',
+      'The big block in the picture is just this rule written out as a table: one row per state, one column per symbol (1, 2, 3). Every state has an arrow for every symbol. In the block, Q is the set of states, Σ the alphabet, s the start state, F the accepting states and δ the arrows.',
       'Check it: the input 1 2 3 goes q0 → q1 → q3 → q0. It ends in q0, which is accepting, and indeed 1 + 2 + 3 = 6.',
     ],
   },
