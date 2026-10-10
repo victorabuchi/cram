@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import CourseCard from '../components/CourseCard.jsx'
 import { getSubject } from '../data/subjects'
-import { scopedItems, scopedLearn } from '../data/content'
+import { scopedItems, scopedLearn, scopedVariants } from '../data/content'
 
 function Subject() {
   const { subjectId } = useParams()
@@ -13,6 +13,7 @@ function Subject() {
   const all = scopedItems(subjectId, 'all')
   const hasCode = all.some((i) => i.kind === 'code')
   const hasExercises = all.some((i) => i.exercise)
+  const hasVariants = scopedVariants(subjectId, 'all').length > 0
 
   return (
     <>
@@ -25,6 +26,7 @@ function Subject() {
         {subject.quiz !== false && <Button as={Link} to={`/s/${subjectId}/all/practice`} variant="outline-primary">Practice all weeks</Button>}
         {subject.quiz !== false && subject.mock !== false && <Button as={Link} to={`/s/${subjectId}/all/mock`} variant="outline-primary">Practice test (all weeks)</Button>}
         {subject.quiz === false && hasCode && <Button as={Link} to={`/s/${subjectId}/all/code`} variant="outline-primary">Code exercises (all weeks)</Button>}
+        {subject.quiz === false && hasVariants && <Button as={Link} to={`/s/${subjectId}/all/variants`} variant="outline-primary">Practice (all weeks)</Button>}
         {subject.quiz === false && hasExercises && <Button as={Link} to={`/s/${subjectId}/all/exercises`} variant="outline-primary">Exercises (all weeks)</Button>}
       </div>}
       {subject.weeks.length > 0 && <h2 className="h5 mb-3">Weeks</h2>}

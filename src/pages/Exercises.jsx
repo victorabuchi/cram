@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import PaperQuestion from '../components/PaperQuestion.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import { useProgress } from '../hooks/useProgress'
+import { VARIANTS } from '../data/content'
 import { useScope } from '../useScope'
+
+// "I need to practise this" takes you to the practice page, to the same task with other values (when it has one).
+const scopedVariantFor = (q) => VARIANTS.some((v) => v.of === q.id)
 
 // The course exercise sheets: tasks the test is built from. Pen-and-paper tasks (kind "paper") and the explain-style design tasks.
 function Exercises() {
   const { subjectId, week, valid, items, label } = useScope()
   const { progress, record } = useProgress()
+  const navigate = useNavigate()
   const [index, setIndex] = useState(0)
   const list = items.filter((i) => i.exercise)
   if (!valid) return <Navigate to="/" replace />
@@ -36,6 +41,7 @@ function Exercises() {
                   item={item}
                   lastLabel={index === list.length - 1 ? 'Last task' : 'Next task'}
                   onScore={(correct) => record(item.id, correct)}
+                  onUnsure={(q) => scopedVariantFor(q) && navigate(`/s/${subjectId}/all/variants?for=${q.id}`)}
                   onNext={next}
                 />
               ) : (

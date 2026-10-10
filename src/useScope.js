@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { getSubject } from './data/subjects'
-import { scopedDocs, scopedItems, scopedLearn } from './data/content'
+import { scopedDocs, scopedItems, scopedLearn, scopedVariants } from './data/content'
 
 // Which subject and week (or 'all') the current tool page is working on.
 export function useScope() {
@@ -14,6 +14,7 @@ export function useScope() {
     items: scopedItems(subjectId, week),
     learn: scopedLearn(subjectId, week),
     docs: scopedDocs(subjectId, week),
+    variants: scopedVariants(subjectId, week),
     label: week === 'all' ? 'All weeks' : `Week ${week}`,
   }
 }

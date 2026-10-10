@@ -110,3 +110,47 @@ describe('Plain-words help on the BMC exercises', () => {
     expect(within(popup).queryByRole('link', { name: 'Open in Glossary' })).not.toBeInTheDocument()
   })
 })
+
+describe('Practice: the exercise tasks again with other values', () => {
+  it('is a tool of the course, with a week tile', () => {
+    const { unmount } = renderApp('/s/bmc')
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Practice' })).toBeInTheDocument()
+    unmount()
+    renderApp('/s/bmc/1')
+    expect(within(screen.getByRole('main')).getByRole('link', { name: /Practice/ })).toBeInTheDocument()
+  })
+
+  it('has 20 practice tasks (8 in group 1, 12 in group 2)', () => {
+    const { unmount } = renderApp('/s/bmc/1/variants')
+    expect(screen.getByText(/Practice task 1 of 8/)).toBeInTheDocument()
+    unmount()
+    renderApp('/s/bmc/2/variants')
+    expect(screen.getByText(/Practice task 1 of 12/)).toBeInTheDocument()
+  })
+
+  it('shows the question with other values and then the answer, with a diagram', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/variants')
+    expect(screen.getByRole('heading', { name: 'P1 T1. Sum modulo 5' })).toBeInTheDocument()
+    expect(screen.getByText(/Σ = \{1, 2, 4\}/)).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Answer' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
+    expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('q((i + k) mod 5)')
+    expect(screen.getByText('The answer as a diagram')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'I solved it' }))
+    expect(screen.getByRole('button', { name: /Practice task 1, done/ })).toBeInTheDocument()
+  })
+
+  it('"I need to practise this" on an exercise takes you to the practice task of the same exercise', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/2/exercises')
+    await user.click(screen.getByRole('button', { name: /Exercise 2, task 2$/ }))
+    expect(screen.getByRole('heading', { name: 'X2 T2. Minimize the automaton' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
+    await user.click(screen.getByRole('button', { name: 'I need to practise this' }))
+    expect(await screen.findByRole('heading', { name: 'P2 T2. Minimize the automaton' })).toBeInTheDocument()
+    expect(screen.getByText(/the same idea as/)).toHaveTextContent('X2 T2. Minimize the automaton')
+    await user.click(screen.getByRole('button', { name: 'Show answer' }))
+    expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('three states')
+  })
+})

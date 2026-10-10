@@ -3,6 +3,7 @@ import * as exercise2 from './exercise2'
 import * as exercise3 from './exercise3'
 import { docs } from './docs'
 import { explain } from './explain'
+import { variants } from './variants'
 
 // Basic Models of Computation: the lecture PDFs (docs, shown by Learn) and the exercise tasks. No learn cards.
 const exercises = [exercise1, exercise2, exercise3]
@@ -12,4 +13,5 @@ export default {
   learn: [],
   questions: exercises.flatMap((e) => e.questions).map((q) => ({ ...q, ...explain[q.id] })), // plus the plain-words explanation and the terms to look up
   docs,
+  variants: variants.map((v) => ({ ...v, terms: explain[v.of]?.terms, week: exercises.flatMap((e) => e.questions).find((q) => q.id === v.of).week })), // practice: each exercise task again with other values
 }
