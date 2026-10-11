@@ -201,7 +201,7 @@ function Glossary() {
     <>
       <Crumbs subjectId="webprog" current="Glossary" />
       <h1 className="h3">Glossary</h1>
-      <p className="text-body-secondary">In “By week”, every course term opens a popup: the MDN Web Docs explanation (with links to the full MDN page and to W3Schools), or a Wikipedia summary for terms MDN has no page for. The Search tab looks up any word on Wikipedia. Save Wikipedia articles you want to remember and add your own notes.</p>
+      <p className="text-body-secondary">In “By week”, every course term opens a popup: the MDN Web Docs explanation (with a link to the full MDN page), or a Wikipedia summary for terms MDN has no page for. The Search tab looks up any word on Wikipedia. Save Wikipedia articles you want to remember and add your own notes.</p>
       <Tabs activeKey={tab} onSelect={(k) => setTab(k)} className="mb-3" mountOnEnter>
         <Tab eventKey="search" title="Search"><SearchTab termKey={termKey} open={open} /></Tab>
         <Tab eventKey="weeks" title="By week"><ByWeekTab /></Tab>

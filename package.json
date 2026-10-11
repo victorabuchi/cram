@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "java": "node server/java-runner.mjs"
+    "java": "node server/java-runner.mjs",
+    "check-links": "node scripts/check-links.mjs"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",

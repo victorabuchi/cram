@@ -160,7 +160,7 @@ React is a **JavaScript** library for building user interfaces, see {{glossary("
     ? { ok: true, status: 200, text: async () => MDN_PAGE }
     : { ok: false, status: 404, json: async () => ({}) })))
 
-  it('shows the MDN explanation in a popup, with links to MDN and W3Schools', async () => {
+  it('shows the MDN explanation in a popup, with a link to the full MDN page', async () => {
     const user = userEvent.setup()
     stubMdn()
     renderApp('/s/webprog/5/learn')
@@ -168,7 +168,7 @@ React is a **JavaScript** library for building user interfaces, see {{glossary("
     await user.click((await screen.findAllByRole('button', { name: /^React\s*: open the explanation$/ }))[0])
     const dialog = await screen.findByRole('dialog')
     expect(await within(dialog).findByText(/React is a JavaScript library for building user interfaces, see the API\./)).toBeInTheDocument()
-    expect(within(dialog).getByRole('link', { name: /W3Schools page/ })).toHaveAttribute('href', 'https://www.w3schools.com/react/default.asp')
+    expect(within(dialog).queryByRole('link', { name: /W3Schools/ })).not.toBeInTheDocument()
     expect(within(dialog).getAllByRole('link', { name: /MDN/ })[0]).toHaveAttribute('href', 'https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Frameworks_libraries/React_getting_started')
     expect(within(dialog).getByText(/CC BY-SA 2\.5/)).toBeInTheDocument()
   })

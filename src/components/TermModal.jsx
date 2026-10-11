@@ -1,13 +1,12 @@
 import { Alert, Button, Modal, Spinner } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { w3Url } from '../data/terms'
 import { useMdnArticle } from '../hooks/useMdnArticle'
 import { useTerms } from '../hooks/useTerms'
 import { useWikiArticle } from '../hooks/useWikiArticle'
 
-// Popup for one glossary term. A term with an MDN page shows its MDN summary (with a link to the full page and to W3Schools);
-// any other term shows its Wikipedia summary. `term` is { label, wiki, mdn?, w3? } or null.
+// Popup for one glossary term. A term with an MDN page shows its MDN summary (with a link to the full page);
+// any other term shows its Wikipedia summary. `term` is { label, wiki, mdn? } or null.
 function TermModal({ term, onHide }) {
   const mdn = useMdnArticle(term?.mdn ?? null)
   const wiki = useWikiArticle(term && !term.mdn ? term.wiki : null)
@@ -52,7 +51,6 @@ function TermModal({ term, onHide }) {
         )}
       </Modal.Body>
       <Modal.Footer>
-        {term?.w3 && <a className="btn btn-outline-primary" href={w3Url(term)} target="_blank" rel="noreferrer">W3Schools page <span className="visually-hidden">(opens in a new tab)</span></a>}
         {term?.mdn && <a className="btn btn-outline-primary" href={`https://developer.mozilla.org/en-US/docs/${article?.slug ?? ''}`} target="_blank" rel="noreferrer" hidden={!article}>Full MDN page <span className="visually-hidden">(opens in a new tab)</span></a>}
         {status === 'ready' && !term.mdn && <Button variant={isSaved ? 'outline-secondary' : 'outline-primary'} onClick={toggleSave}>{isSaved ? 'Remove from my terms' : 'Save to my terms'}</Button>}
         {term && !term.noGlossary && <Button as={Link} to={`/s/webprog/glossary?term=${encodeURIComponent(term.wiki)}`} onClick={onHide}>Open in Glossary</Button>}

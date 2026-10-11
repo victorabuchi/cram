@@ -1,6 +1,6 @@
 import { learnMoreLinks } from '../data/related'
 
-// "Learn more" links under an answer: the MDN and W3Schools pages that explain what the question is about.
+// "Learn more" links under an answer: the MDN page (or the official Git, GitHub, React or Bootstrap docs) that explains what the question is about.
 // Shown for Web Programming I questions.
 function LearnMore({ item }) {
   if (item.subject !== 'webprog') return null

@@ -83,7 +83,7 @@ describe('explain the code', () => {
 describe('Learn more links after the answer (Web Programming I)', () => {
   const css = { id: 'c1', subject: 'webprog', kind: 'mcq', q: 'Which CSS selector has the highest specificity value?', options: ['#main (id selector)', '.item (class selector)', 'p (element selector)'], why: 'Specificity order: id beats class beats element.' }
 
-  it('shows MDN and W3Schools links under the explanation', async () => {
+  it('shows the MDN link under the explanation (and no W3Schools link)', async () => {
     const { user } = setup(css)
     expect(screen.queryByText('Learn more:')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /^#main/ }))
@@ -92,7 +92,7 @@ describe('Learn more links after the answer (Web Programming I)', () => {
     expect(alert).toHaveTextContent('Learn more:')
     const links = within(alert).getAllByRole('link')
     expect(links.map((l) => l.getAttribute('href'))).toContain('https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Specificity')
-    expect(links.map((l) => l.getAttribute('href'))).toContain('https://www.w3schools.com/css/css_specificity.asp')
+    expect(links.map((l) => l.getAttribute('href')).some((h) => /w3schools/.test(h))).toBe(false)
     expect(links.every((l) => l.getAttribute('target') === '_blank')).toBe(true)
   })
 
