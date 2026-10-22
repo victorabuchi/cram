@@ -92,3 +92,27 @@ describe('Progress on the cards', () => {
     expect(screen.getByTitle('Web programming (course intro)')).toBeInTheDocument() // jsdom cannot draw canvases, so the frame is used
   })
 })
+
+describe('Backup on the Progress page', () => {
+  it('copies a backup code and restores a backup made in another browser', async () => {
+    const user = userEvent.setup()
+    const ep1 = test[0].id
+    localStorage.setItem('scribletics_progress', JSON.stringify({ 'other-question': { box: 1, seen: 1, right: 1, due: 0 } }))
+    renderApp('/s/webprog/progress')
+    expect(screen.getByText('Move your progress to another browser or phone')).toBeInTheDocument()
+    const code = 'cram1:' + btoa(JSON.stringify({ app: 'cram', version: 1, data: { scribletics_progress: { [ep1]: { box: 2, seen: 2, right: 2, due: 0 } } } }))
+    vi.stubGlobal('location', { ...window.location, reload: vi.fn() })
+    await user.type(screen.getByLabelText(/Restore: paste a backup code/), code)
+    await user.click(screen.getByRole('button', { name: 'Restore from code' }))
+    const saved = JSON.parse(localStorage.getItem('scribletics_progress'))
+    expect(Object.keys(saved).sort()).toEqual([ep1, 'other-question'].sort())
+  })
+
+  it('shows a clear message for a code that is not a backup', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/webprog/progress')
+    await user.type(screen.getByLabelText(/Restore: paste a backup code/), 'hello')
+    await user.click(screen.getByRole('button', { name: 'Restore from code' }))
+    expect(await screen.findByText(/not a Cram backup/)).toBeInTheDocument()
+  })
+})

@@ -3,6 +3,7 @@ import { badgeStyle } from '../badge'
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Tooltip } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
+import BackupCard from '../components/BackupCard.jsx'
 import Meter from '../components/Meter.jsx'
 import { Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
@@ -99,6 +100,7 @@ function Progress() {
         )
       })}
       <hr />
+      <BackupCard />
       <Button variant="outline-danger" onClick={reset}>Reset progress in this course</Button>
     </div>
   )

@@ -55,3 +55,80 @@ export const shuffle = (a) =>
     .map((x) => [Math.random(), x])
     .sort((p, q) => p[0] - q[0])
     .map((x) => x[1])
+
+// ---------- Backup: progress lives in this browser only, so it can be moved to another browser or phone ----------
+export const BACKUP_PREFIX = 'cram1:'
+const OWN_KEY = /^scribletics_/
+
+const byMoreAnswers = (a, b) => ((b?.seen ?? 0) > (a?.seen ?? 0) || ((b?.seen ?? 0) === (a?.seen ?? 0) && (b?.box ?? 0) > (a?.box ?? 0)) ? b : a)
+
+// Combines saved data from two browsers without losing either: per question the one with more answers, per day the higher count, saved terms from both.
+export function mergeBackup(current, incoming) {
+  const out = { ...current }
+  for (const [key, value] of Object.entries(incoming)) {
+    if (!(key in current)) out[key] = value
+    else if (key === KEY_PROGRESS) {
+      const merged = { ...current[key] }
+      for (const [id, entry] of Object.entries(value)) merged[id] = id in merged ? byMoreAnswers(merged[id], entry) : entry
+      out[key] = merged
+    } else if (key === KEY_DAYS) {
+      const merged = {}
+      for (const course of new Set([...Object.keys(current[key] ?? {}), ...Object.keys(value ?? {})])) {
+        const a = current[key]?.[course]
+        const b = value?.[course]
+        merged[course] = typeof a === 'number' || typeof b === 'number' ? (a ?? b) : { ...a }
+        for (const [date, n] of Object.entries(b ?? {})) if (typeof merged[course] === 'object') merged[course][date] = Math.max(merged[course][date] ?? 0, n)
+      }
+      out[key] = merged
+    } else if (key === 'scribletics_saved_terms') {
+      const have = new Set(current[key].map((t) => t.key))
+      out[key] = [...current[key], ...value.filter((t) => !have.has(t.key))]
+    } // anything else (code you typed, recent searches): keep what this browser has
+  }
+  return out
+}
+
+// Everything Cram saved in this browser, as plain data.
+export function collectData(store = localStorage) {
+  const data = {}
+  for (let i = 0; i < store.length; i++) {
+    const key = store.key(i)
+    if (OWN_KEY.test(key)) {
+      try {
+        data[key] = JSON.parse(store.getItem(key))
+      } catch {
+        /* skip a value that is not JSON */
+      }
+    }
+  }
+  return data
+}
+
+const utf8ToBase64 = (text) => btoa(String.fromCharCode(...new TextEncoder().encode(text)))
+const base64ToUtf8 = (b64) => new TextDecoder().decode(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)))
+
+export const backupJson = (data) => JSON.stringify({ app: 'cram', version: 1, savedAt: new Date().toISOString(), data }, null, 2)
+export const backupCode = (data) => BACKUP_PREFIX + utf8ToBase64(JSON.stringify({ app: 'cram', version: 1, data }))
+
+// A backup file's text or a pasted code -> the data inside. Throws a readable message when it is not a Cram backup.
+export function parseBackup(text) {
+  const raw = text.trim()
+  if (!raw) throw new Error('Paste a backup code or choose a backup file first.')
+  let parsed
+  try {
+    parsed = JSON.parse(raw.startsWith(BACKUP_PREFIX) ? base64ToUtf8(raw.slice(BACKUP_PREFIX.length).replace(/\s+/g, '')) : raw)
+  } catch {
+    throw new Error('This is not a Cram backup (the code or file is damaged).')
+  }
+  if (parsed?.app !== 'cram' || typeof parsed.data !== 'object' || !parsed.data) throw new Error('This is not a Cram backup.')
+  const data = Object.fromEntries(Object.entries(parsed.data).filter(([key]) => OWN_KEY.test(key)))
+  return data
+}
+
+// Merges a backup into this browser's saved data. Returns how many answered questions the backup brought.
+export function restoreData(text, store = localStorage) {
+  const incoming = parseBackup(text)
+  const merged = mergeBackup(collectData(store), incoming)
+  for (const [key, value] of Object.entries(merged)) store.setItem(key, JSON.stringify(value))
+  return Object.keys(incoming[KEY_PROGRESS] ?? {}).length
+}
