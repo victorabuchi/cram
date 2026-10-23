@@ -8,7 +8,7 @@ import Automaton from '../components/Automaton.jsx'
 import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
-import { topicsIn } from '../data/content'
+import { QUESTION_SETS, topicsIn } from '../data/content'
 import { useProgress } from '../hooks/useProgress'
 import { shuffle } from '../storage'
 import { isFinished, sessionReducer } from '../reducers/session'
@@ -18,11 +18,13 @@ const MOCK_MCQ = 20
 const MOCK_EXPLAIN = 3
 const EXPLAIN_POINTS = 3
 
-// test=false: a random practice test. test=true: the course's own "Practice quiz" questions, all of them, in their fixed order.
-function Mock({ test = false }) {
+// test=false: a random practice test. test=true: a fixed set of questions in their own order: `set` is a key of QUESTION_SETS
+// ("practice" = the Moodle Practice quiz, "real" = the question set).
+function Mock({ test = false, set = 'practice' }) {
+  const questionSet = QUESTION_SETS[set]
   const { subjectId, week, valid, items: allItems, label } = useScope()
   const items = test
-    ? allItems.filter((i) => i.setNo).sort((a, b) => a.setNo - b.setNo)
+    ? allItems.filter((i) => i[questionSet.key]).sort((a, b) => a[questionSet.key] - b[questionSet.key])
     : allItems.filter((i) => i.kind !== 'code') // the test has no coding questions
   const setTopics = topicsIn(items.filter((d) => d.kind === 'mcq' || d.kind === 'explain'))
   const [selected, setSelected] = useState(setTopics)
@@ -40,7 +42,7 @@ function Mock({ test = false }) {
   }, [finished]) // eslint-disable-line -- runs once per finished test
   if (!valid) return <Navigate to="/" replace />
 
-  const crumbs = <Crumbs subjectId={subjectId} week={week} current={test ? 'Practice quiz' : 'Practice test'} />
+  const crumbs = <Crumbs subjectId={subjectId} week={week} current={test ? questionSet.title : 'Practice test'} />
 
   const startFixed = () => {
     dispatch({ type: 'start', items })
@@ -64,8 +66,8 @@ function Mock({ test = false }) {
     return (
       <>
         {crumbs}
-        <h1 className="h3">Practice quiz</h1>
-        <p>The official practice questions from Moodle, in the same order. They are made to get you familiar with the format and question types, not to represent the question set questions, and they may be shorter and simpler. Multiple-choice questions are checked for you; the open code-explanation questions are for your own practice and self-reflection: compare your answer with the model answer and tick the points you covered.</p>
+        <h1 className="h3">{questionSet.title}</h1>
+        <p>{questionSet.intro.replace('{n}', items.length)}</p>
         <p className="text-body-secondary small">{items.length} questions so far. No feedback until the end. You can go back and change answers.</p>
         <Button onClick={startFixed} disabled={!items.length}>Attempt quiz</Button>
       </>
@@ -129,7 +131,7 @@ function Mock({ test = false }) {
   return (
     <>
       {crumbs}
-      <h1 className="h3">{test ? 'Practice quiz results' : 'Practice test results'}</h1>
+      <h1 className="h3">{test ? `${questionSet.title} results` : 'Practice test results'}</h1>
       {test ? (
         <Alert variant="info" role="status">
           <strong>Multiple choice: {mcqPts} of {mcqs.length} correct.</strong>

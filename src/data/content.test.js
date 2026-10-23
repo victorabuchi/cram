@@ -36,10 +36,11 @@ describe('study content', () => {
 
 describe('Web Programming I practice set', () => {
   const web = ITEMS.filter((i) => i.subject === 'webprog')
-  it('is small: the 26 Moodle questions, the code exercises and a few related questions', () => {
+  it('is small: the 26 Moodle questions, the 25 question set questions, the code exercises and a few related questions', () => {
     expect(web.filter((i) => i.setNo)).toHaveLength(26)
-    expect(web.length).toBeLessThan(110)
-    expect(web.filter((i) => !i.setNo && i.kind !== 'code').every((i) => i.kind === 'mcq')).toBe(true)
+    expect(web.filter((i) => i.listNo)).toHaveLength(25)
+    expect(web.length).toBeLessThan(130)
+    expect(web.filter((i) => !i.setNo && !i.listNo && i.kind !== 'code').every((i) => i.kind === 'mcq')).toBe(true)
   })
   it('has practice questions in every week', () => {
     for (const week of [1, 2, 3, 4, 5, 6]) expect(web.filter((i) => i.week === week && i.kind !== 'code').length).toBeGreaterThan(5)
