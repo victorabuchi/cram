@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import CourseCard from '../components/CourseCard.jsx'
 import { getSubject } from '../data/subjects'
-import { scopedItems, scopedLearn, scopedVariants } from '../data/content'
+import { practiceItems, scopedItems, scopedLearn, scopedVariants } from '../data/content'
 
 function Subject() {
   const { subjectId } = useParams()
@@ -32,7 +32,7 @@ function Subject() {
       {subject.weeks.length > 0 && <h2 className="h5 mb-3">Weeks</h2>}
       <Row xs={1} sm={2} md={3} className="g-3">
         {subject.weeks.map((w) => {
-          const items = scopedItems(subjectId, w.n)
+          const items = practiceItems(subjectId, w.n)
           const cards = scopedLearn(subjectId, w.n)
           return (
             <Col key={w.n}>

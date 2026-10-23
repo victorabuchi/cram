@@ -39,6 +39,12 @@ export function inScope(item, subjectId, week) {
 export const scopedItems = (subjectId, week) => ITEMS.filter((i) => inScope(i, subjectId, week))
 export const scopedVariants = (subjectId, week) => VARIANTS.filter((v) => v.subject === subjectId && (week === 'all' || v.week === Number(week)))
 export const scopedDocs = (subjectId, week) => DOCS.filter((d) => inScope(d, subjectId, week))
+// The questions a course practises and counts on its cards and Progress page: all of them, or only its practice set
+// (Web Programming I: the questions of the question set).
+export function practiceItems(subjectId, week) {
+  const subject = getSubject(subjectId)
+  return scopedItems(subjectId, week).filter((i) => !subject?.practiceKey || (i.kind !== 'code' && i[subject.practiceKey]))
+}
 export const scopedLearn = (subjectId, week) => LEARN.filter((c) => inScope(c, subjectId, week))
 
 export const topicsIn = (items) => Object.keys(TOPICS).filter((k) => items.some((i) => i.topic === k))

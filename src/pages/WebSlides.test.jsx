@@ -45,7 +45,7 @@ describe('Web Programming I: no separate list of the Moodle practice questions',
 
 describe('Progress on the cards', () => {
   it('counts a question answered right once as done, and mastered only after three right in a row', () => {
-    const ep1 = test[0].id
+    const ep1 = 'set-1' // a question of the question set, which is what the cards count
     localStorage.setItem('scribletics_progress', JSON.stringify({ [ep1]: { box: 1, seen: 1, right: 1, due: 0 } }))
     renderApp('/')
     const card = screen.getAllByRole('link').find((l) => /Web Programming I/.test(l.textContent) && /answered correctly/.test(l.textContent))

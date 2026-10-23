@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-bootstrap'
 import CourseCard from '../components/CourseCard.jsx'
 import { SUBJECTS } from '../data/subjects'
-import { scopedItems } from '../data/content'
+import { practiceItems } from '../data/content'
 
 function Dashboard() {
   return (
@@ -15,7 +15,7 @@ function Dashboard() {
               title={s.title}
               subtitle={`${s.org} · ${s.weeks.length} ${s.weeks.length === 1 ? 'week' : 'weeks'}`}
               logos={s.logos}
-              items={scopedItems(s.id, 'all')}
+              items={practiceItems(s.id, 'all')}
               to={`/s/${s.id}`}
               color={s.color}
             />

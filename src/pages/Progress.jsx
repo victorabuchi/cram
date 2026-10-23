@@ -8,7 +8,7 @@ import Meter from '../components/Meter.jsx'
 import { Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import { getSubject } from '../data/subjects'
-import { scopedItems } from '../data/content'
+import { practiceItems } from '../data/content'
 import { useProgress } from '../hooks/useProgress'
 import { isMastered, streak, todayKey } from '../storage'
 
@@ -25,7 +25,7 @@ function Progress() {
 
   const days = allDays[subjectId] || {}
   const stats = subject.weeks.map((w) => {
-    const items = scopedItems(subjectId, w.n)
+    const items = practiceItems(subjectId, w.n)
     const mastered = items.filter((i) => isMastered(progress, i.id)).length
     return { ...w, items, mastered, attempted: items.filter((i) => progress[i.id]).length }
   })
