@@ -21,8 +21,9 @@ function pickItems(pool, progress) {
 }
 
 function Practice() {
-  const { subjectId, week, valid, items: allItems, label } = useScope()
-  const items = allItems.filter((i) => i.kind !== 'code') // code exercises have their own page
+  const { subjectId, week, valid, subject, items: allItems, label } = useScope()
+  // code exercises have their own page; a course with `practiceKey` practises only that set (Web Programming I: the question set)
+  const items = allItems.filter((i) => i.kind !== 'code' && (!subject?.practiceKey || i[subject.practiceKey]))
   const topics = topicsIn(items)
   const [selected, setSelected] = useState(topics)
   const [withExplain, setWithExplain] = useState(true)

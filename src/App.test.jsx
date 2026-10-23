@@ -100,8 +100,8 @@ describe('course tools in the top bar', () => {
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()
-    const total = scopedItems('webprog', 5).filter((i) => i.kind !== 'code').length // practice asks every question of the chosen topics
-    expect(total).toBeGreaterThan(10)
+    const total = scopedItems('webprog', 5).filter((i) => i.listNo).length // practice asks the question set's questions of the week
+    expect(total).toBeGreaterThan(5)
     renderApp('/s/webprog/5/practice')
     expect(screen.getByText(new RegExp(`\\(${total} now\\)`))).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Start session' }))
@@ -258,7 +258,7 @@ describe('Progress page (one per course)', () => {
   it('counts only this course and resets only this course', async () => {
     const user = userEvent.setup()
     localStorage.setItem('scribletics_progress', JSON.stringify({
-      'r-mcq-52': { box: 4, seen: 5, right: 5, due: 0 },
+      'set-1': { box: 4, seen: 5, right: 5, due: 0 },
       'bmc1-c1': { box: 4, seen: 2, right: 2, due: 0 },
     }))
     renderApp('/s/webprog/progress')
@@ -270,7 +270,7 @@ describe('Progress page (one per course)', () => {
   })
 
   it('shows Basic Models of Computation on its own', () => {
-    localStorage.setItem('scribletics_progress', JSON.stringify({ 'r-mcq-52': { box: 4, seen: 5, right: 5, due: 0 } }))
+    localStorage.setItem('scribletics_progress', JSON.stringify({ 'set-1': { box: 4, seen: 5, right: 5, due: 0 } }))
     renderApp('/s/bmc/progress')
     expect(screen.getByRole('heading', { name: /Progress/ })).toHaveTextContent('Basic Models of Computation')
     expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/26$/)

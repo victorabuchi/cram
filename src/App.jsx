@@ -50,7 +50,6 @@ function App() {
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
           <Route path="/s/:subjectId/:week/exercises" element={<Exercises />} />
-          <Route path="/s/:subjectId/:week/questions" element={<QuestionList />} />
           <Route path="/s/:subjectId/:week/question-list" element={<QuestionList set="real" />} />
           <Route path="/s/:subjectId/:week/question-set" element={<QuizOnly><Mock test set="real" /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/variants" element={<VariantPractice />} />

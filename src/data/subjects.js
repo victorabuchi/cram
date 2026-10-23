@@ -21,11 +21,12 @@ export const SUBJECTS = [
   {
     id: 'webprog',
     color: '#3178C6',
+    practiceKey: 'listNo', // Practice (each week and all weeks) asks the questions of the question set
     mock: false, // no random practice test: Practice (the test-style questions of each week) and Practice quiz (all 26 Moodle questions) cover it
     title: 'Web Programming I',
     org: 'School of Computing',
     courseDate: '2026-10-23',
-    tools: [{ path: 'all/test', label: 'Practice quiz' }, { path: 'all/questions', label: 'All test questions' }, { path: 'all/question-list', label: 'Question set' }, { path: 'glossary', label: 'Glossary' }],
+    tools: [{ path: 'all/test', label: 'Practice quiz' }, { path: 'all/question-list', label: 'Question set' }, { path: 'glossary', label: 'Glossary' }],
     logos: [logo(html5, 'HTML'), logo(css, 'CSS'), logo(javascript, 'JavaScript'), logo(react, 'React')],
     weeks: [
       { n: 1, color: '#E34F26', title: 'Intro to the web, HTML, CSS', logos: [logo(html5, 'HTML'), logo(css, 'CSS')] },
