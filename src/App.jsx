@@ -47,6 +47,7 @@ function App() {
           <Route path="/s/:subjectId" element={<Subject />} />
           <Route path="/s/webprog/glossary" element={<Glossary />} />
           <Route path="/s/bmc/automata" element={<AutomataLab />} />
+          <Route path="/s/bmc/all/test" element={<BmcPractice />} />
           <Route path="/s/bmc/:week/test" element={<BmcPractice />} />
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
