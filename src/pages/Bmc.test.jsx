@@ -45,6 +45,16 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     expect(screen.getAllByRole('heading', { name: /Final test 2024/ })).toHaveLength(4)
   })
 
+  it('shows worked diagrams for the written out test answers', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/test')
+    const showAnswer = screen.getAllByRole('button', { name: 'Show answer' })
+    await user.click(showAnswer[0])
+    expect(screen.getByText(/certificate: selected items S/)).toBeInTheDocument()
+    await user.click(screen.getAllByRole('button', { name: 'Show answer' })[1])
+    expect(screen.getByText(/Regular-language answer pattern/)).toBeInTheDocument()
+  })
+
   it('has the tasks of exercises 1, 2 and 3, each pointing to a page of its answer PDF', () => {
     expect(exercise1.map((q) => q.page)).toEqual([1, 3, 4, 5, 6, 7, 8, 9])
     expect(exercise2.map((q) => q.page)).toEqual([1, 2, 3, 4, 5, 6])
