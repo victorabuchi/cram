@@ -5,6 +5,7 @@ import * as exercise4 from './exercise4'
 import { docs } from './docs'
 import { explain } from './explain'
 import { variants } from './variants'
+import * as test from './test'
 
 // Basic Models of Computation: the lecture PDFs (docs, shown by Learn) and the exercise tasks. No learn cards.
 const exercises = [exercise1, exercise2, exercise3, exercise4]
@@ -12,7 +13,7 @@ const exercises = [exercise1, exercise2, exercise3, exercise4]
 export default {
   topics: { 'bmc-ex1': 'Exercise 1', 'bmc-ex2': 'Exercise 2', 'bmc-ex3': 'Exercise 3', 'bmc-ex4': 'Exercise 4' },
   learn: [],
-  questions: exercises.flatMap((e) => e.questions).map((q) => ({ ...q, ...explain[q.id] })), // plus the plain-words explanation and the terms to look up
+  questions: [...exercises.flatMap((e) => e.questions).map((q) => ({ ...q, ...explain[q.id] })), ...test.questions], // plus the plain-words explanation and the terms to look up
   docs,
   variants: variants.map((v) => ({ ...v, terms: explain[v.of]?.terms, week: exercises.flatMap((e) => e.questions).find((q) => q.id === v.of).week })), // practice: each exercise task again with other values
 }

@@ -15,6 +15,7 @@ import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
 import Glossary from './pages/Glossary.jsx'
 import AutomataLab from './pages/AutomataLab.jsx'
+import BmcPractice from './pages/BmcPractice.jsx'
 import { getSubject } from './data/subjects'
 
 // Practice and Practice test exist only for courses that have them (a course with quiz: false has Learn and Code exercises only).
@@ -46,6 +47,7 @@ function App() {
           <Route path="/s/:subjectId" element={<Subject />} />
           <Route path="/s/webprog/glossary" element={<Glossary />} />
           <Route path="/s/bmc/automata" element={<AutomataLab />} />
+          <Route path="/s/bmc/:week/test" element={<BmcPractice />} />
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
