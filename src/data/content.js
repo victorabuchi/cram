@@ -43,7 +43,7 @@ export const scopedDocs = (subjectId, week) => DOCS.filter((d) => inScope(d, sub
 // (Web Programming I: the questions of the question set).
 export function practiceItems(subjectId, week) {
   const subject = getSubject(subjectId)
-  return scopedItems(subjectId, week).filter((i) => !subject?.practiceKey || (i.kind !== 'code' && i[subject.practiceKey]))
+  return scopedItems(subjectId, week).filter((i) => !i.questionSet).filter((i) => !subject?.practiceKey || (i.kind !== 'code' && i[subject.practiceKey]))
 }
 export const scopedLearn = (subjectId, week) => LEARN.filter((c) => inScope(c, subjectId, week))
 
