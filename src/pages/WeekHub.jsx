@@ -3,9 +3,9 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import { badgeStyle } from '../badge'
 import { getSubject } from '../data/subjects'
-import { TOPICS, practiceItems, scopedItems, scopedLearn, scopedVariants, topicsIn } from '../data/content'
+import { TOPICS, practiceItems, scopedItems, scopedLearn, topicsIn } from '../data/content'
 
-const COLORS = { learn: '#3178C6', practice: '#4EAA25', mock: '#EA4335', code: '#363636', exercises: '#E76F00', variants: '#4EAA25' }
+const COLORS = { learn: '#3178C6', practice: '#4EAA25', mock: '#EA4335', code: '#363636', exercises: '#E76F00' }
 
 const TOOLS = [
   { path: 'learn', title: 'Learn', text: 'Lecture summaries and notes.' },
@@ -32,7 +32,6 @@ function WeekHub() {
     ...base,
     ...(scoped.some((i) => i.kind === 'code') ? [{ path: 'code', title: 'Code exercises', text: codeText }] : []),
     ...(scoped.some((i) => i.exercise) ? [{ path: 'exercises', title: 'Exercises', text: 'The exercise tasks the test is built from. Solve on paper, then check the answer.' }] : []),
-    ...(scopedVariants(subjectId, week).length ? [{ path: 'variants', title: 'Practice', text: 'The same tasks again with other values, with the answers. Practise until you can do them without help.' }] : []),
   ]
   return (
     <>

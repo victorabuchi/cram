@@ -70,9 +70,27 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     }
   })
 
-  it('lists Exercise 1 and Exercise 2 together across both groups', () => {
+  it('shows one exercise sheet at a time, picked by week', async () => {
+    const user = userEvent.setup()
     renderApp('/s/bmc/all/exercises')
-    expect(screen.getByText(/Exercise 1 · task 1 of 44/)).toBeInTheDocument()
+    const sheets = within(screen.getByRole('navigation', { name: 'Exercise sheets' }))
+    expect(sheets.getAllByRole('button').map((b) => b.textContent.replace(/ \(.*/, ''))).toEqual(['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6', 'Exercise 7'])
+    expect(sheets.getByText('Week 5')).toBeInTheDocument()
+    expect(screen.getByText(/Exercise 1 · task 1 of 8/)).toBeInTheDocument()
+    expect(within(screen.getByRole('navigation', { name: 'Task navigation' })).getAllByRole('button')).toHaveLength(8)
+    await user.click(screen.getByRole('button', { name: /Exercise 1, task 3$/ }))
+    await user.click(sheets.getByRole('button', { name: /Exercise 4/ }))
+    expect(screen.getByText(/Exercise 4 · task 1 of 6/)).toBeInTheDocument() // a new sheet starts at its first task
+    expect(sheets.getByRole('button', { name: /Exercise 4/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('a week page shows only the sheets of that week, and a week with one sheet needs no picker', () => {
+    const { unmount } = renderApp('/s/bmc/2/exercises')
+    expect(within(screen.getByRole('navigation', { name: 'Exercise sheets' })).getAllByRole('button')).toHaveLength(2)
+    expect(screen.getByText(/Exercise 2 · task 1 of 6/)).toBeInTheDocument()
+    unmount()
+    renderApp('/s/bmc/1/exercises')
+    expect(screen.queryByRole('navigation', { name: 'Exercise sheets' })).not.toBeInTheDocument()
   })
 })
 
@@ -114,50 +132,25 @@ describe('Plain-words help on the BMC exercises', () => {
   })
 })
 
-describe('Practice: the exercise tasks again with other values', () => {
-  it('is a tool of the course, with a week tile', () => {
+describe('No Practice page: the exercises and the extra practice are the practice', () => {
+  it('is not in the top bar or on a week page, and its old address opens the exercises of that week', () => {
     const { unmount } = renderApp('/s/bmc')
-    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Practice' })).toBeInTheDocument()
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Practice' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Practice/ })).not.toBeInTheDocument()
     unmount()
-    renderApp('/s/bmc/1')
-    expect(within(screen.getByRole('main')).getByRole('link', { name: /Practice/ })).toBeInTheDocument()
+    const week = renderApp('/s/bmc/1')
+    expect(within(screen.getByRole('main')).queryByRole('link', { name: /Practice/ })).not.toBeInTheDocument()
+    week.unmount()
+    renderApp('/s/bmc/2/variants')
+    expect(screen.getByRole('heading', { name: /Exercises/ })).toHaveTextContent('Week 2')
   })
 
-  it('has 26 practice tasks (8 in group 1, 12 in group 2, 6 in group 3)', () => {
-    const { unmount } = renderApp('/s/bmc/1/variants')
-    expect(screen.getByText(/Practice task 1 of 8/)).toBeInTheDocument()
-    unmount()
-    const second = renderApp('/s/bmc/2/variants')
-    expect(screen.getByText(/Practice task 1 of 12/)).toBeInTheDocument()
-    second.unmount()
-    renderApp('/s/bmc/3/variants')
-    expect(screen.getByText(/Practice task 1 of 6/)).toBeInTheDocument()
-  })
-
-  it('shows the question with other values and then the answer, with a diagram', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/variants')
-    expect(screen.getByRole('heading', { name: 'P1 T1. Sum modulo 5' })).toBeInTheDocument()
-    expect(screen.getByText(/Σ = \{1, 2, 4\}/)).toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: 'Answer' })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Show answer' }))
-    expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('q((i + k) mod 5)')
-    expect(screen.getByText('The answer as a diagram')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'I solved it' }))
-    expect(screen.getByRole('button', { name: /Practice task 1, done/ })).toBeInTheDocument()
-  })
-
-  it('"I need to practise this" on an exercise takes you to the practice task of the same exercise', async () => {
+  it('marking a task "Still unsure" keeps you on the exercise', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc/2/exercises')
-    await user.click(screen.getByRole('button', { name: /Exercise 2, task 2$/ }))
-    expect(screen.getByRole('heading', { name: 'X2 T2. Minimize the automaton' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Show answer' }))
-    await user.click(screen.getByRole('button', { name: 'I need to practise this' }))
-    expect(await screen.findByRole('heading', { name: 'P2 T2. Minimize the automaton' })).toBeInTheDocument()
-    expect(screen.getByText(/the same idea as/)).toHaveTextContent('X2 T2. Minimize the automaton')
-    await user.click(screen.getByRole('button', { name: 'Show answer' }))
-    expect(screen.getByRole('region', { name: 'Answer' })).toHaveTextContent('three states')
+    await user.click(screen.getByRole('button', { name: 'Still unsure' }))
+    expect(screen.getByRole('heading', { name: 'X2 T1. Binary numbers' })).toBeInTheDocument()
   })
 })
 
@@ -177,7 +170,7 @@ describe('Groups 3 and 4: pushdown automata, context-sensitive grammars and Turi
     expect(screen.getByTitle(/Exercise 4/)).toHaveAttribute('src', expect.stringContaining('bmc-exercise-4.pdf'))
   })
 
-  it('groups 4 and 5 have Learn and Exercises (exercises 5, 6 and 7 have no practice versions yet)', () => {
+  it('groups 4 and 5 have Learn and Exercises', () => {
     const { unmount } = renderApp('/s/bmc/4')
     let main = within(screen.getByRole('main'))
     expect(main.getByRole('link', { name: /Learn/ })).toBeInTheDocument()
@@ -186,7 +179,7 @@ describe('Groups 3 and 4: pushdown automata, context-sensitive grammars and Turi
     unmount()
     renderApp('/s/bmc/5/exercises')
     main = within(screen.getByRole('main'))
-    expect(main.getByText(/Exercise 6 · task 1 of 12/)).toBeInTheDocument()
+    expect(main.getByText(/Exercise 6 · task 1 of 6/)).toBeInTheDocument()
   })
 
   it('shows the PDA answer of exercise 4 task 1 and the parse trees of task 6 in their own layout', async () => {
@@ -203,15 +196,16 @@ describe('Groups 3 and 4: pushdown automata, context-sensitive grammars and Turi
 })
 
 describe('Extra practice (solved)', () => {
-  it('is in the BMC top bar and shows the 2025 final test with its three questions', async () => {
+  it('is in the BMC top bar and shows the 2025 set with its three questions', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc')
     await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Extra practice' }))
-    expect(screen.getByRole('heading', { name: /Final test / })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /2025 set \(\)/ })).toBeInTheDocument()
+    expect(within(screen.getByRole('group', { name: 'Tests' })).getAllByRole('button').map((b) => b.textContent)).toEqual(['2025 set ()', '2024 set', '2024 practice set ()'])
     expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label'))).toEqual([
-      'Final 2025, question 1. The knapsack problem (8 p)',
-      'Final 2025, question 2. The language of an automaton (10 p)',
-      'Final 2025, question 3. Which grammar is not regular? (10 p)',
+      '2025 set, question 1. The knapsack problem (8 p)',
+      '2025 set, question 2. The language of an automaton (10 p)',
+      '2025 set, question 3. Which grammar is not regular? (10 p)',
     ])
   })
 
@@ -230,11 +224,24 @@ describe('Extra practice (solved)', () => {
     expect(screen.getAllByRole('img', { name: /Set , page/ })).toHaveLength(2)
   })
 
+  it('switches to the 2024 set: the same questions as 2025, with its own photos', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/extra-practice')
+    await user.click(screen.getByRole('button', { name: '2024 set' }))
+    expect(screen.getByRole('heading', { name: /^2024 set \(Paper, 28 points\)/ })).toBeInTheDocument()
+    expect(screen.getByText(/word for word the same as the 2025 set/)).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(3)
+    expect(screen.getByRole('article', { name: '2024 set, question 1. The knapsack problem (8 p)' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show the original question sheet' }))
+    const photos = screen.getAllByRole('img', { name: /Paper, page/ })
+    expect(photos.map((i) => i.getAttribute('src').replace(/.*\//, ''))).toEqual(['bmc-set-2024-1.jpg', 'bmc-set-2024-2.jpg'])
+  })
+
   it('switches to the 2024 practice set', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc/all/extra-practice')
-    await user.click(screen.getByRole('button', { name: 'Practice set ' }))
-    expect(screen.getByRole('heading', { name: /Practice set / })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '2024 practice set ()' }))
+    expect(screen.getByRole('heading', { name: /2024 practice set \(\)/ })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(4)
     const q1 = screen.getByRole('article', { name: /question 1\. NP/ })
     await user.click(within(q1).getByRole('button', { name: 'Show answer' }))
@@ -248,6 +255,6 @@ describe('Extra practice (solved)', () => {
 
   it('sends the old Extra practice address to Extra practice', () => {
     renderApp('/s/bmc/all/test')
-    expect(screen.getByRole('heading', { name: /Final test / })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /2025 set \(\)/ })).toBeInTheDocument()
   })
 })

@@ -8,9 +8,8 @@ import * as exercise7 from './exercise7'
 import { docs } from './docs'
 import { explain } from './explain'
 import { extraItems } from './extraPractice'
-import { variants } from './variants'
 
-// Basic Models of Computation: the lecture PDFs (docs, shown by Learn), the exercise tasks, the practice variants and the extra practice. No learn cards.
+// Basic Models of Computation: the lecture PDFs (docs, shown by Learn), the exercise tasks and the extra practice. No learn cards.
 const exercises = [exercise1, exercise2, exercise3, exercise4, exercise5, exercise6, exercise7]
 
 export default {
@@ -19,5 +18,4 @@ export default {
   questions: [...exercises.flatMap((e) => e.questions).map((q) => ({ ...q, ...explain[q.id] }))], // plus the plain-words explanation and the terms to look up
   docs,
   extraPractice: extraItems, // extra practice, solved; not counted in the progress totals
-  variants: variants.map((v) => ({ ...v, terms: explain[v.of]?.terms, week: exercises.flatMap((e) => e.questions).find((q) => q.id === v.of).week })), // practice: each exercise task again with other values
 }

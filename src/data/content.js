@@ -17,7 +17,6 @@ export const LEARN = SOURCES.flatMap((s) => s.learn)
 // and the code exercises. The older question bank stays in the data files but is not offered.
 const offered = (q) => q.subject !== 'webprog' || q.setNo || q.listNo || q.kind === 'code'
 export const ITEMS = SOURCES.flatMap((s) => s.questions).filter(offered)
-export const VARIANTS = SOURCES.flatMap((s) => s.variants ?? []) // practice variants of the exercise tasks
 export const EXTRA_PRACTICE = SOURCES.flatMap((s) => s.extraPractice ?? []) // extra practice questions (shown on their own page, not in the totals)
 export const DOCS = [...SOURCES.flatMap((s) => s.docs ?? []), ...webprogDocs] // course PDFs, shown as they are
 
@@ -38,7 +37,6 @@ export function inScope(item, subjectId, week) {
 }
 
 export const scopedItems = (subjectId, week) => ITEMS.filter((i) => inScope(i, subjectId, week))
-export const scopedVariants = (subjectId, week) => VARIANTS.filter((v) => v.subject === subjectId && (week === 'all' || v.week === Number(week)))
 export const scopedDocs = (subjectId, week) => DOCS.filter((d) => inScope(d, subjectId, week))
 // The questions a course practises and counts on its cards and Progress page: all of them, or only its practice set
 // (Web Programming I: the questions of the question set).

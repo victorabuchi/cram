@@ -8,7 +8,7 @@ const base = import.meta.env.BASE_URL ?? './'
 // A pen-and-paper exercise: read it, solve it on paper, show the teacher's answer. Only then do the extras appear: the plain-words
 // explanation (on request) and the topics to look up. Then say whether you got it.
 // onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
-function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need to practise this', lastLabel = 'Next' }) {
+function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', lastLabel = 'Next' }) {
   const [shown, setShown] = useState(false)
   const [simple, setSimple] = useState(false)
   const [verdict, setVerdict] = useState(null)
@@ -19,7 +19,6 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
   const choose = (correct) => {
     setVerdict(correct)
     onScore(correct)
-    if (!correct) onUnsure?.(item)
   }
 
   return (

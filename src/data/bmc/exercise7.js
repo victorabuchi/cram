@@ -1,7 +1,8 @@
 // Exercise 7 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-7.pdf
 // (t2 uses pages 2-3, t3 pages 4-5, t6 pages 8-9). Lines starting "Also" are added here.
 // The automata are checked in exercise7.test.js.
-import { pdaText } from './variants'
+// A PDA as one rule per line, "from → to:  read, top ; push" (ε for nothing).
+const pdaText = (pda) => pda.rules.map(([from, read, top, to, push]) => `${from} → ${to}:  ${read || 'ε'}, ${top} ; ${push || 'ε'}`).join('\n')
 
 const base = { subject: 'bmc', week: 5, topic: 'bmc-ex7', kind: 'paper', exercise: 'Exercise 7', pdf: 'bmc-exercise-7.pdf' }
 
