@@ -54,7 +54,7 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
             <strong>Answer</strong>
             {item.answer.map((a, i) => (typeof a === 'string'
               ? <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>
-              : <pre key={i} className="code"><code>{a.code}</code></pre>))}
+              : <pre key={i} className={item.wrap ? 'code wrap' : 'code'}><code>{a.code}</code></pre>))}
           </Alert>
           {item.terms && (
             <div className="d-flex flex-wrap align-items-center gap-2 mb-3">

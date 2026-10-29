@@ -346,6 +346,24 @@ describe('2026 set: the exercise tasks the extra practice came from', () => {
     expect(screen.getAllByRole('button', { name: /What to write in the test|Hide what to write/ })).toHaveLength(4) // feedback too
   })
 
+  it('switches to practice quiz: the same questions with other values, in the same four groups', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/set-2026')
+    await user.click(screen.getByRole('button', { name: 'Practice quiz: other values (9)' }))
+    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label').replace(/\..*/, ''))).toEqual([
+      'Practice 1', 'Practice 1', 'Practice 2', 'Practice 2', 'Practice 3', 'Practice 3', 'Practice 3', 'Practice 4', 'Practice 4',
+    ])
+    expect(screen.queryByRole('button', { name: 'What to write in the test' })).not.toBeInTheDocument()
+    const octagon = within(screen.getByRole('article', { name: 'Practice 1.2. The octagon (mod 8)' }))
+    expect(octagon.getByText(/δ\(7,a\)=0, δ\(7,b\)=1/)).toBeInTheDocument()
+    await user.click(octagon.getByRole('button', { name: 'Show answer' }))
+    expect(octagon.getByRole('region', { name: 'Answer' })).toHaveTextContent('P3 = {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}')
+    expect(octagon.getByText('d) the minimized automaton (mod 4)')).toBeInTheDocument()
+    await user.click(octagon.getByRole('button', { name: 'I solved it' }))
+    await user.click(screen.getByRole('button', { name: 'Exercise tasks' }))
+    expect(screen.getByRole('article', { name: 'X3 T4. What does the automaton accept?' })).toBeInTheDocument()
+  })
+
   it('is only for Basic Models of Computation', () => {
     renderApp('/s/webprog/all/set-2026')
     expect(screen.getByRole('heading', { name: 'Web Programming I' })).toBeInTheDocument()

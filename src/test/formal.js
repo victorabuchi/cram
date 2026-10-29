@@ -85,25 +85,33 @@ export function countTrees(text, start, str) {
   return tree(start, 0, str.length)
 }
 
-// Groups of equivalent states of a DFA (Moore's partition refinement on the reachable states).
-export function groups(text) {
+// The partition method step by step: P0 (accepting / not), P1, ... until nothing splits (Moore's refinement on the reachable states).
+// Each step is a list of groups, e.g. [['0'], ['1', '2', '4'], ['3'], ['5']].
+export function partitionSteps(text) {
   const a = parseAutomaton(text)
   const sigma = [...new Set(a.transitions.flatMap((t) => t.on))]
   const step = (s, c) => a.transitions.find((t) => t.from === s && t.on.includes(c))?.to
   const reach = new Set([a.start])
   for (const s of reach) sigma.forEach((c) => step(s, c) && reach.add(step(s, c)))
+  const asGroups = (part) => {
+    const g = {}
+    for (const [s, k] of part) (g[k] ??= []).push(s)
+    return Object.values(g).map((x) => x.sort()).sort((p, q) => p[0].localeCompare(q[0]))
+  }
   let part = new Map([...reach].map((s) => [s, a.accept.includes(s) ? 1 : 0]))
+  const steps = [asGroups(part)]
   for (;;) {
     const sig = (s) => `${part.get(s)}|${sigma.map((c) => part.get(step(s, c))).join(',')}`
     const names = new Map()
     const next = new Map([...reach].map((s) => [s, (names.has(sig(s)) ? names : names.set(sig(s), names.size)).get(sig(s))]))
-    if (new Set(next.values()).size === new Set(part.values()).size) break
+    if (new Set(next.values()).size === new Set(part.values()).size) return steps
     part = next
+    steps.push(asGroups(part))
   }
-  const g = {}
-  for (const [s, k] of part) (g[k] ??= []).push(s)
-  return Object.values(g).map((x) => x.sort()).sort((p, q) => p[0].localeCompare(q[0]))
 }
+
+// Groups of equivalent states of a DFA: the last partition step.
+export const groups = (text) => partitionSteps(text).at(-1)
 
 export function pdaAccepts(pda, input, limit = 20000) {
   const seen = new Set()
