@@ -1,6 +1,7 @@
 body { background: var(--bs-tertiary-bg); }
 main { max-width: 1000px; }
 pre.code { background: #0f1623; color: #e6edf7; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 14px; margin: 10px 0; }
+pre.code.wrap { white-space: pre-wrap; overflow-wrap: anywhere; } /* long lines wrap instead of scrolling (read on a phone) */
 pre.code input { font: inherit; background: #fff; color: #111; border: 2px solid #8aa; border-radius: 5px; padding: 0 6px; }
 pre.code input.ok { border-color: #1f8a4c; background: #e6f6ec; }
 pre.code input.bad { border-color: #c92a2a; background: #fdecec; }
