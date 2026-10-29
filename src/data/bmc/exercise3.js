@@ -1,4 +1,4 @@
-// Exercise 3 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-3.pdf (T3 uses pages 3 and 4; the images are in public/docs/pages).
+// Exercise 3 (questions and the teacher's answers), one task per page of public/docs/bmc-exercise-3.pdf (T3 uses pages 3 and 4, T5 pages 6 and 7; the images are in public/docs/pages).
 // Pen-and-paper tasks: the student solves it on paper, shows the answer (the PDF page, plus a written version) and self-grades.
 // Lines starting "Also" are explanations added here, they are not from the teacher's page.
 const base = { subject: 'bmc', week: 2, topic: 'bmc-ex3', kind: 'paper', exercise: 'Exercise 3', pdf: 'bmc-exercise-3.pdf' }
@@ -33,7 +33,7 @@ export const questions = [
       'a) It accepts the empty word, rejects all words of length 1 and 2 (a, b, aa, ab, ba, bb), and accepts words of every length from 3 up (for example bbb, aabb, aaaab, aaaaaa).',
       'Why: with n symbols the total weight can be anything from n (all a) to 2n (all b). For n ≥ 3 the span [n, 2n] always contains a multiple of 6. For n = 1 (weights 1, 2) and n = 2 (weights 2, 3, 4) it does not.',
     ] },
-  { ...base, id: 'bmc-x3-5', page: 6, title: 'X3 T5. Minimal? And what if state 3 accepts?',
+  { ...base, id: 'bmc-x3-5', page: 6, pages: [6, 7], title: 'X3 T5. Minimal? And what if state 3 accepts?',
     prompt: ['Answer based on the image.', 'a) Is the automaton in the image (the one from T4) already minimal or could it still be minimized? Justify your answer briefly.', 'b) If state 3 in the image is changed from rejecting to accepting, what answers would the new automaton give to the questions (a) and (b) in task T4?'],
     answer: [
       'a) It is already minimal. Partition method: P0 = {q0}, {q1,q2,q3,q4,q5} (final and non-final). P1 = {q0}, {q1,q2,q3}, {q4,q5} (q4 and q5 go to the {q0} group on some input). P2 = {q0}, {q1}, {q2,q3}, {q4,q5} (only q2 and q3 go to {q4,q5}). P3 = {q0}, {q1}, {q2}, {q3}, {q4,q5}. The last split separates q4 and q5 (they go to different groups), so all states are separate and none can merge.',

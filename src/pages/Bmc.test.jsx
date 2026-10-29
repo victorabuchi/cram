@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ITEMS } from '../data/content'
@@ -64,9 +64,19 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
   })
 
   it('shows both pages for a task that spans two, and every page image exists', () => {
-    expect([...exercise1, ...exercise2, ...exercise3, ...exercise4].filter((q) => q.pages).map((q) => q.pages)).toEqual([[1, 2], [3, 4], [2, 3], [6, 7], [8, 9]])
+    expect([...exercise1, ...exercise2, ...exercise3, ...exercise4].filter((q) => q.pages).map((q) => q.pages)).toEqual([[1, 2], [3, 4], [6, 7], [2, 3], [6, 7], [8, 9]])
     for (const q of [...exercise1, ...exercise2, ...exercise3, ...exercise4]) {
       for (const n of q.pages ?? [q.page]) expect(existsSync(`public/docs/pages/${q.pdf.replace('.pdf', '')}-${n}.jpg`)).toBe(true)
+    }
+  })
+
+  it('every page of every answer PDF belongs to a task (none is left out of Show answer)', () => {
+    const tasks = ITEMS.filter((i) => i.subject === 'bmc' && i.exercise)
+    for (const pdf of [...new Set(tasks.map((q) => q.pdf))]) {
+      const name = pdf.replace('.pdf', '')
+      const files = readdirSync('public/docs/pages').filter((f) => f.startsWith(`${name}-`)).map((f) => Number(f.slice(name.length + 1, -4)))
+      const used = new Set(tasks.filter((q) => q.pdf === pdf).flatMap((q) => q.pages ?? [q.page]))
+      expect(files.filter((n) => !used.has(n)), pdf).toEqual([])
     }
   })
 
@@ -260,15 +270,13 @@ describe('Extra practice (solved)', () => {
     expect(within(q1).getByRole('region', { name: 'Answer' })).toHaveTextContent('NP-complete: in NP AND NP-hard')
   })
 
-  it('shows which exercise tasks each test question comes from, with links both ways', async () => {
+  it('says on each question which exercise tasks it comes from, without the big table', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc/all/extra-practice?test=set-2024')
-    const table = screen.getByRole('table')
-    expect(within(table).getAllByRole('row')).toHaveLength(6)
-    expect(within(table).getByRole('row', { name: /X5 T2/ })).toHaveTextContent('Exact for 3 of the 5 grammars')
-    const q2 = screen.getByRole('article', { name: /2024 set, question 2/ })
-    expect(q2).toHaveTextContent('From the exercises: X3 T4, X3 T5 (exact)')
-    await user.click(within(table).getByRole('button', { name: '2024 practice set Q1' }))
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    expect(screen.queryByText('Which exercises the tests come from')).not.toBeInTheDocument()
+    expect(screen.getByRole('article', { name: /2024 set, question 2/ })).toHaveTextContent('From the exercises: X3 T4, X3 T5 (exact)')
+    await user.click(screen.getByRole('button', { name: '2024 practice set ()' }))
     expect(screen.getByRole('article', { name: /2024 practice set, question 1/ })).toHaveTextContent('From the exercises: X6 T1, X6 T2, X7 t1 (same topic)')
     await user.click(within(screen.getByRole('article', { name: /2024 practice set, question 3/ })).getByRole('link', { name: 'X5 T2' }))
     expect(screen.getByRole('heading', { name: 'X5 T2. Regular or not? Three grammars' })).toBeInTheDocument()
@@ -283,5 +291,40 @@ describe('Extra practice (solved)', () => {
   it('sends the old Extra practice address to Extra practice', () => {
     renderApp('/s/bmc/all/test')
     expect(screen.getByRole('heading', { name: /2025 set \(\)/ })).toBeInTheDocument()
+  })
+})
+
+describe('2026 set: the exercise tasks the extra practice came from', () => {
+  it('is in the BMC top bar and has the four matches, each task once', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc')
+    await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: '2026 set' }))
+    expect(screen.getByRole('heading', { level: 1, name: '2026 set' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 2 }).filter((h) => /^\d\. /.test(h.textContent)).map((h) => h.textContent)).toEqual([
+      '1. The hexagon automaton (X3 T4 + X3 T5)',
+      '2. Which grammar is not regular? (X5 T2)',
+      '3. In P? In NP? Why? (X6 T1)',
+      '4. NP: explain the terms (X6 T1 + X6 T2 + X7 t1)',
+    ])
+    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label').replace(/\..*/, ''))).toEqual(['X3 T4', 'X3 T5', 'X5 T2', 'X6 T1', 'X6 T2', 'X7 t1'])
+    expect(screen.getByRole('region', { name: 'NP: explain the terms' })).toHaveTextContent('X6 T1 is above.')
+  })
+
+  it('shows the teacher\'s answer page under each task, like on Exercises', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/set-2026')
+    const t5 = screen.getByRole('article', { name: 'X3 T5. Minimal? And what if state 3 accepts?' })
+    await user.click(within(t5).getByRole('button', { name: 'Show answer' }))
+    expect(within(t5).getAllByRole('img', { name: /teacher's answer/ }).map((i) => i.getAttribute('src').replace(/.*\//, ''))).toEqual(['bmc-exercise-3-6.jpg', 'bmc-exercise-3-7.jpg']) // a) and b) with the minimized DFA
+    expect(within(t5).getByRole('region', { name: 'Answer' })).toHaveTextContent('Partition method: P0 = {q0}, {q1,q2,q3,q4,q5}')
+    const hexagon = screen.getByRole('region', { name: 'The hexagon automaton' })
+    expect(hexagon).toHaveTextContent('Came in: 2025 set Q2, 2024 set Q2, 2024 practice set Q2 (exact)')
+    await user.click(within(hexagon).getByRole('link', { name: '2024 set Q2' }))
+    expect(screen.getByRole('heading', { name: /^2024 set \(Paper, 28 points\)/ })).toBeInTheDocument()
+  })
+
+  it('is only for Basic Models of Computation', () => {
+    renderApp('/s/webprog/all/set-2026')
+    expect(screen.getByRole('heading', { name: 'Web Programming I' })).toBeInTheDocument()
   })
 })
