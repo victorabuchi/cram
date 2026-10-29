@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Button, Card, Col, Row } from 'react-bootstrap'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import PaperQuestion from '../components/PaperQuestion.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
+import { setQuestion, matchesOfTask } from '../data/bmc/taskMatches'
 import { useProgress } from '../hooks/useProgress'
 import { useScope } from '../useScope'
 
 // The course exercise sheets: tasks the test is built from. Pen-and-paper tasks (kind "paper") and the explain-style design tasks.
-// One sheet at a time: the sheets are listed by week, and ?exercise=Exercise+2 picks one (the first sheet of the scope otherwise).
+// One sheet at a time, picked from a dropdown grouped by week: ?exercise=Exercise+2 picks it (the first sheet of the scope otherwise)
+// and &task=3 a task in it. Tasks that came in a extra practice have a ★ and say which test questions they were.
 function Exercises() {
   const { subjectId, week, subject, valid, items, label } = useScope()
   const { progress, record } = useProgress()
@@ -20,7 +22,9 @@ function Exercises() {
   const sheets = [...new Set(all.map((i) => i.exercise))]
   const sheet = sheets.includes(params.get('exercise')) ? params.get('exercise') : sheets[0]
   const list = all.filter((i) => i.exercise === sheet)
-  const index = pos.sheet === sheet ? pos.index : 0 // another sheet (also by Back in the browser) starts at its first task
+  const linked = Number(params.get('task')) - 1
+  // another sheet (also by Back in the browser) starts at its first task, or at the linked one
+  const index = pos.sheet === sheet ? pos.index : linked >= 0 && linked < list.length ? linked : 0
   const setIndex = (n) => setPos({ sheet, index: n })
   const weeks = subject.weeks
     .map((w) => ({ ...w, sheets: sheets.filter((s) => all.find((i) => i.exercise === s).week === w.n) }))
@@ -32,7 +36,8 @@ function Exercises() {
   const countIn = (s) => all.filter((i) => i.exercise === s).length
   const doneCount = list.filter(done).length
   const next = () => setIndex(Math.min(index + 1, list.length - 1))
-  const pick = (s) => setParams({ exercise: s })
+  const marked = (i) => matchesOfTask(i.id).length > 0
+  const matches = item ? matchesOfTask(item.id) : []
 
   return (
     <>
@@ -40,26 +45,34 @@ function Exercises() {
       <h1 className="h3">Exercises <small className="text-body-secondary fs-6">{label}</small></h1>
       {!all.length && <p className="text-body-secondary">No exercises here yet.</p>}
       {sheets.length > 1 && (
-        <Card body as="nav" aria-label="Exercise sheets" className="mb-4">
-          {weeks.map((w) => (
-            <div key={w.n} className="d-flex align-items-start gap-2 mb-2">
-              <span className="small fw-bold text-nowrap pt-1">Week {w.n}<span className="fw-normal text-body-secondary d-none d-md-inline"> · {w.title}</span></span>
-              <div className="d-flex flex-wrap gap-2">
-                {w.sheets.map((s) => (
-                  <Button key={s} size="sm" variant={s === sheet ? 'primary' : 'outline-secondary'} aria-pressed={s === sheet} onClick={() => pick(s)}>
-                    {s} <span className="opacity-75">({doneIn(s)}/{countIn(s)})</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </Card>
+        <Form.Group controlId="exercise-sheet" className="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <Form.Label className="mb-0 fw-bold">Exercise sheet</Form.Label>
+          <Form.Select value={sheet} onChange={(e) => setParams({ exercise: e.target.value })} style={{ maxWidth: '26rem' }}>
+            {weeks.map((w) => (
+              <optgroup key={w.n} label={`Week ${w.n}: ${w.title}`}>
+                {w.sheets.map((s) => <option key={s} value={s}>{`${s} (${doneIn(s)}/${countIn(s)} done)${all.some((i) => i.exercise === s && marked(i)) ? ' ★' : ''}`}</option>)}
+              </optgroup>
+            ))}
+          </Form.Select>
+        </Form.Group>
       )}
       {item && (
         <Row className="g-4">
           <Col lg={9} className="order-2 order-lg-1">
             <Card body>
               <p className="text-body-secondary small mb-2">{item.exercise} · task {index + 1} of {list.length}</p>
+              {matches.length > 0 && (
+                <p className="small mb-3">
+                  <strong>★ Came in extra practice:</strong>{' '}
+                  {matches.map((m, k) => (
+                    <span key={m.topic}>
+                      {k > 0 && ' · '}
+                      {m.tests.map((id, j) => <span key={id}>{j > 0 && ', '}<Link to={`/s/${subjectId}/all/extra-practice?test=${setQuestion(id).test}`}>{setQuestion(id).label}</Link></span>)}
+                      {' '}({m.match.toLowerCase()})
+                    </span>
+                  ))}
+                </p>
+              )}
               {item.kind === 'paper' ? (
                 <PaperQuestion
                   key={item.id}
@@ -96,14 +109,14 @@ function Exercises() {
                     size="sm"
                     variant={n === index ? 'primary' : done(q) ? 'success' : 'outline-secondary'}
                     aria-current={n === index ? 'step' : undefined}
-                    aria-label={`${q.exercise}, task ${n + 1}${done(q) ? ', done' : ''}`}
+                    aria-label={`${q.exercise}, task ${n + 1}${done(q) ? ', done' : ''}${marked(q) ? ', came in extra practice' : ''}`}
                     onClick={() => setIndex(n)}
                   >
-                    {n + 1}
+                    {n + 1}{marked(q) && '★'}
                   </Button>
                 ))}
               </div>
-              <p className="small text-body-secondary mb-0">{doneCount} of {list.length} done</p>
+              <p className="small text-body-secondary mb-0">{doneCount} of {list.length} done{list.some(marked) && ' · ★ came in a extra practice'}</p>
             </Card>
           </Col>
         </Row>

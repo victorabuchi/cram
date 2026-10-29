@@ -70,27 +70,39 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     }
   })
 
-  it('shows one exercise sheet at a time, picked by week', async () => {
+  it('shows one exercise sheet at a time, picked from a dropdown grouped by week', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc/all/exercises')
-    const sheets = within(screen.getByRole('navigation', { name: 'Exercise sheets' }))
-    expect(sheets.getAllByRole('button').map((b) => b.textContent.replace(/ \(.*/, ''))).toEqual(['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6', 'Exercise 7'])
-    expect(sheets.getByText('Week 5')).toBeInTheDocument()
+    const select = screen.getByRole('combobox', { name: 'Exercise sheet' })
+    expect(within(select).getAllByRole('option').map((o) => o.value)).toEqual(['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6', 'Exercise 7'])
+    expect([...select.querySelectorAll('optgroup')].map((g) => g.label)).toEqual(expect.arrayContaining(['Week 5: Complexity (P and NP), LL(1) parsing and review']))
+    expect(within(select).getByRole('option', { name: /Exercise 3 \(0\/6 done\) ★/ })).toBeInTheDocument() // has tasks that came in extra practice
     expect(screen.getByText(/Exercise 1 · task 1 of 8/)).toBeInTheDocument()
     expect(within(screen.getByRole('navigation', { name: 'Task navigation' })).getAllByRole('button')).toHaveLength(8)
     await user.click(screen.getByRole('button', { name: /Exercise 1, task 3$/ }))
-    await user.click(sheets.getByRole('button', { name: /Exercise 4/ }))
+    await user.selectOptions(select, 'Exercise 4')
     expect(screen.getByText(/Exercise 4 · task 1 of 6/)).toBeInTheDocument() // a new sheet starts at its first task
-    expect(sheets.getByRole('button', { name: /Exercise 4/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(select).toHaveValue('Exercise 4')
   })
 
-  it('a week page shows only the sheets of that week, and a week with one sheet needs no picker', () => {
+  it('a week page lists only the sheets of that week, and a week with one sheet needs no dropdown', () => {
     const { unmount } = renderApp('/s/bmc/2/exercises')
-    expect(within(screen.getByRole('navigation', { name: 'Exercise sheets' })).getAllByRole('button')).toHaveLength(2)
+    expect(within(screen.getByRole('combobox', { name: 'Exercise sheet' })).getAllByRole('option')).toHaveLength(2)
     expect(screen.getByText(/Exercise 2 · task 1 of 6/)).toBeInTheDocument()
     unmount()
     renderApp('/s/bmc/1/exercises')
-    expect(screen.queryByRole('navigation', { name: 'Exercise sheets' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'Exercise sheet' })).not.toBeInTheDocument()
+  })
+
+  it('marks the tasks that came in extra practice and links to those test questions', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/exercises?exercise=Exercise+3&task=4')
+    expect(screen.getByRole('heading', { name: 'X3 T4. What does the automaton accept?' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Exercise 3, task 4, came in extra practice' })).toHaveTextContent('4★')
+    expect(screen.getByRole('button', { name: 'Exercise 3, task 1' })).toHaveTextContent(/^1$/)
+    expect(screen.getByText(/Came in extra practice/).parentElement).toHaveTextContent('2025 set Q2, 2024 set Q2, 2024 practice set Q2 (exact)')
+    await user.click(screen.getByRole('link', { name: '2024 practice set Q2' }))
+    expect(screen.getByRole('heading', { name: /2024 practice set \(\)/ })).toBeInTheDocument()
   })
 })
 
@@ -246,6 +258,21 @@ describe('Extra practice (solved)', () => {
     const q1 = screen.getByRole('article', { name: /question 1\. NP/ })
     await user.click(within(q1).getByRole('button', { name: 'Show answer' }))
     expect(within(q1).getByRole('region', { name: 'Answer' })).toHaveTextContent('NP-complete: in NP AND NP-hard')
+  })
+
+  it('shows which exercise tasks each test question comes from, with links both ways', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/extra-practice?test=set-2024')
+    const table = screen.getByRole('table')
+    expect(within(table).getAllByRole('row')).toHaveLength(6)
+    expect(within(table).getByRole('row', { name: /X5 T2/ })).toHaveTextContent('Exact for 3 of the 5 grammars')
+    const q2 = screen.getByRole('article', { name: /2024 set, question 2/ })
+    expect(q2).toHaveTextContent('From the exercises: X3 T4, X3 T5 (exact)')
+    await user.click(within(table).getByRole('button', { name: '2024 practice set Q1' }))
+    expect(screen.getByRole('article', { name: /2024 practice set, question 1/ })).toHaveTextContent('From the exercises: X6 T1, X6 T2, X7 t1 (same topic)')
+    await user.click(within(screen.getByRole('article', { name: /2024 practice set, question 3/ })).getByRole('link', { name: 'X5 T2' }))
+    expect(screen.getByRole('heading', { name: 'X5 T2. Regular or not? Three grammars' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Exercise sheet' })).toHaveValue('Exercise 5')
   })
 
   it('is only for Basic Models of Computation', () => {
