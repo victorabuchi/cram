@@ -13,6 +13,7 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
   const [simple, setSimple] = useState(false)
   const [verdict, setVerdict] = useState(null)
   const [term, setTerm] = useState(null)
+  const [original, setOriginal] = useState(false)
   const pages = item.pages ?? [item.page]
 
   const choose = (correct) => {
@@ -26,6 +27,16 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
       <h2 className="h5">{item.title}</h2>
       {item.prompt.map((p, i) => <p key={i} style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
       {item.diagram && <Automaton automaton={item.diagram} />}
+      {item.original && (
+        <>
+          <Button size="sm" variant="dark" className="mb-2" onClick={() => setOriginal(!original)} aria-expanded={original}>{original ? 'Hide the Finnish original' : 'Show the Finnish original'}</Button>
+          {original && (
+            <Alert variant="light" className="border" role="region" aria-label="Finnish original" lang="fi">
+              {item.original.map((p, i) => <p key={i} className="mb-1" style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
+            </Alert>
+          )}
+        </>
+      )}
 
       <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
       <div className="d-flex flex-wrap gap-2 mb-3">
@@ -58,6 +69,12 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
               <Automaton automaton={item.answerDiagram} />
             </>
           )}
+          {item.answerDiagrams?.map((d) => (
+            <div key={d.label}>
+              <h3 className="h6">{d.label}</h3>
+              <Automaton automaton={d.text} />
+            </div>
+          ))}
           {item.pdf && (
             <>
             <h3 className="h6">The teacher's {pages.length > 1 ? 'pages' : 'page'}</h3>
@@ -76,7 +93,7 @@ function PaperQuestion({ item, onScore, onNext, onUnsure, unsureLabel = 'I need 
           <div className="d-flex flex-wrap gap-2 my-3" role="group" aria-label="How did it go?">
             <Button variant={verdict === true ? 'success' : 'outline-success'} aria-pressed={verdict === true} onClick={() => choose(true)}>I solved it</Button>
             <Button variant={verdict === false ? 'danger' : 'outline-danger'} aria-pressed={verdict === false} onClick={() => choose(false)}>{unsureLabel}</Button>
-            <Button variant="outline-secondary" onClick={onNext}>{lastLabel}</Button>
+            {onNext && <Button variant="outline-secondary" onClick={onNext}>{lastLabel}</Button>}
           </div>
         </>
       )}

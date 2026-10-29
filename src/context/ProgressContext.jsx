@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ITEMS, VARIANTS } from '../data/content'
+import { ITEMS, EXTRA_PRACTICE, VARIANTS } from '../data/content'
 import { KEY_DAYS, KEY_PROGRESS, applyResult, bumpDay, migrateDays, read, write } from '../storage'
 import { ProgressContext } from './contexts'
 
-const subjectOfItem = new Map([...ITEMS, ...VARIANTS].map((i) => [i.id, i.subject]))
+const subjectOfItem = new Map([...ITEMS, ...VARIANTS, ...EXTRA_PRACTICE].map((i) => [i.id, i.subject]))
 
 // Shared study progress, so the dashboard, practice, practice test and progress pages stay in sync.
 // `progress` is keyed by question id; `days` by course id, then by date.

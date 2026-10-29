@@ -1,7 +1,7 @@
 // The course PDFs, shown exactly as the teacher wrote them (public/docs). Learn opens them in a PDF viewer, one tab per document.
 // `week` is the group: 1 = Finite automata and regular expressions (lectures 1 to 4, exercise 1), 2 = Regular expressions (lectures 5 and 6,
 // exercises 2 and 3), 3 = Pushdown automata and context-free grammars (lectures 7 and 8, exercise 4), 4 = Context-sensitive grammars and
-// Turing machines (lectures 9 and 10; the exercise follows).
+// Turing machines (lectures 9 and 10, exercise 5), 5 = Complexity, LL(1) parsing and review (exercises 6 and 7).
 const base = { subject: 'bmc' }
 
 export const docs = [
@@ -14,6 +14,9 @@ export const docs = [
   { ...base, week: 3, title: 'Exercise 4: questions and answers', file: 'bmc-exercise-4.pdf' },
   { ...base, week: 4, title: 'Lecture 9', file: 'bmc-lecture-9.pdf' },
   { ...base, week: 4, title: 'Lecture 10', file: 'bmc-lecture-10.pdf' },
+  { ...base, week: 4, title: 'Exercise 5: questions and answers', file: 'bmc-exercise-5.pdf' },
+  { ...base, week: 5, title: 'Exercise 6: questions and answers', file: 'bmc-exercise-6.pdf' },
+  { ...base, week: 5, title: 'Exercise 7: questions and answers', file: 'bmc-exercise-7.pdf' },
   { ...base, week: 2, title: 'Lecture 5', file: 'bmc-lecture-5.pdf' },
   { ...base, week: 2, title: 'Lecture 6', file: 'bmc-lecture-6.pdf' },
   { ...base, week: 2, title: 'Exercise 2: questions and answers', file: 'bmc-exercise-2.pdf' },

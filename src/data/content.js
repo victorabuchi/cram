@@ -18,6 +18,7 @@ export const LEARN = SOURCES.flatMap((s) => s.learn)
 const offered = (q) => q.subject !== 'webprog' || q.setNo || q.listNo || q.kind === 'code'
 export const ITEMS = SOURCES.flatMap((s) => s.questions).filter(offered)
 export const VARIANTS = SOURCES.flatMap((s) => s.variants ?? []) // practice variants of the exercise tasks
+export const EXTRA_PRACTICE = SOURCES.flatMap((s) => s.extraPractice ?? []) // extra practice questions (shown on their own page, not in the totals)
 export const DOCS = [...SOURCES.flatMap((s) => s.docs ?? []), ...webprogDocs] // course PDFs, shown as they are
 
 export const KIND_NAMES = {
@@ -43,7 +44,7 @@ export const scopedDocs = (subjectId, week) => DOCS.filter((d) => inScope(d, sub
 // (Web Programming I: the questions of the question set).
 export function practiceItems(subjectId, week) {
   const subject = getSubject(subjectId)
-  return scopedItems(subjectId, week).filter((i) => !i.questionSet).filter((i) => !subject?.practiceKey || (i.kind !== 'code' && i[subject.practiceKey]))
+  return scopedItems(subjectId, week).filter((i) => !subject?.practiceKey || (i.kind !== 'code' && i[subject.practiceKey]))
 }
 export const scopedLearn = (subjectId, week) => LEARN.filter((c) => inScope(c, subjectId, week))
 

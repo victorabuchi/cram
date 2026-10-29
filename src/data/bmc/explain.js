@@ -19,6 +19,14 @@ const TREE = t('Parse tree', 'Parse_tree')
 const AMBIG = t('Ambiguous grammar', 'Ambiguous_grammar')
 const DANGLING = t('Dangling else', 'Dangling_else')
 const ORDER = t('Order of operations', 'Order_of_operations')
+const TM = t('Turing machine', 'Turing_machine')
+const PCLASS = t('P (complexity)', 'P_(complexity)')
+const NPCLASS = t('NP (complexity)', 'NP_(complexity)')
+const NPC = t('NP-completeness', 'NP-completeness')
+const SSP = t('Subset sum problem', 'Subset_sum_problem')
+const SAT = t('Boolean satisfiability problem (SAT)', 'Boolean_satisfiability_problem')
+const LL = t('LL parser', 'LL_parser')
+const EXP = t('Time complexity', 'Time_complexity')
 
 export const explain = {
   'bmc1-d1': {
@@ -258,6 +266,153 @@ export const explain = {
       'Parentheses restart the whole thing inside: F → ( E ). In n*(n+n) the sum is inside an F, so it is computed before the multiplication.',
       'Same-level operators group from the left, because E → E + T and T → T * F put the repeated part on the left: n*n+n is (n*n)+n, and n+n+n is (n+n)+n.',
       'Practical method: first find the top-level + (outside any parentheses): split the string there. If there is none, split at the top-level *. If there is none, it is a single n or a parenthesised expression.',
+    ],
+  },
+
+  'bmc-x5-1': {
+    terms: [TREE, CFG],
+    simple: [
+      'A parse tree starts with S at the top; every node\'s children are one rule of the grammar, and the leaves read left to right give the word.',
+      'In this grammar each rule adds a matching pair around the middle: A → aAc puts an a on the left and a c on the right, B → bBc the same with b. C → cC | c fills the middle with at least one c.',
+      'So for a word aᵏbˡcᵐ: use A → aAc k times, then A → B, B → bBc l times, then B → C and C produces the remaining m − k − l c\'s (at least one).',
+      'aabbccc fails because after aabb four c\'s are already paired and C must still add at least one more: at least 5 c\'s are needed, the word has only 3.',
+    ],
+  },
+  'bmc-x5-2': {
+    terms: [REGGRAM, CFG, REGEX],
+    simple: [
+      'Work out what each nonterminal produces by itself: A → a | bA gives b*a (some b\'s, then an a); B → ε | bBb gives (bb)* (pairs of b\'s); B → b | bBb gives an odd number of b\'s.',
+      'Then look at S. S → ABS just repeats the block AB after itself (ABAB...), which is a star in a regular expression. S → ASB puts A\'s on the left and the same number of B\'s on the right (like aⁿbⁿ).',
+      'AᵏBᵏ is only a problem when the B\'s are visible. If B can be empty, the number of B\'s cannot be seen and the language is still regular. If every B adds at least one b, the word must have at least as many b\'s as a\'s: a finite automaton cannot count that, it needs a stack (PDA).',
+    ],
+  },
+  'bmc-x5-3': {
+    terms: [CFG, GRAMMAR],
+    simple: [
+      'Read each grammar and ask: what does every rule add? Then compare with the descriptions.',
+      'S → A111A: something, 111, something: contains 111. S → BA with A → BBA: one symbol, then two at a time: odd length. S → 0A0 | 1A1: same first and last symbol, at least two symbols.',
+      'S → SS | 0S1 | 1S0 | ε: every step adds one 0 and one 1 together, so the counts stay equal.',
+    ],
+  },
+  'bmc-x5-4': {
+    terms: [DFA, PDA, REGLANG],
+    simple: [
+      'Ask: how much does the machine have to remember? A fixed amount (the last two symbols, even or odd) → a finite automaton. An unbounded count that must be compared later → a pushdown automaton (stack).',
+      '0ⁿ1ⁿ and 0ᵖ1ʳ0ᵖ⁻ʳ compare the lengths of separate blocks, so they need a stack: push the zeros, pop for the later symbols.',
+      '(0|1)*10 only looks at the end, and 0ⁿ0ⁿ is just an even number of zeros: both are regular.',
+    ],
+  },
+  'bmc-x5-5': {
+    terms: [TM, PDA],
+    simple: [
+      'A Turing machine has a tape it can read, write and move on in both directions. It cannot "count" with a stack, so it matches symbols by marking them on the tape.',
+      'Strategy: find an unmarked a, mark it, walk to an unmarked c and mark it too, walk back. Repeat for every a, then for every b.',
+      'If some a or b has no c to match, reject. When all a\'s and b\'s are marked, check that no unmarked c is left: then accept.',
+    ],
+  },
+  'bmc-x5-6': {
+    terms: [AMBIG, TREE, ORDER],
+    simple: [
+      'The grammar E → E + E | E * E puts + and * on the same level, so 1+2*3 has two parse trees: (1+2)*3 and 1+(2*3). That is what ambiguous means.',
+      'Fix: one nonterminal per precedence level. E handles + and −, T handles * and /, F handles digits and parentheses. The lower the level, the tighter it binds.',
+      'Writing E → E + T (not E + E) also fixes the order inside one level: operators group from the left, so there is only one tree.',
+    ],
+  },
+  'bmc-x6-1': {
+    terms: [SSP, PCLASS, NPCLASS, EXP],
+    simple: [
+      'Count the possibilities: every number is either in the subset or not, so n numbers give 2ⁿ subsets. Trying them all is exponential: doubling with every extra number.',
+      'Checking one proposed subset is fast: add its numbers (about n steps) and compare with S. Fast checking = NP.',
+      'Fast solving would be P. No polynomial algorithm is known for subset sum, so it is in NP but not known to be in P (it is NP-complete).',
+    ],
+  },
+  'bmc-x6-2': {
+    terms: [EXP, SSP],
+    simple: [
+      'Number of steps = 2ⁿ (one per subset). Time in seconds = 2ⁿ / (operations per second). Days = seconds / 86 400 (24 · 60 · 60).',
+      'Example: n = 30 at 100 operations per second: 2³⁰ ≈ 1 073 741 824, / 100 = 10 737 418 s, / 86 400 ≈ 124 days.',
+      'The point of the table: adding 10 numbers multiplies the time by about 1000, so a faster computer helps very little against exponential growth.',
+    ],
+  },
+  'bmc-x6-3': {
+    terms: [SAT, EXP, NPCLASS],
+    simple: [
+      'n true/false variables give 2ⁿ assignments; trying all of them is exponential.',
+      'One assignment takes 0.03 s, so in t seconds you can try t / 0.03 assignments. The largest n you can finish is the largest n with 2ⁿ ≤ that number: n = floor(log₂(assignments)).',
+      'One hour: 3600 / 0.03 = 120 000; 2¹⁶ = 65 536 ≤ 120 000 < 2¹⁷, so 16 variables.',
+    ],
+  },
+  'bmc-x6-4': {
+    terms: [LL, CFG],
+    simple: [
+      'An LL(1) parser chooses the rule by looking at ONE next input symbol. So the alternatives of a nonterminal must start with different symbols (no FIRST/FIRST conflict).',
+      'If an alternative can be empty (ε), the next symbol may come from what follows the nonterminal (FOLLOW), and that must not overlap with FIRST of the other alternatives (no FIRST/FOLLOW conflict).',
+      'And no left recursion: S → ... → S... would make the parser loop for ever.',
+    ],
+  },
+  'bmc-x6-5': {
+    terms: [TM, t('Bubble sort', 'Bubble_sort')],
+    simple: [
+      'To find out what a Turing machine does, run it on a few short inputs by hand (or in JFLAP) and look at the tape at the end.',
+      'Here: on 21 it ends with 12, on 312 with 123. The states named v21, v13, v32 swap two neighbouring symbols, so it sorts: bubble sort.',
+      'Y and K are temporary marks that remember "a swap happened in this pass", so the machine knows it must do another pass.',
+    ],
+  },
+  'bmc-x6-6': {
+    terms: [TM],
+    simple: [
+      'Run it on a short input like 110 and watch the tape: the machine writes L at the left end and # after the input.',
+      'It then marks the leftmost unmarked bit (X for 0, Y for 1) and writes the same bit at the right end, after #. The first input bit ends up nearest #, the last one farthest: reversed.',
+      'Finally it erases the marked input, so only the reversed string is left.',
+    ],
+  },
+  'bmc-x7-1': {
+    terms: [t('Independent set', 'Independent_set_(graph_theory)'), NPC],
+    simple: [
+      'Checking a proposed answer: take the k vertices and look at every pair: is there an edge? That is about k² checks: fast (polynomial) → in NP.',
+      'Finding an answer: without a clever trick you try sets of vertices, up to 2ⁿ of them: exponential.',
+      'It is also NP-hard (every NP problem can be turned into it), so it is NP-complete.',
+    ],
+  },
+  'bmc-x7-2': {
+    terms: [REGEX, KLEENE],
+    simple: [
+      'a) "somewhere ac or ca": anything, then ac or ca, then anything.',
+      'b) a and c never next to each other: cut the word at the b\'s; each piece must be only a\'s or only c\'s.',
+      'c) exactly one meeting point of a and c: exactly one piece is a⁺c⁺ or c⁺a⁺, the others are only a\'s or only c\'s.',
+      'd) Think about how the word can start (c, b, ab, ac) and what is still missing; after that, anything except a second c.',
+    ],
+  },
+  'bmc-x7-3': {
+    terms: [TM, t('Binary number', 'Binary_number')],
+    simple: [
+      'Adding 1 in binary works from the right, like on paper: 1 + 1 = 10, so a 1 becomes 0 and the carry moves left; the first 0 becomes 1 and you are done.',
+      'So the machine first walks to the right end, steps back onto the last digit, turns 1\'s into 0\'s while moving left, and turns the first 0 (or the blank before the number) into 1.',
+      'Check 1011: the end is 1 → 0, 1 → 0, then 0 → 1: 1100.',
+    ],
+  },
+  'bmc-x7-4': {
+    terms: [DFA, REGEX],
+    simple: [
+      'Translate the expression piece by piece: x* is a loop on x, xy is two arrows one after the other, x+ is one arrow and then a loop.',
+      'For (ab)* and (abba)* make a cycle back to the start, and the start is also accepting (zero repetitions).',
+      'For (0|1)⁸ you need to count to 8: 9 states in a row, only the last one accepting.',
+    ],
+  },
+  'bmc-x7-5': {
+    terms: [PDA, STACK],
+    simple: [
+      'aⁿb²ⁿ: every a must be matched by two b\'s, so push two symbols for every a and pop one for every b.',
+      'aⁿbᵐ with m > n > 1: push one symbol per a (read at least two a\'s), pop one per b, and when the stack is empty at least one more b must still come.',
+      'Accept when the stack is back at Z exactly when it should be.',
+    ],
+  },
+  'bmc-x7-6': {
+    terms: [AMBIG, TREE, CFG],
+    simple: [
+      'a) Use each rule once as cheaply as possible: S → SS gives two C\'s, B → bCd adds b, d and another C, D → cC adds c and another C. Every C is at least "a": 7 symbols.',
+      'c) S → SS can split a word in different places: aaa = (aa)a or a(aa). Two parse trees for one word = ambiguous.',
+      'e) S → CS | C still makes one or more C\'s, but there is only one way to split: the first C, then the rest.',
     ],
   },
 }

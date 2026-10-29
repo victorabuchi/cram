@@ -43,14 +43,16 @@ export const SUBJECTS = [
     title: 'Basic Models of Computation',
     org: 'School of Computing',
     quiz: false, // pen-and-paper theory test built from the exercises: Learn (the lecture PDFs) and Exercises only
-    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'all/test', label: 'Extra practice' }, { path: 'all/variants', label: 'Practice' }, { path: 'automata', label: 'Automata lab' }],
+    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'all/variants', label: 'Practice' }, { path: 'all/extra-practice', label: 'Extra practice' }, { path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
-    // Four groups: lectures 1 to 4 with exercise 1; lectures 5 and 6 with exercises 2 and 3; lectures 7 and 8 with exercise 4; lectures 9 and 10.
+    // Five groups: lectures 1 to 4 with exercise 1; lectures 5 and 6 with exercises 2 and 3; lectures 7 and 8 with exercise 4;
+    // lectures 9 and 10 with exercise 5; complexity and review with exercises 6 and 7.
     weeks: [
       { n: 1, color: '#444444', title: 'Finite automata and regular expressions', logos: [logo(automaton, 'Finite automaton')] },
       { n: 2, color: '#3178C6', title: 'Regular expressions', logos: [logo(automaton, 'Finite automaton')] },
       { n: 3, color: '#7952B3', title: 'Pushdown automata and context-free grammars', logos: [logo(automaton, 'Finite automaton')] },
       { n: 4, color: '#2DA44E', title: 'Context-sensitive grammars and Turing machines', logos: [logo(automaton, 'Finite automaton')] },
+      { n: 5, color: '#E76F00', title: 'Complexity (P and NP), LL(1) parsing and review', logos: [logo(automaton, 'Finite automaton')] },
     ],
   },
   {
