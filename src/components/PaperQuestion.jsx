@@ -8,7 +8,9 @@ const base = import.meta.env.BASE_URL ?? './'
 // A pen-and-paper exercise: read it, solve it on paper, show the teacher's answer. Only then do the extras appear: the plain-words
 // explanation (on request) and the topics to look up. Then say whether you got it.
 // onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
-function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', lastLabel = 'Next' }) {
+function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', lastLabel = 'Next', level = 2 }) {
+  const Title = `h${level}` // the page decides where the question sits in its outline; the parts of the answer are one level below
+  const Sub = `h${level + 1}`
   const [shown, setShown] = useState(false)
   const [simple, setSimple] = useState(false)
   const [verdict, setVerdict] = useState(null)
@@ -23,7 +25,7 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
 
   return (
     <div>
-      <h2 className="h5">{item.title}</h2>
+      <Title className="h5">{item.title}</Title>
       {item.prompt.map((p, i) => <p key={i} style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
       {item.diagram && <Automaton automaton={item.diagram} />}
       {item.original && (
@@ -64,19 +66,19 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
           )}
           {item.answerDiagram && (
             <>
-              <h3 className="h6">The answer as a diagram</h3>
+              <Sub className="h6">The answer as a diagram</Sub>
               <Automaton automaton={item.answerDiagram} />
             </>
           )}
           {item.answerDiagrams?.map((d) => (
             <div key={d.label}>
-              <h3 className="h6">{d.label}</h3>
+              <Sub className="h6">{d.label}</Sub>
               <Automaton automaton={d.text} />
             </div>
           ))}
           {item.pdf && (
             <>
-            <h3 className="h6">The teacher's {pages.length > 1 ? 'pages' : 'page'}</h3>
+            <Sub className="h6">The teacher's {pages.length > 1 ? 'pages' : 'page'}</Sub>
             {pages.map((n) => (
               <img
                 key={n}

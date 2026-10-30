@@ -10,7 +10,7 @@ import CodeExercises from './pages/CodeExercises.jsx'
 import Exercises from './pages/Exercises.jsx'
 import QuestionList from './pages/QuestionList.jsx'
 import ExtraPractice from './pages/ExtraPractice.jsx'
-import Set2026 from './pages/Set2026.jsx'
+import SecondSet2026 from './pages/SecondSet2026.jsx'
 import Practice from './pages/Practice.jsx'
 import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
@@ -56,7 +56,8 @@ function App() {
           <Route path="/s/:subjectId/:week/question-set" element={<QuizOnly><Mock test set="real" /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/variants" element={<Navigate to="../exercises" relative="path" replace />} />
           <Route path="/s/:subjectId/:week/extra-practice" element={<ExtraPractice />} />
-          <Route path="/s/:subjectId/:week/set-2026" element={<Set2026 />} />
+          <Route path="/s/:subjectId/:week/second-set-2026" element={<SecondSet2026 />} />
+          <Route path="/s/:subjectId/:week/set-2026" element={<Navigate to="../second-set-2026" relative="path" replace />} />
           <Route path="/s/:subjectId/:week/practice" element={<QuizOnly><Practice /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/mock" element={<QuizOnly><Mock /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/test" element={<QuizOnly><Mock test /></QuizOnly>} />

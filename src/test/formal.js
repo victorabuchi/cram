@@ -30,6 +30,19 @@ export const nfa = (text) => {
   }
 }
 
+// The example words of an automaton list: the lines "accepts: ε, ab" and "rejects: a, ba" under the line of each automaton "a) ...".
+export function examplesOf(text) {
+  const out = {}
+  let key
+  const list = (part) => part.split(', ').map((w) => (w === 'ε' ? '' : w))
+  for (const line of text.split('\n')) {
+    key = /^([a-e])\) /.exec(line)?.[1] ?? key
+    const m = /^\s*(accepts|rejects): (.*)$/.exec(line)
+    if (m) (out[key] ??= { yes: [], no: [] })[m[1] === 'accepts' ? 'yes' : 'no'] = list(m[2])
+  }
+  return out
+}
+
 const parseRules = (text) => {
   const rules = {}
   for (const line of text.split('\n')) {
