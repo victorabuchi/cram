@@ -1,3 +1,4 @@
+import { PRACTICE_EXTRA } from './webprog/practiceExtra'
 import { ITEMS, LEARN, TOPICS } from './content'
 import { SUBJECTS } from './subjects'
 
@@ -35,13 +36,22 @@ describe('study content', () => {
 
 describe('Web Programming I practice set', () => {
   const web = ITEMS.filter((i) => i.subject === 'webprog')
-  it('is small: the 26 Moodle questions (Practice and the Practice quiz) and the code exercises', () => {
+  it('offers the 26 Moodle questions, 82 questions from the bank, and the code exercises', () => {
     expect(web.filter((i) => i.setNo)).toHaveLength(26)
-    expect(web.length).toBe(26 + 13)
+    expect(web.filter((i) => i.inPractice)).toHaveLength(26 + 82)
+    expect(web.length).toBe(26 + 82 + 13)
   })
-  it('uses the Moodle questions as Practice: they are spread over weeks 1 to 5', () => {
-    const weeks = [...new Set(web.filter((i) => i.setNo).map((i) => i.week))].sort()
-    expect(weeks).toEqual([1, 2, 3, 4, 5])
+  it('has at least 10 practice questions on every topic, each with a known id and a full answer', () => {
+    const practice = web.filter((i) => i.inPractice)
+    const topics = Object.keys(TOPICS).filter((t) => practice.some((i) => i.topic === t))
+    expect(topics).toHaveLength(10)
+    for (const t of topics) expect(practice.filter((i) => i.topic === t).length, t).toBeGreaterThanOrEqual(10)
+    for (const n of [1, 2, 3, 4, 5, 6]) expect(practice.some((i) => i.week === n), `week ${n}`).toBe(true)
+    for (const id of PRACTICE_EXTRA) expect(web.find((i) => i.id === id), id).toBeTruthy()
+    for (const q of practice.filter((i) => i.kind === 'mcq')) {
+      expect(new Set(q.options).size, q.id).toBe(q.options.length)
+      expect(q.options.length, q.id).toBeGreaterThanOrEqual(3)
+    }
   })
 })
 

@@ -100,7 +100,7 @@ describe('course tools in the top bar', () => {
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()
-    const total = scopedItems('webprog', 5).filter((i) => i.setNo).length // practice asks the Moodle questions of the week
+    const total = scopedItems('webprog', 5).filter((i) => i.inPractice).length // practice asks the practice questions of the week
     expect(total).toBeGreaterThan(5)
     renderApp('/s/webprog/5/practice')
     expect(screen.getByText(new RegExp(`\\(${total} now\\)`))).toBeInTheDocument()

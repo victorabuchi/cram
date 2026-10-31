@@ -21,7 +21,7 @@ export const SUBJECTS = [
   {
     id: 'webprog',
     color: '#3178C6',
-    practiceKey: 'setNo', // Practice (each week and all weeks) asks the Moodle practice questions
+    practiceKey: 'inPractice', // Practice (each week and all weeks) asks the practice questions, at least 10 per topic
     mock: false, // no random practice test: Practice (the questions of each week) and the Practice quiz (all 26 Moodle questions) cover it
     title: 'Web Programming I',
     org: 'School of Computing',
