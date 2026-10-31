@@ -1,4 +1,4 @@
-import { ApiError, clearSummaryCache, getSummary, searchTitles } from './wikipedia'
+import { ApiError, clearSummaryCache, firstArticle, getSummary, searchTitles } from './wikipedia'
 
 const respond = (body, status = 200) => ({ ok: status < 400, status, json: async () => body })
 
@@ -44,5 +44,23 @@ describe('getSummary', () => {
   it('throws on other server errors', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respond({}, 500)))
     await expect(getSummary('Git')).rejects.toThrow('status 500')
+  })
+})
+
+describe('firstArticle', () => {
+  const pages = {
+    React: { title: 'React', type: 'disambiguation', extract: 'React may refer to:' },
+    Reaction: { title: 'Reaction', type: 'disambiguation', extract: 'Reaction may refer to:' },
+    'React_(software)': { title: 'React (software)', type: 'standard', extract: 'A JavaScript library.' },
+  }
+  beforeEach(() => vi.stubGlobal('fetch', vi.fn(async (url) => respond(pages[decodeURIComponent(url.split('/').pop())]))))
+
+  it('skips the "may refer to" pages and returns the first real article', async () => {
+    expect(await firstArticle([{ key: 'React' }, { key: 'React_(software)' }])).toBe('React_(software)')
+  })
+
+  it('returns the first result when every result is a "may refer to" page, and nothing without results', async () => {
+    expect(await firstArticle([{ key: 'React' }, { key: 'Reaction' }])).toBe('React')
+    expect(await firstArticle([])).toBeUndefined()
   })
 })

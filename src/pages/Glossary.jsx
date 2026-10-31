@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import TermModal from '../components/TermModal.jsx'
 import { toast } from 'react-toastify'
-import { searchTitles } from '../api/wikipedia'
+import { firstArticle, searchTitles } from '../api/wikipedia'
 import { getSubject } from '../data/subjects'
 import { TERMS } from '../data/terms'
 import { useTerms } from '../hooks/useTerms'
@@ -44,6 +44,7 @@ function ArticleCard({ termKey }) {
           <Card.Title as="h2" tabIndex={-1} ref={headingRef}>{article.title}</Card.Title>
           {article.description && <Card.Subtitle className="text-body-secondary mb-2">{article.description}</Card.Subtitle>}
           <Card.Text>{article.extract}</Card.Text>
+          {article.disambiguation && <Alert variant="info">Wikipedia has several topics with this name. Pick one from the other matches.</Alert>}
           <div className="d-flex gap-3 align-items-center flex-wrap">
             <Button size="sm" variant={isSaved ? 'outline-secondary' : 'outline-primary'} onClick={toggle} aria-pressed={!!isSaved}>
               {isSaved ? 'Saved' : 'Save to my terms'}
@@ -78,10 +79,11 @@ function SearchTab({ termKey, open }) {
     setState({ status: 'loading', error: '' })
     try {
       const results = await searchTitles(q, { signal: controller.signal })
-      setMatches(results)
+      const key = await firstArticle(results, { signal: controller.signal })
+      setMatches([...results.filter((r) => r.key === key), ...results.filter((r) => r.key !== key)]) // the one shown first, the others below it
       setState({ status: results.length ? 'idle' : 'empty', error: '' })
       if (results.length) {
-        open(results[0].key)
+        open(key)
         const next = [q, ...recent.filter((r) => r.toLowerCase() !== q.toLowerCase())].slice(0, 6)
         setRecent(next)
         write(RECENT_KEY, next)

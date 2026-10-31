@@ -45,3 +45,13 @@ export async function getSummary(key, { signal } = {}) {
   if (summary) cache.set(id, summary)
   return summary
 }
+
+// The first search result that is a real article. Wikipedia's "may refer to" pages have almost no text, so they are skipped;
+// if every result is one, the first result is returned.
+export async function firstArticle(results, { signal } = {}) {
+  for (const result of results.slice(0, 5)) {
+    const summary = await getSummary(result.key, { signal })
+    if (summary && !summary.disambiguation) return result.key
+  }
+  return results[0]?.key
+}
