@@ -21,12 +21,11 @@ export const SUBJECTS = [
   {
     id: 'webprog',
     color: '#3178C6',
-    practiceKey: 'listNo', // Practice (each week and all weeks) asks the questions of the question set
-    mock: false, // no random practice test: Practice (the test-style questions of each week) and Practice quiz (all 26 Moodle questions) cover it
+    practiceKey: 'setNo', // Practice (each week and all weeks) asks the Moodle practice questions
+    mock: false, // no random practice test: Practice (the questions of each week) and the Practice quiz (all 26 Moodle questions) cover it
     title: 'Web Programming I',
     org: 'School of Computing',
-    courseDate: '2026-10-23',
-    tools: [{ path: 'all/test', label: 'Practice quiz' }, { path: 'all/question-list', label: 'Question set' }, { path: 'glossary', label: 'Glossary' }],
+    tools: [{ path: 'all/quiz', label: 'Practice quiz' }, { path: 'glossary', label: 'Glossary' }],
     logos: [logo(html5, 'HTML'), logo(css, 'CSS'), logo(javascript, 'JavaScript'), logo(react, 'React')],
     weeks: [
       { n: 1, color: '#E34F26', title: 'Intro to the web, HTML, CSS', logos: [logo(html5, 'HTML'), logo(css, 'CSS')] },
@@ -42,8 +41,8 @@ export const SUBJECTS = [
     color: '#444444',
     title: 'Basic Models of Computation',
     org: 'School of Computing',
-    quiz: false, // pen-and-paper theory test built from the exercises: Learn (the lecture PDFs) and Exercises only
-    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'all/extra-practice', label: 'Extra practice' }, { path: 'all/set-2026', label: '2026 set' }, { path: 'automata', label: 'Automata lab' }],
+    quiz: false, // a pen-and-paper course: Learn (the lecture PDFs), Exercises and Practice (its own page)
+    tools: [{ path: 'all/learn', label: 'Learn' }, { path: 'all/exercises', label: 'Exercises' }, { path: 'all/practice', label: 'Practice' }, { path: 'automata', label: 'Automata lab' }],
     logos: [logo(automaton, 'Finite automaton')],
     // Five groups: lectures 1 to 4 with exercise 1; lectures 5 and 6 with exercises 2 and 3; lectures 7 and 8 with exercise 4;
     // lectures 9 and 10 with exercise 5; complexity and review with exercises 6 and 7.

@@ -68,7 +68,7 @@ describe('Practice test: going back', () => {
 
   it('shows the explanation under each reviewed question', async () => {
     const user = userEvent.setup()
-    renderApp('/s/webprog/1/mock')
+    renderApp('/s/webprog/4/mock')
     await user.click(screen.getByRole('button', { name: 'Start practice test' }))
     for (let guard = 0; guard < 30 && !screen.queryByRole('heading', { name: 'Practice test results' }); guard++) {
       const group = screen.queryByRole('group', { name: 'Answer options' })
@@ -77,7 +77,7 @@ describe('Practice test: going back', () => {
       await user.click(screen.getByRole('button', { name: /^(Next question|Finish test)$/ }))
     }
     const results = screen.getAllByRole('region', { name: 'Result' })
-    expect(results.length).toBeGreaterThan(5)
+    expect(results.length).toBeGreaterThan(3)
     results.forEach((r) => expect(r.textContent).toMatch(/Correct!|Not quite\.|Not answered\./))
   })
 })

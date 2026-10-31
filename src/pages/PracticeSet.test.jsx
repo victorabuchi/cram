@@ -23,7 +23,7 @@ describe('Practice quiz', () => {
 
   it('asks every question in the Moodle order, with no feedback until the end', async () => {
     const user = userEvent.setup()
-    renderApp('/s/webprog/all/test')
+    renderApp('/s/webprog/all/quiz')
     expect(screen.getByRole('heading', { name: 'Practice quiz' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Attempt quiz' }))
 
@@ -50,7 +50,7 @@ describe('Practice quiz', () => {
 
   it('shows the code of the explain-the-code questions and a model answer to compare with at the end', async () => {
     const user = userEvent.setup()
-    renderApp('/s/webprog/all/test')
+    renderApp('/s/webprog/all/quiz')
     await user.click(screen.getByRole('button', { name: 'Attempt quiz' }))
     for (const q of questions) {
       if (q.kind === 'explain') {
@@ -66,7 +66,7 @@ describe('Practice quiz', () => {
   })
 
   it('has no accessibility violations', async () => {
-    const { container } = renderApp('/s/webprog/all/test')
+    const { container } = renderApp('/s/webprog/all/quiz')
     await screen.findByRole('button', { name: 'Attempt quiz' })
     expect(await axe(container)).toHaveNoViolations()
   })

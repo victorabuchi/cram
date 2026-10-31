@@ -8,20 +8,13 @@ const base = import.meta.env.BASE_URL ?? './'
 // A pen-and-paper exercise: read it, solve it on paper, show the teacher's answer. Only then do the extras appear: the plain-words
 // explanation (on request) and the topics to look up. Then say whether you got it.
 // onScore(correct) fires when you choose. The parent gives it key={item.id} so it starts fresh for each question.
-// show: 'all' (the answer, the extras and the teacher's pages), 'teacher' (only the teacher's pages, on the 2026 set page where
-// "What to write in the test" is the short answer) or 'write' (the answer as what to write in the test, without the extras).
-function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', lastLabel = 'Next', level = 2, show = 'all' }) {
+function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', lastLabel = 'Next', level = 2 }) {
   const Title = `h${level}` // the page decides where the question sits in its outline; the parts of the answer are one level below
   const Sub = `h${level + 1}`
-  const extras = show === 'all'
-  const answerName = show === 'write' ? 'What to write in the test' : 'Answer'
-  const what = show === 'teacher' ? 'the lecturer\'s answer' : show === 'write' ? 'what to write in the test' : 'answer'
-  const canShow = show !== 'teacher' || item.pdf // a question without the teacher's pages has nothing to show here
   const [shown, setShown] = useState(false)
   const [simple, setSimple] = useState(false)
   const [verdict, setVerdict] = useState(null)
   const [term, setTerm] = useState(null)
-  const [original, setOriginal] = useState(false)
   const pages = item.pages ?? [item.page]
 
   const choose = (correct) => {
@@ -34,23 +27,13 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
       <Title className="h5">{item.title}</Title>
       {item.prompt.map((p, i) => <p key={i} style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
       {item.diagram && <Automaton automaton={item.diagram} />}
-      {item.original && (
-        <>
-          <Button size="sm" variant="dark" className="mb-2" onClick={() => setOriginal(!original)} aria-expanded={original}>{original ? 'Hide the Finnish original' : 'Show the Finnish original'}</Button>
-          {original && (
-            <Alert variant="light" className="border" role="region" aria-label="Finnish original" lang="fi">
-              {item.original.map((p, i) => <p key={i} className="mb-1" style={{ whiteSpace: 'pre-line' }}>{p}</p>)}
-            </Alert>
-          )}
-        </>
-      )}
 
-      <p className="text-body-secondary">Solve it on paper first, like in the test. Then check your answer.</p>
-      {canShow && <div className="d-flex flex-wrap gap-2 mb-3">
-        <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown}>{shown ? `Hide ${what}` : `Show ${what}`}</Button>
-        {shown && extras && item.simple && <Button variant={simple ? 'secondary' : 'success'} onClick={() => setSimple(!simple)} aria-expanded={simple}>{simple ? 'Hide the simple explanation' : 'Explain it simply'}</Button>}
-      </div>}
-      {shown && extras && simple && (
+      <p className="text-body-secondary">Solve it on paper first. Then check your answer.</p>
+      <div className="d-flex flex-wrap gap-2 mb-3">
+        <Button variant={shown ? 'secondary' : 'primary'} onClick={() => setShown(!shown)} aria-expanded={shown}>{shown ? 'Hide answer' : 'Show answer'}</Button>
+        {shown && item.simple && <Button variant={simple ? 'secondary' : 'success'} onClick={() => setSimple(!simple)} aria-expanded={simple}>{simple ? 'Hide the simple explanation' : 'Explain it simply'}</Button>}
+      </div>
+      {shown && simple && (
         <Alert variant="light" className="border" role="region" aria-label="Simple explanation">
           <strong>The idea, step by step</strong>
           <ol className="mb-0 mt-2">{item.simple.map((s) => <li key={s} className="mb-2">{s}</li>)}</ol>
@@ -58,27 +41,25 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
       )}
       {shown && (
         <>
-          {show !== 'teacher' && (
-            <Alert variant="light" className="border" role="region" aria-label={answerName}>
-              <strong>{answerName}</strong>
-              {item.answer.map((a, i) => (typeof a === 'string'
-                ? <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>
-                : <pre key={i} className={item.wrap ? 'code wrap' : 'code'}><code>{a.code}</code></pre>))}
-            </Alert>
-          )}
-          {extras && item.terms && (
+          <Alert variant="light" className="border" role="region" aria-label="Answer">
+            <strong>Answer</strong>
+            {item.answer.map((a, i) => (typeof a === 'string'
+              ? <p key={i} className="mb-2 mt-2" style={{ whiteSpace: 'pre-line' }}>{a}</p>
+              : <pre key={i} className={item.wrap ? 'code wrap' : 'code'}><code>{a.code}</code></pre>))}
+          </Alert>
+          {item.terms && (
             <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
               <span className="small text-body-secondary">Look up:</span>
               {item.terms.map((t) => <Button key={t.wiki} size="sm" variant="primary" onClick={() => setTerm(t)}>{t.label}</Button>)}
             </div>
           )}
-          {show !== 'teacher' && item.answerDiagram && (
+          {item.answerDiagram && (
             <>
               <Sub className="h6">The answer as a diagram</Sub>
               <Automaton automaton={item.answerDiagram} />
             </>
           )}
-          {show !== 'teacher' && item.answerDiagrams?.map((d) => (
+          {item.answerDiagrams?.map((d) => (
             <div key={d.label}>
               <Sub className="h6">{d.label}</Sub>
               <Automaton automaton={d.text} />
@@ -86,7 +67,7 @@ function PaperQuestion({ item, onScore, onNext, unsureLabel = 'Still unsure', la
           ))}
           {item.pdf && (
             <>
-            <Sub className="h6">{show === 'teacher' ? 'The lecturer\'s answer' : `The teacher's ${pages.length > 1 ? 'pages' : 'page'}`}</Sub>
+            <Sub className="h6">The teacher's {pages.length > 1 ? 'pages' : 'page'}</Sub>
             {pages.map((n) => (
               <img
                 key={n}

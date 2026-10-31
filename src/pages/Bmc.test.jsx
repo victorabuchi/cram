@@ -86,7 +86,6 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     const select = screen.getByRole('combobox', { name: 'Exercise sheet' })
     expect(within(select).getAllByRole('option').map((o) => o.value)).toEqual(['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6', 'Exercise 7'])
     expect([...select.querySelectorAll('optgroup')].map((g) => g.label)).toEqual(expect.arrayContaining(['Week 5: Complexity (P and NP), LL(1) parsing and review']))
-    expect(within(select).getByRole('option', { name: /Exercise 3 \(0\/6 done\) ★/ })).toBeInTheDocument() // has tasks that came in extra practice
     expect(screen.getByText(/Exercise 1 · task 1 of 8/)).toBeInTheDocument()
     expect(within(screen.getByRole('navigation', { name: 'Task navigation' })).getAllByRole('button')).toHaveLength(8)
     await user.click(screen.getByRole('button', { name: /Exercise 1, task 3$/ }))
@@ -104,15 +103,10 @@ describe('Basic Models of Computation: Learn (PDFs) and Exercises only', () => {
     expect(screen.queryByRole('combobox', { name: 'Exercise sheet' })).not.toBeInTheDocument()
   })
 
-  it('marks the tasks that came in extra practice and links to those test questions', async () => {
-    const user = userEvent.setup()
+  it('opens a sheet and a task from the address', () => {
     renderApp('/s/bmc/all/exercises?exercise=Exercise+3&task=4')
     expect(screen.getByRole('heading', { name: 'X3 T4. What does the automaton accept?' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Exercise 3, task 4, came in extra practice' })).toHaveTextContent('4★')
     expect(screen.getByRole('button', { name: 'Exercise 3, task 1' })).toHaveTextContent(/^1$/)
-    expect(screen.getByText(/Came in extra practice/).parentElement).toHaveTextContent('2025 set Q2, 2024 set Q2, 2024 practice set Q2 (exact)')
-    await user.click(screen.getByRole('link', { name: '2024 practice set Q2' }))
-    expect(screen.getByRole('heading', { name: /2024 practice set \(\)/ })).toBeInTheDocument()
   })
 })
 
@@ -154,15 +148,8 @@ describe('Plain-words help on the BMC exercises', () => {
   })
 })
 
-describe('No Practice page: the exercises and the extra practice are the practice', () => {
-  it('is not in the top bar or on a week page, and its old address opens the exercises of that week', () => {
-    const { unmount } = renderApp('/s/bmc')
-    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Practice' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /Practice/ })).not.toBeInTheDocument()
-    unmount()
-    const week = renderApp('/s/bmc/1')
-    expect(within(screen.getByRole('main')).queryByRole('link', { name: /Practice/ })).not.toBeInTheDocument()
-    week.unmount()
+describe('Exercises keep your place', () => {
+  it('the old variants address opens the exercises of that week', () => {
     renderApp('/s/bmc/2/variants')
     expect(screen.getByRole('heading', { name: /Exercises/ })).toHaveTextContent('Week 2')
   })
@@ -217,225 +204,43 @@ describe('Groups 3 and 4: pushdown automata, context-sensitive grammars and Turi
   })
 })
 
-describe('Extra practice (solved)', () => {
-  it('is in the BMC top bar and starts with the 2026 set, written down from memory', async () => {
+describe('Practice: the exercise topics with other values', () => {
+  it('is in the BMC top bar, with eight sections and 17 questions', async () => {
     const user = userEvent.setup()
     renderApp('/s/bmc')
-    await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Extra practice' }))
-    expect(screen.getByRole('heading', { name: '2026 set (written down from memory)' })).toBeInTheDocument()
-    expect(within(screen.getByRole('group', { name: 'Tests' })).getAllByRole('button').map((b) => b.textContent)).toEqual(['2026 set', '2025 set ()', '2024 set', '2024 practice set ()'])
-    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label'))).toEqual([
-      '2026 set, question 1. Integer factorization: in P? In NP?',
-      '2026 set, question 2. Draw the languages as finite automata',
-      '2026 set, question 3. Regular or not? Three grammars',
-      '2026 set, question 4. Which model recognizes each language?',
+    await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Practice' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Practice' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+      '1. Factorization: in P? In NP?',
+      '2. Draw the languages as finite automata',
+      '3. Regular or not? Three grammars',
+      '4. Which model recognizes each language?',
+      '5. The hexagon automaton',
+      '6. Which grammar is not regular?',
+      '7. In P? In NP? Why?',
+      '8. NP: explain the terms',
     ])
-    expect(screen.getByText(/there is no photo of the paper/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Show the original question sheet' })).not.toBeInTheDocument()
-    expect(screen.getByRole('article', { name: /2026 set, question 2/ })).toHaveTextContent('From the exercises: X7 t4 (exact)')
-    expect(screen.getByRole('article', { name: /2026 set, question 4/ })).toHaveTextContent('From the exercises: X5 T4 (exact)')
-    const q3 = within(screen.getByRole('article', { name: /2026 set, question 3/ }))
-    expect(q3.getByText(/B → b \| bBb \| ε/)).toBeInTheDocument()
-    await user.click(q3.getByRole('button', { name: 'Show answer' }))
-    expect(q3.getByRole('region', { name: 'Answer' })).toHaveTextContent('b) ε | aa*b*')
-    const q2 = within(screen.getByRole('article', { name: /2026 set, question 2/ }))
-    await user.click(q2.getByRole('button', { name: 'Show answer' }))
-    expect(q2.getByText('e) (0|1)^8')).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(17)
   })
 
-  it('still has the 2025 set with its three questions', async () => {
+  it('shows the answer with the steps and the diagram, and saves that you solved it', async () => {
     const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice')
-    await user.click(screen.getByRole('button', { name: '2025 set ()' }))
-    expect(screen.getByRole('heading', { name: /2025 set \(\)/ })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label'))).toEqual([
-      '2025 set, question 1. The knapsack problem (8 p)',
-      '2025 set, question 2. The language of an automaton (10 p)',
-      '2025 set, question 3. Which grammar is not regular? (10 p)',
-    ])
-  })
-
-  it('shows the Finnish original, the original paper and the answer with the partition steps', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice?test=set-2025')
-    const q2 = screen.getByRole('article', { name: /question 2/ })
-    await user.click(within(q2).getByRole('button', { name: 'Show the Finnish original' }))
-    expect(within(q2).getByRole('region', { name: 'Finnish original' })).toHaveTextContent('Minkä mittaisia sanoja automaatti hyväksyy?')
-    await user.click(within(q2).getByRole('button', { name: 'Show answer' }))
-    const answer = within(q2).getByRole('region', { name: 'Answer' })
-    expect(answer).toHaveTextContent('P1 = {0}, {1, 2, 3}, {4}, {5}')
-    expect(answer).toHaveTextContent('|w|a + 2|w|b ≡ 0 (mod 3)')
-    expect(within(q2).getByText('d) the minimized automaton (mod 3)')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Show the original question sheet' }))
-    expect(screen.getAllByRole('img', { name: /Set , page/ })).toHaveLength(2)
-  })
-
-  it('switches to the 2024 set: the same questions as 2025, with its own photos', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice')
-    await user.click(screen.getByRole('button', { name: '2024 set' }))
-    expect(screen.getByRole('heading', { name: /^2024 set \(Paper, 28 points\)/ })).toBeInTheDocument()
-    expect(screen.getByText(/word for word the same as the 2025 set/)).toBeInTheDocument()
-    expect(screen.getAllByRole('article')).toHaveLength(3)
-    expect(screen.getByRole('article', { name: '2024 set, question 1. The knapsack problem (8 p)' })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Show the original question sheet' }))
-    const photos = screen.getAllByRole('img', { name: /Paper, page/ })
-    expect(photos.map((i) => i.getAttribute('src').replace(/.*\//, ''))).toEqual(['bmc-set-2024-1.jpg', 'bmc-set-2024-2.jpg'])
-  })
-
-  it('switches to the 2024 practice set', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice')
-    await user.click(screen.getByRole('button', { name: '2024 practice set ()' }))
-    expect(screen.getByRole('heading', { name: /2024 practice set \(\)/ })).toBeInTheDocument()
-    expect(screen.getAllByRole('article')).toHaveLength(4)
-    const q1 = screen.getByRole('article', { name: /question 1\. NP/ })
-    await user.click(within(q1).getByRole('button', { name: 'Show answer' }))
-    expect(within(q1).getByRole('region', { name: 'Answer' })).toHaveTextContent('NP-complete: in NP AND NP-hard')
-  })
-
-  it('says on each question which exercise tasks it comes from, without the big table', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice?test=set-2024')
-    expect(screen.queryByRole('table')).not.toBeInTheDocument()
-    expect(screen.queryByText('Which exercises the tests come from')).not.toBeInTheDocument()
-    expect(screen.getByRole('article', { name: /2024 set, question 2/ })).toHaveTextContent('From the exercises: X3 T4, X3 T5 (exact)')
-    await user.click(screen.getByRole('button', { name: '2024 practice set ()' }))
-    expect(screen.getByRole('article', { name: /2024 practice set, question 1/ })).toHaveTextContent('From the exercises: X6 T1, X6 T2, X7 t1 (same topic)')
-    await user.click(within(screen.getByRole('article', { name: /2024 practice set, question 3/ })).getByRole('link', { name: 'X5 T2' }))
-    expect(screen.getByRole('heading', { name: 'X5 T2. Regular or not? Three grammars' })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: 'Exercise sheet' })).toHaveValue('Exercise 5')
-  })
-
-  it('is only for Basic Models of Computation', () => {
-    renderApp('/s/webprog/all/extra-practice')
-    expect(screen.getByRole('heading', { name: 'Web Programming I' })).toBeInTheDocument()
-  })
-
-  it('sends the old Extra practice address to Extra practice', () => {
-    renderApp('/s/bmc/all/test')
-    expect(screen.getByRole('heading', { name: /2026 set \(30\.10\.2026\)/ })).toBeInTheDocument()
-  })
-})
-
-describe('2026 set: the exercise tasks the tests came from, the 2026 set first', () => {
-  it('is in the BMC top bar: the four questions of the 2026 set, then the earlier ones, each task once', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc')
-    await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: '2026 set' }))
-    expect(screen.getByRole('heading', { level: 1, name: '2026 set' })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['From the 2026 set', 'From the earlier tests (2025, 2024 and the 2024 practice set)'])
-    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
-      '1. Factorization: in P? In NP? (like X6 T1)',
-      '2. Draw the languages as finite automata (X7 t4)',
-      '3. Regular or not? Three grammars (X5 T2)',
-      '4. Which model recognizes each language? (X5 T4)',
-      '5. The hexagon automaton (X3 T4 + X3 T5)',
-      '6. Which grammar is not regular? (X5 T2)',
-      '7. In P? In NP? Why? (X6 T1)',
-      '8. NP: explain the terms (X6 T1 + X6 T2 + X7 t1)',
-    ])
-    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label').replace(/\..*/, ''))).toEqual(['2026 set, question 1', 'X7 t4', 'X5 T2', 'X5 T4', 'X3 T4', 'X3 T5', 'X6 T1', 'X6 T2', 'X7 t1'])
-    expect(screen.getByRole('region', { name: 'Which grammar is not regular?' })).toHaveTextContent('X5 T2 is above.')
-    expect(screen.getByRole('region', { name: 'NP: explain the terms' })).toHaveTextContent('X6 T1 is above.')
-    expect(screen.getByRole('region', { name: 'Draw the languages as finite automata' })).toHaveTextContent('Came in: 2026 set Q2 (exact)')
-  })
-
-  it('question 1 is the factorization question of the test, not the subset sum exercise, with what to write', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/set-2026')
-    const section = within(screen.getByRole('region', { name: 'Factorization: in P? In NP?' }))
-    const q1 = within(section.getByRole('article'))
-    expect(q1.getByRole('heading', { level: 4 })).toHaveTextContent('2026 set, question 1. Integer factorization: in P? In NP?')
-    expect(q1.getByText(/the prime numbers k1, k2, k3, … whose product is k/)).toBeInTheDocument()
-    expect(q1.getByText('What is the time complexity of solving this problem when the value of k is given? How do you analyze it? Does this problem belong to class P or NP?')).toBeInTheDocument()
-    expect(section.queryByText(/Subset sum problem/)).not.toBeInTheDocument()
-    expect(q1.queryByRole('button', { name: /Show/ })).not.toBeInTheDocument() // no teacher's page for it
-    await user.click(section.getByRole('button', { name: 'What to write in the test' }))
-    const write = section.getByRole('region', { name: 'What to write in the test' })
-    expect(write).toHaveTextContent('√k ≈ 10^(n/2) divisions')
-    expect(write).toHaveTextContent('How to analyze it')
-    expect(write).toHaveTextContent('→ checked in polynomial time → NP')
-  })
-
-  it('opens from the practice set address', () => {
-    renderApp('/s/bmc/all/second-set-2026')
-    expect(screen.getByRole('heading', { level: 1, name: '2026 set' })).toBeInTheDocument()
-  })
-
-  it('shows only the lecturer\'s answer under each task: no typed answer, no simple explanation, no look-ups', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/set-2026')
-    const t5 = screen.getByRole('article', { name: 'X3 T5. Minimal? And what if state 3 accepts?' })
-    await user.click(within(t5).getByRole('button', { name: 'Show the lecturer\'s answer' }))
-    expect(within(t5).getByRole('heading', { level: 5, name: 'The lecturer\'s answer' })).toBeInTheDocument()
-    expect(within(t5).getAllByRole('img', { name: /teacher's answer/ }).map((i) => i.getAttribute('src').replace(/.*\//, ''))).toEqual(['bmc-exercise-3-6.jpg', 'bmc-exercise-3-7.jpg']) // a) and b) with the minimized DFA
-    expect(within(t5).queryByRole('region', { name: 'Answer' })).not.toBeInTheDocument()
-    expect(within(t5).queryByRole('button', { name: 'Explain it simply' })).not.toBeInTheDocument()
-    expect(within(t5).queryByText('Look up:')).not.toBeInTheDocument()
-    const x7 = screen.getByRole('article', { name: 'X7 t4. Draw the languages as finite automata' })
-    await user.click(within(x7).getByRole('button', { name: 'Show the lecturer\'s answer' }))
-    expect(within(x7).queryByText('a) a*cb*', { selector: 'h5' })).not.toBeInTheDocument() // the drawn automata are not the lecturer's
-    expect(within(x7).getByRole('img', { name: /teacher's answer/ })).toBeInTheDocument()
-    await user.click(within(x7).getByRole('button', { name: 'I solved it' }))
-    const hexagon = screen.getByRole('region', { name: 'The hexagon automaton' })
-    expect(hexagon).toHaveTextContent('Came in: 2025 set Q2, 2024 set Q2, 2024 practice set Q2 (exact)')
-    await user.click(within(hexagon).getByRole('link', { name: '2024 set Q2' }))
-    expect(screen.getByRole('heading', { name: /^2024 set \(Paper, 28 points\)/ })).toBeInTheDocument()
-  })
-
-  it('has "What to write in the test" under the tasks of each group: the short answer with the steps', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/set-2026')
-    expect(screen.getAllByRole('button', { name: 'What to write in the test' })).toHaveLength(8)
-    expect(screen.queryByRole('region', { name: 'What to write in the test' })).not.toBeInTheDocument()
-    const region = screen.getByRole('region', { name: 'The hexagon automaton' })
-    const hexagon = within(region)
-    const [last] = hexagon.getAllByRole('article').slice(-1)
-    expect(last.compareDocumentPosition(hexagon.getByRole('button', { name: 'What to write in the test' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    await user.click(hexagon.getByRole('button', { name: 'What to write in the test' }))
-    const write = hexagon.getByRole('region', { name: 'What to write in the test' })
-    expect(write).toHaveTextContent('P1 = {0}, {1,2,3}, {4}, {5}')
-    expect(write).toHaveTextContent('P1 = {0,3}, {1,4}, {2,5}')
-    await user.click(hexagon.getByRole('button', { name: 'Hide what to write' }))
-    expect(hexagon.queryByRole('region', { name: 'What to write in the test' })).not.toBeInTheDocument()
-  })
-
-  it('extra practice questions have it too', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/extra-practice?test=set-b-2024')
-    const q1 = within(screen.getByRole('article', { name: /2024 practice set, question 1/ }))
-    await user.click(q1.getByRole('button', { name: 'What to write in the test' }))
-    expect(q1.getByRole('region', { name: 'What to write in the test' })).toHaveTextContent('NP-complete: in NP and NP-hard')
-    expect(screen.getAllByRole('button', { name: /What to write in the test|Hide what to write/ })).toHaveLength(4) // feedback too
-  })
-
-  it('switches to practice quiz: the same questions with other values, answered as what to write in the test', async () => {
-    const user = userEvent.setup()
-    renderApp('/s/bmc/all/set-2026')
-    await user.click(screen.getByRole('button', { name: 'Practice quiz: other values (17)' }))
-    expect(screen.getAllByRole('article').map((a) => a.getAttribute('aria-label').replace(/\..*/, ''))).toEqual([
-      'Practice 1', 'Practice 1', 'Practice 2', 'Practice 2', 'Practice 3', 'Practice 3', 'Practice 4', 'Practice 4',
-      'Practice 5', 'Practice 5', 'Practice 6', 'Practice 6', 'Practice 7', 'Practice 7', 'Practice 7', 'Practice 8', 'Practice 8',
-    ])
-    expect(screen.queryByRole('button', { name: 'What to write in the test' })).not.toBeInTheDocument()
-    const draw = within(screen.getByRole('article', { name: /^Practice 2\.2\./ }))
-    await user.click(draw.getByRole('button', { name: 'Show what to write in the test' }))
-    expect(draw.getByRole('region', { name: 'What to write in the test' })).toHaveTextContent('accepting: q1 and q2 (b* can be empty)')
-    expect(draw.queryByText('Look up:')).not.toBeInTheDocument()
-    expect(draw.getByText('d) (ab|ba)*')).toBeInTheDocument()
+    renderApp('/s/bmc/all/practice')
     const octagon = within(screen.getByRole('article', { name: 'Practice 5.2. The octagon (mod 8)' }))
     expect(octagon.getByText(/δ\(7,a\)=0, δ\(7,b\)=1/)).toBeInTheDocument()
-    await user.click(octagon.getByRole('button', { name: 'Show what to write in the test' }))
-    expect(octagon.getByRole('region', { name: 'What to write in the test' })).toHaveTextContent('P3 = {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}')
+    await user.click(octagon.getByRole('button', { name: 'Show answer' }))
+    expect(octagon.getByRole('region', { name: 'Answer' })).toHaveTextContent('P3 = {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}')
     expect(octagon.getByText('d) the minimized automaton (mod 4)')).toBeInTheDocument()
     await user.click(octagon.getByRole('button', { name: 'I solved it' }))
-    await user.click(screen.getByRole('button', { name: 'Exercise tasks' }))
-    expect(screen.getByRole('article', { name: 'X3 T4. What does the automaton accept?' })).toBeInTheDocument()
+    expect(octagon.getByRole('button', { name: 'I solved it' })).toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('is only for Basic Models of Computation', () => {
-    renderApp('/s/webprog/all/set-2026')
-    expect(screen.getByRole('heading', { name: 'Web Programming I' })).toBeInTheDocument()
+  it('a drawing question has its automata in the answer', async () => {
+    const user = userEvent.setup()
+    renderApp('/s/bmc/all/practice')
+    const draw = within(screen.getByRole('article', { name: /^Practice 2\.2\./ }))
+    await user.click(draw.getByRole('button', { name: 'Show answer' }))
+    expect(draw.getByRole('region', { name: 'Answer' })).toHaveTextContent('accepting: q1 and q2 (b* can be empty)')
+    expect(draw.getByText('d) (ab|ba)*')).toBeInTheDocument()
   })
 })

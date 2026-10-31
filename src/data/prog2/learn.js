@@ -654,7 +654,7 @@ tArea2.setOnKeyTyped(e -> {
     tfOne.setText("" + Math.pow(i1 + i2, 2));
 });`),
   w7('Tracing a JavaFX handler by hand',
-    'Test style: no code to write, you simulate the state step by step. Watch for a handler that reads a value it also writes: the second keystroke reads the output of the first. Redo the table with the number of letters the question gives. Remember Math.pow returns a double, so "" + Math.pow(1, 2) is "1.0" (3 characters), not "1".',
+    'A typical task: no code to write, you simulate the state step by step. Watch for a handler that reads a value it also writes: the second keystroke reads the output of the first. Redo the table with the number of letters the question gives. Remember Math.pow returns a double, so "" + Math.pow(1, 2) is "1.0" (3 characters), not "1".',
     `tArea2.setOnKeyTyped: i1 = length of tfOne, i2 = length of tArea2 (after the key)
 tfOne starts empty. Typing a 3-letter last name into tArea2:
 

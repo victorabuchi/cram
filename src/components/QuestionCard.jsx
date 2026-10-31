@@ -12,7 +12,7 @@ const norm = (x) => x.trim().replace(/\s+/g, ' ')
 //   onScore   (score 0..1, detail) fires once the answer is final; onNext() moves on; onBack() (optional) goes back.
 //   draft     what the student had entered before: { order, chosen, fills, text, ticks, stage }. The card starts from it,
 //             so going back to a question shows it as it was left. onDraft(draft) reports every change.
-//   readOnly  the question as it was answered, with the correct answer shown below (review after an test).
+//   readOnly  the question as it was answered, with the correct answer shown below (review at the end).
 // The parent gives it key={item.id} so its state resets for each question.
 function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext, onBack, draft, onDraft, readOnly = false }) {
   const [order] = useState(() => draft?.order ?? (item.kind === 'mcq' ? shuffle(item.options) : []))
@@ -164,7 +164,7 @@ function QuestionCard({ item, instant, lastLabel = 'Next', onScore, onNext, onBa
           as="textarea"
           rows={6}
           className="mb-3"
-          placeholder="Explain in your own words, as you would in the test…"
+          placeholder="Explain in your own words…"
           aria-label="Your answer"
           value={text}
           disabled={locked}

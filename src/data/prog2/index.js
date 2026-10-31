@@ -1,4 +1,4 @@
-// Programming II (Java), from the "Programming II — Test Prep" notes (Moodle practice tasks + last test and practice set).
+// Programming II (Java), from the Programming II notes and the Moodle practice tasks.
 // kind "code" with lang "java": the student types Java and Check looks for the parts a correct answer needs
 // (`checks`: { label, re }; see src/code/java.js). `solution` is shown on request and is verified by index.test.js.
 import * as lessons from './learn.js'
@@ -123,7 +123,7 @@ public static void greet(String greeting, int howmany) {
     }
 }` },
 
-  // ---------- Week 2: test level ----------
+  // ---------- Week 2: harder tasks ----------
   { ...ex(2, 'j-methods'), id: 'j-7', title: 'getGrade and maxGrade',
     prompt: ['Write public int getGrade(int points): below 0 or above 30 returns -1 (error); 0 to 4 returns 0; 5 to 9 returns 1; 10 to 19 returns 2; 20 to 30 returns 3.', 'Then write public int maxGrade(int[] points) that returns the highest grade of all the points, using getGrade.'],
     starter: 'public int getGrade(int points) {\n    // TODO\n}\n\npublic int maxGrade(int[] points) {\n    // TODO\n}',

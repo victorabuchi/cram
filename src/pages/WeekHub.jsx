@@ -31,7 +31,7 @@ function WeekHub() {
   const tools = [
     ...base,
     ...(scoped.some((i) => i.kind === 'code') ? [{ path: 'code', title: 'Code exercises', text: codeText }] : []),
-    ...(scoped.some((i) => i.exercise) ? [{ path: 'exercises', title: 'Exercises', text: 'The exercise tasks the test is built from. Solve on paper, then check the answer.' }] : []),
+    ...(scoped.some((i) => i.exercise) ? [{ path: 'exercises', title: 'Exercises', text: 'Solve on paper, then check the answer.' }] : []),
   ]
   return (
     <>

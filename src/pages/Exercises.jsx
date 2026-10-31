@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
-import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import Crumbs from '../components/Crumbs.jsx'
 import PaperQuestion from '../components/PaperQuestion.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
-import { setQuestion, matchesOfTask } from '../data/bmc/taskMatches'
 import { useProgress } from '../hooks/useProgress'
 import { useScope } from '../useScope'
 
-// The course exercise sheets: tasks the test is built from. Pen-and-paper tasks (kind "paper") and the explain-style design tasks.
+// The course exercise sheets. Pen-and-paper tasks (kind "paper") and the explain-style design tasks.
 // One sheet at a time, picked from a dropdown grouped by week: ?exercise=Exercise+2 picks it (the first sheet of the scope otherwise)
-// and &task=3 a task in it. Tasks that came in a extra practice have a ★ and say which test questions they were.
+// and &task=3 a task in it.
 function Exercises() {
   const { subjectId, week, subject, valid, items, label } = useScope()
   const { progress, record } = useProgress()
@@ -36,8 +35,6 @@ function Exercises() {
   const countIn = (s) => all.filter((i) => i.exercise === s).length
   const doneCount = list.filter(done).length
   const next = () => setIndex(Math.min(index + 1, list.length - 1))
-  const marked = (i) => matchesOfTask(i.id).length > 0
-  const matches = item ? matchesOfTask(item.id) : []
 
   return (
     <>
@@ -50,7 +47,7 @@ function Exercises() {
           <Form.Select value={sheet} onChange={(e) => setParams({ exercise: e.target.value })} style={{ maxWidth: '26rem' }}>
             {weeks.map((w) => (
               <optgroup key={w.n} label={`Week ${w.n}: ${w.title}`}>
-                {w.sheets.map((s) => <option key={s} value={s}>{`${s} (${doneIn(s)}/${countIn(s)} done)${all.some((i) => i.exercise === s && marked(i)) ? ' ★' : ''}`}</option>)}
+                {w.sheets.map((s) => <option key={s} value={s}>{`${s} (${doneIn(s)}/${countIn(s)} done)`}</option>)}
               </optgroup>
             ))}
           </Form.Select>
@@ -61,18 +58,6 @@ function Exercises() {
           <Col lg={9} className="order-2 order-lg-1">
             <Card body>
               <p className="text-body-secondary small mb-2">{item.exercise} · task {index + 1} of {list.length}</p>
-              {matches.length > 0 && (
-                <p className="small mb-3">
-                  <strong>★ Came in extra practice:</strong>{' '}
-                  {matches.map((m, k) => (
-                    <span key={m.topic}>
-                      {k > 0 && ' · '}
-                      {m.tests.map((id, j) => <span key={id}>{j > 0 && ', '}<Link to={`/s/${subjectId}/all/extra-practice?test=${setQuestion(id).test}`}>{setQuestion(id).label}</Link></span>)}
-                      {' '}({m.match.toLowerCase()})
-                    </span>
-                  ))}
-                </p>
-              )}
               {item.kind === 'paper' ? (
                 <PaperQuestion
                   key={item.id}
@@ -109,14 +94,14 @@ function Exercises() {
                     size="sm"
                     variant={n === index ? 'primary' : done(q) ? 'success' : 'outline-secondary'}
                     aria-current={n === index ? 'step' : undefined}
-                    aria-label={`${q.exercise}, task ${n + 1}${done(q) ? ', done' : ''}${marked(q) ? ', came in extra practice' : ''}`}
+                    aria-label={`${q.exercise}, task ${n + 1}${done(q) ? ', done' : ''}`}
                     onClick={() => setIndex(n)}
                   >
-                    {n + 1}{marked(q) && '★'}
+                    {n + 1}
                   </Button>
                 ))}
               </div>
-              <p className="small text-body-secondary mb-0">{doneCount} of {list.length} done{list.some(marked) && ' · ★ came in a extra practice'}</p>
+              <p className="small text-body-secondary mb-0">{doneCount} of {list.length} done</p>
             </Card>
           </Col>
         </Row>

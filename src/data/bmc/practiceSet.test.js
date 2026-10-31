@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { dfa, examplesOf, language, partitionSteps, words } from '../../test/formal'
-import { taskMatches } from './taskMatches'
 import { PRACTICE_AUTOMATA, PRACTICE_FA, PRACTICE_FA_REGEX, PRACTICE_FA_TEXT, PRACTICE_GRAMMARS, PRACTICE_MODEL_FA, PRACTICE_REGEX, practiceSet } from './practiceSet'
 
 const re = (r) => new RegExp(`^(?:${r})$`)
@@ -187,10 +186,9 @@ describe('Practice 4: which model recognizes each language', () => {
   })
 })
 
-describe('Practice quiz data', () => {
-  it('belongs to the eight groups of the 2026 practice set page, in the same order, with unique ids and an answer', () => {
-    const topics = taskMatches.filter((m) => m.tasks.length).map((m) => m.topic)
-    expect([...new Set(practiceSet.map((p) => p.group))]).toEqual(topics)
+describe('Practice data', () => {
+  it('has eight sections, with unique ids and an answer', () => {
+    expect(new Set(practiceSet.map((p) => p.group)).size).toBe(8)
     expect(new Set(practiceSet.map((p) => p.id)).size).toBe(practiceSet.length)
     for (const p of practiceSet) expect(p.answer.length, p.id).toBeGreaterThan(0)
   })

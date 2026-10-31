@@ -8,7 +8,7 @@ import Automaton from '../components/Automaton.jsx'
 import AutomatonPlayer from '../components/AutomatonPlayer.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import TopicPicker from '../components/TopicPicker.jsx'
-import { QUESTION_SETS, topicsIn } from '../data/content'
+import { PRACTICE_QUIZ, topicsIn } from '../data/content'
 import { useProgress } from '../hooks/useProgress'
 import { shuffle } from '../storage'
 import { isFinished, sessionReducer } from '../reducers/session'
@@ -18,31 +18,29 @@ const MOCK_MCQ = 20
 const MOCK_EXPLAIN = 3
 const EXPLAIN_POINTS = 3
 
-// test=false: a random practice test. test=true: a fixed set of questions in their own order: `set` is a key of QUESTION_SETS
-// ("practice" = the Moodle Practice quiz, "real" = the question set).
-function Mock({ test = false, set = 'practice' }) {
-  const questionSet = QUESTION_SETS[set]
+// fixed=false: a random practice test. fixed=true: the Practice quiz, the Moodle practice questions in their own order.
+function Mock({ fixed = false }) {
   const { subjectId, week, valid, items: allItems, label } = useScope()
-  const items = test
-    ? allItems.filter((i) => i[questionSet.key]).sort((a, b) => a[questionSet.key] - b[questionSet.key])
-    : allItems.filter((i) => i.kind !== 'code') // the test has no coding questions
+  const items = fixed
+    ? allItems.filter((i) => i[PRACTICE_QUIZ.key]).sort((a, b) => a[PRACTICE_QUIZ.key] - b[PRACTICE_QUIZ.key])
+    : allItems.filter((i) => i.kind !== 'code') // no coding questions here
   const setTopics = topicsIn(items.filter((d) => d.kind === 'mcq' || d.kind === 'explain'))
   const [selected, setSelected] = useState(setTopics)
   const [mock, dispatch] = useReducer(sessionReducer, null)
   const { record } = useProgress()
   const [ticks, setTicks] = useState({}) // explain id -> boolean[]
   const [saved, setSaved] = useState(false)
-  // The multiple-choice answers go into progress by themselves when the test is finished (once); the self-graded open questions on request.
+  // The multiple-choice answers go into progress by themselves at the end (once); the self-graded open questions on request.
   const savedMcq = useRef(false)
   const finished = !!mock && isFinished(mock)
   useEffect(() => {
     if (!finished || savedMcq.current) return
     savedMcq.current = true
     mock.items.filter((i) => i.kind === 'mcq').forEach((i) => record(i.id, mock.results[i.id]?.score === 1))
-  }, [finished]) // eslint-disable-line -- runs once per finished test
+  }, [finished]) // eslint-disable-line -- runs once per finished quiz
   if (!valid) return <Navigate to="/" replace />
 
-  const crumbs = <Crumbs subjectId={subjectId} week={week} current={test ? questionSet.title : 'Practice test'} />
+  const crumbs = <Crumbs subjectId={subjectId} week={week} current={fixed ? PRACTICE_QUIZ.title : 'Practice test'} />
 
   const startFixed = () => {
     dispatch({ type: 'start', items })
@@ -62,12 +60,12 @@ function Mock({ test = false, set = 'practice' }) {
     savedMcq.current = false
   }
 
-  if (!mock && test) {
+  if (!mock && fixed) {
     return (
       <>
         {crumbs}
-        <h1 className="h3">{questionSet.title}</h1>
-        <p>{questionSet.intro.replace('{n}', items.length)}</p>
+        <h1 className="h3">{PRACTICE_QUIZ.title}</h1>
+        <p>{PRACTICE_QUIZ.intro.replace('{n}', items.length)}</p>
         <p className="text-body-secondary small">{items.length} questions so far. No feedback until the end. You can go back and change answers.</p>
         <Button onClick={startFixed} disabled={!items.length}>Attempt quiz</Button>
       </>
@@ -79,8 +77,7 @@ function Mock({ test = false, set = 'practice' }) {
       <>
         {crumbs}
         <h1 className="h3">Practice test <small className="text-body-secondary fs-6">{label}</small></h1>
-        <p>{MOCK_MCQ} multiple-choice questions and {MOCK_EXPLAIN} "explain the code" questions. No feedback until the end. Close your notes, like in SEB.</p>
-        <p className="text-body-secondary small">The question set is 30 points with 15 to pass. The exact question mix is unknown, so this score is an estimate scaled to 30.</p>
+        <p>{MOCK_MCQ} multiple-choice questions and {MOCK_EXPLAIN} "explain the code" questions. No feedback until the end.</p>
         <TopicPicker topics={setTopics} items={items.filter((d) => d.kind === 'mcq' || d.kind === 'explain')} selected={selected} onChange={setSelected} />
         <Button onClick={start} disabled={!selected.length}>Start practice test</Button>
       </>
@@ -121,7 +118,7 @@ function Mock({ test = false, set = 'practice' }) {
   const scaled = maxPoints ? Math.round(((mcqPts + expPts) / maxPoints) * 30) : 0
   const wrong = mcqs.filter((i) => mock.results[i.id]?.score !== 1)
 
-  // Multiple-choice results were saved when the test finished; the open questions you graded yourself are saved on request.
+  // Multiple-choice results were saved at the end; the open questions you graded yourself are saved on request.
   const saveAll = () => {
     exps.forEach((i) => record(i.id, ticks[i.id].filter(Boolean).length / ticks[i.id].length >= 0.7))
     setSaved(true)
@@ -131,15 +128,15 @@ function Mock({ test = false, set = 'practice' }) {
   return (
     <>
       {crumbs}
-      <h1 className="h3">{test ? `${questionSet.title} results` : 'Practice test results'}</h1>
-      {test ? (
+      <h1 className="h3">{fixed ? `${PRACTICE_QUIZ.title} results` : 'Practice test results'}</h1>
+      {fixed ? (
         <Alert variant="info" role="status">
           <strong>Multiple choice: {mcqPts} of {mcqs.length} correct.</strong>
           {exps.length > 0 && ` Open questions are not graded here: compare your answers with the model answers (${expPts.toFixed(1)} of ${exps.length * EXPLAIN_POINTS} by your own ticks).`}
         </Alert>
       ) : (
         <Alert variant={scaled >= 15 ? 'success' : 'danger'}>
-          <strong>Estimated score: {scaled} / 30</strong> (pass line 15) · multiple choice {mcqPts}/{mcqs.length}
+          <strong>Score: {scaled} / 30</strong> · multiple choice {mcqPts}/{mcqs.length}
           {exps.length > 0 && ` · open questions ${expPts.toFixed(1)}/${exps.length * EXPLAIN_POINTS}`}
         </Alert>
       )}
@@ -201,7 +198,7 @@ function Mock({ test = false, set = 'practice' }) {
       <div className="d-flex gap-2">
         <Button variant="outline-primary" onClick={saveAll} disabled={saved}>{saved ? 'Saved to progress' : 'Save results to my progress'}</Button>
         <span className="align-self-center small text-body-secondary">Multiple-choice results are already saved. This also saves your self-graded open questions.</span>
-        <Button onClick={() => dispatch({ type: 'end' })}>{test ? 'Attempt again' : 'New practice test'}</Button>
+        <Button onClick={() => dispatch({ type: 'end' })}>{fixed ? 'Attempt again' : 'New practice test'}</Button>
       </div>
     </>
   )

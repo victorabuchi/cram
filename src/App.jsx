@@ -8,9 +8,7 @@ import WeekHub from './pages/WeekHub.jsx'
 import Learn from './pages/Learn.jsx'
 import CodeExercises from './pages/CodeExercises.jsx'
 import Exercises from './pages/Exercises.jsx'
-import QuestionList from './pages/QuestionList.jsx'
-import ExtraPractice from './pages/ExtraPractice.jsx'
-import Set2026 from './pages/Set2026.jsx'
+import BmcPractice from './pages/BmcPractice.jsx'
 import Practice from './pages/Practice.jsx'
 import Mock from './pages/Mock.jsx'
 import Progress from './pages/Progress.jsx'
@@ -47,20 +45,15 @@ function App() {
           <Route path="/s/:subjectId" element={<Subject />} />
           <Route path="/s/webprog/glossary" element={<Glossary />} />
           <Route path="/s/bmc/automata" element={<AutomataLab />} />
-          <Route path="/s/bmc/:week/test" element={<Navigate to="/s/bmc/all/extra-practice" replace />} />
+          <Route path="/s/bmc/:week/practice" element={<BmcPractice />} />
           <Route path="/s/:subjectId/:week" element={<WeekHub />} />
           <Route path="/s/:subjectId/:week/learn" element={<Learn />} />
           <Route path="/s/:subjectId/:week/code" element={<CodeExercises />} />
           <Route path="/s/:subjectId/:week/exercises" element={<Exercises />} />
-          <Route path="/s/:subjectId/:week/question-list" element={<QuestionList set="real" />} />
-          <Route path="/s/:subjectId/:week/question-set" element={<QuizOnly><Mock test set="real" /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/variants" element={<Navigate to="../exercises" relative="path" replace />} />
-          <Route path="/s/:subjectId/:week/extra-practice" element={<ExtraPractice />} />
-          <Route path="/s/:subjectId/:week/set-2026" element={<Set2026 />} />
-          <Route path="/s/:subjectId/:week/second-set-2026" element={<Navigate to="../set-2026" relative="path" replace />} />
           <Route path="/s/:subjectId/:week/practice" element={<QuizOnly><Practice /></QuizOnly>} />
           <Route path="/s/:subjectId/:week/mock" element={<QuizOnly><Mock /></QuizOnly>} />
-          <Route path="/s/:subjectId/:week/test" element={<QuizOnly><Mock test /></QuizOnly>} />
+          <Route path="/s/:subjectId/:week/quiz" element={<QuizOnly><Mock fixed /></QuizOnly>} />
           <Route path="/s/:subjectId/progress" element={<Progress />} />
           <Route path="/progress" element={<Navigate to="/" replace />} />
           <Route path="/glossary" element={<Navigate to="/s/webprog/glossary" replace />} />

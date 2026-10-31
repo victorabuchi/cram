@@ -100,7 +100,7 @@ describe('course tools in the top bar', () => {
 describe('practice session', () => {
   it('runs a question, records progress and shows the summary at the end', async () => {
     const user = userEvent.setup()
-    const total = scopedItems('webprog', 5).filter((i) => i.listNo).length // practice asks the question set's questions of the week
+    const total = scopedItems('webprog', 5).filter((i) => i.setNo).length // practice asks the Moodle questions of the week
     expect(total).toBeGreaterThan(5)
     renderApp('/s/webprog/5/practice')
     expect(screen.getByText(new RegExp(`\\(${total} now\\)`))).toBeInTheDocument()
@@ -129,7 +129,7 @@ describe('practice session', () => {
 })
 
 describe('practice test', () => {
-  it('runs without feedback and ends with an estimated score out of 30', async () => {
+  it('runs without feedback and ends with a score out of 30', async () => {
     const user = userEvent.setup()
     renderApp('/s/webprog/2/mock')
     await user.click(screen.getByRole('button', { name: 'Start practice test' }))
@@ -141,7 +141,7 @@ describe('practice test', () => {
       await user.click(screen.getByRole('button', { name: /^(Next question|Finish test)$/ }))
     }
     expect(screen.getByRole('heading', { name: 'Practice test results' })).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent(/Estimated score: \d+ \/ 30/)
+    expect(screen.getByRole('alert')).toHaveTextContent(/Score: \d+ \/ 30/)
     await user.click(screen.getByRole('button', { name: 'Save results to my progress' }))
     expect(Object.keys(JSON.parse(localStorage.getItem('scribletics_progress'))).length).toBeGreaterThan(0)
   })
@@ -258,7 +258,7 @@ describe('Progress page (one per course)', () => {
   it('counts only this course and resets only this course', async () => {
     const user = userEvent.setup()
     localStorage.setItem('scribletics_progress', JSON.stringify({
-      'set-1': { box: 4, seen: 5, right: 5, due: 0 },
+      'ep-1': { box: 4, seen: 5, right: 5, due: 0 },
       'bmc1-c1': { box: 4, seen: 2, right: 2, due: 0 },
     }))
     renderApp('/s/webprog/progress')
@@ -270,7 +270,7 @@ describe('Progress page (one per course)', () => {
   })
 
   it('shows Basic Models of Computation on its own', () => {
-    localStorage.setItem('scribletics_progress', JSON.stringify({ 'set-1': { box: 4, seen: 5, right: 5, due: 0 } }))
+    localStorage.setItem('scribletics_progress', JSON.stringify({ 'ep-1': { box: 4, seen: 5, right: 5, due: 0 } }))
     renderApp('/s/bmc/progress')
     expect(screen.getByRole('heading', { name: /Progress/ })).toHaveTextContent('Basic Models of Computation')
     expect(screen.getByText('questions mastered').previousSibling).toHaveTextContent(/^0\/44$/)

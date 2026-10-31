@@ -17,7 +17,7 @@ describe('Programming II (Java) has only Learn and Code exercises', () => {
     expect(screen.getByRole('heading', { name: 'Programming II (Java)' })).toBeInTheDocument()
   })
 
-  it('Web Programming I keeps Practice (no separate Practice test), with only the test-style questions', () => {
+  it('Web Programming I keeps Practice (no separate Practice test), with the Moodle practice questions', () => {
     renderApp('/s/webprog')
     const main = within(screen.getByRole('main'))
     expect(main.getByText('Practice all weeks')).toBeInTheDocument()

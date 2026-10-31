@@ -35,14 +35,13 @@ describe('study content', () => {
 
 describe('Web Programming I practice set', () => {
   const web = ITEMS.filter((i) => i.subject === 'webprog')
-  it('is small: the 26 Moodle questions (Practice quiz), the 25 question set questions (Practice) and the code exercises', () => {
+  it('is small: the 26 Moodle questions (Practice and the Practice quiz) and the code exercises', () => {
     expect(web.filter((i) => i.setNo)).toHaveLength(26)
-    expect(web.filter((i) => i.listNo)).toHaveLength(25)
-    expect(web.length).toBe(26 + 25 + 13)
+    expect(web.length).toBe(26 + 13)
   })
-  it('uses the question set as Practice: its questions are spread over weeks 1, 2, 4 and 5', () => {
-    const weeks = [...new Set(web.filter((i) => i.listNo).map((i) => i.week))].sort()
-    expect(weeks).toEqual([1, 2, 4, 5])
+  it('uses the Moodle questions as Practice: they are spread over weeks 1 to 5', () => {
+    const weeks = [...new Set(web.filter((i) => i.setNo).map((i) => i.week))].sort()
+    expect(weeks).toEqual([1, 2, 3, 4, 5])
   })
 })
 

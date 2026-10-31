@@ -34,18 +34,16 @@ describe('Web Programming I: slides in Learn', () => {
 })
 
 describe('Web Programming I: no separate list of the Moodle practice questions', () => {
-  it('has no "All test questions" in the top bar; the Practice quiz quiz stays', () => {
+  it('has the Practice quiz in the top bar', () => {
     renderApp('/s/webprog')
     const nav = within(screen.getByRole('navigation', { name: 'Main' }))
-    expect(nav.queryByRole('link', { name: 'All test questions' })).not.toBeInTheDocument()
     expect(nav.getByRole('link', { name: 'Practice quiz' })).toBeInTheDocument()
-    expect(nav.getByRole('link', { name: 'Question set' })).toBeInTheDocument()
   })
 })
 
 describe('Progress on the cards', () => {
   it('counts a question answered right once as done, and mastered only after three right in a row', () => {
-    const ep1 = 'set-1' // a question of the question set, which is what the cards count
+    const ep1 = 'ep-1' // a Moodle practice question, which is what the cards count
     localStorage.setItem('scribletics_progress', JSON.stringify({ [ep1]: { box: 1, seen: 1, right: 1, due: 0 } }))
     renderApp('/')
     const card = screen.getAllByRole('link').find((l) => /Web Programming I/.test(l.textContent) && /answered correctly/.test(l.textContent))
